@@ -7,13 +7,13 @@ Pixelgenaues Bauen: das jeweilige Screen-Bild NUR in der Aufgabe hochladen, in d
 ## Farben (Design Tokens)
 | Token | Verwendung | Wert |
 |---|---|---|
-| `--color-green-dark` | Hero-/Loader-Hintergrund, Buttons, Headings | ~#3E6B47 ← aus Figma |
-| `--color-green-accent` | Button-Text auf Creme, Links | ~#2F7D32 ← aus Figma |
-| `--color-cream` | Text auf Grün, Button auf Hero, Eingabefelder | ~#F4EFE3 ← aus Figma |
-| `--color-sage` | Karten-Hintergrund (Zutaten, Präferenzen, Ergebnisse) | ~#BFC9B3 ← aus Figma |
-| `--color-beige` | Pillen/Tags, Eingabefeld-Innenflächen | ~#EDE7D9 ← aus Figma |
-| `--color-cream-warm` | Rezept-Detail-Karte | ~#F8F1E7 ← aus Figma |
-| `--color-text` | Standard-Fließtext | ~#1F2A22 ← aus Figma |
+| `--color-green-dark` | Hero-/Loader-Hintergrund, Buttons, Headings | #396039 ← aus Figma |
+| `--color-green-accent` | Button-Text auf Creme, Links | #008000 ← aus Figma |
+| `--color-cream` | Text auf Grün, Button auf Hero, Eingabefelder | #FAF0E6← aus Figma |
+| `--color-sage` | Karten-Hintergrund (Zutaten, Präferenzen, Ergebnisse) | #3960394D← aus Figma |
+| `--color-beige` | Pillen/Tags, Eingabefeld-Innenflächen | #FAF0E6 ← aus Figma |
+| `--color-cream-warm` | Rezept-Detail-Karte | #FAF0E6← aus Figma |
+| `--color-text` | Standard-Fließtext | #1F2A22 ← aus Figma |
 
 ## Typografie
 - **Headings:** rundliche, geometrische Sans (wirkt wie Poppins/Quicksand) ← genaue Schrift aus Figma

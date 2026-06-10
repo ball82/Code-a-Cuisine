@@ -13,9 +13,17 @@ Rezeptvorschläge. Alle generierten Rezepte landen in einer öffentlichen Biblio
 ## Architektur / Datenfluss
 Angular → n8n-Webhook → Validierung → Quota-Tor → Gemini → Firestore speichern → Antwort an Angular.
 
+**Lese-/Schreib-Trennung:**
+- LESEN: Angular liest `recipes` DIREKT via Firebase SDK (Cookbook, ohne Account).
+- SCHREIBEN: ausschließlich über n8n. Firestore Security Rules: `recipes` read-only
+  für Clients, Client-Writes überall verboten; Quota-/Like-Collections für Clients
+  weder les- noch schreibbar.
+- LIKES: eigener zweiter (kleiner) n8n-Webhook — IP MUSS serverseitig aus dem Header
+  ermittelt werden, der Client darf seine IP nie selbst melden.
+
 **Sicherheitsregeln (nicht verhandelbar):**
 - Gemini-API-Key liegt NUR in n8n (als Credential), NIE im Angular-Code.
-- Webhook-URL + öffentliche Firebase-Config gehören in `src/environments/`.
+- Webhook-URLs + öffentliche Firebase-Config gehören in `src/environments/` (werden committed — enthalten keine Geheimnisse).
 - "Never trust the client": Jede Validierung passiert in Angular UND nochmals in n8n.
 
 ## JSON-Vertrag 1 — Angular → n8n (Request)
@@ -38,7 +46,7 @@ Rezepte sind bereits in Firestore gespeichert, jedes mit eigener `id`.
     "id": "<firestore-auto-id>",
     "title": "Pasta with spinach and cherry tomatoes",
     "cuisine": "italian",
-    "dietTags": ["vegetarian", "quick"],
+    "tags": ["vegetarian", "quick"],
     "cookingTimeMinutes": 20,
     "portions": 2,
     "cooks": 2,
@@ -56,7 +64,7 @@ Rezepte sind bereits in Firestore gespeichert, jedes mit eigener `id`.
 - `chef`: Zahl 1–3, mappt auf "Chef 1/2/3". Bei 1 Koch: alle Schritte `chef: 1`.
 
 ## Erlaubte Werte (technische Kleinbuchstaben, NICHT die Anzeigetexte)
-- `unit`: `gram` | `ml` | `piece`
+- `unit`: `gram` | `ml` | `liter` | `piece`
 - `cookingTime`: `quick` | `medium` | `complex`
 - `cuisine`: `german` | `italian` | `japanese` | `indian` | `gourmet` | `fusion`
 - `diet`: `vegetarian` | `vegan` | `keto` | `none`
@@ -66,6 +74,9 @@ Rezepte sind bereits in Firestore gespeichert, jedes mit eigener `id`.
 - `portions`: ganze Zahl 1–12 (Default 2)
 - `cooks`: ganze Zahl 1–3
 - restliche Felder: nur erlaubte Werte (siehe oben)
+- Mengen-Plausibilität ("reicht das für N Portionen?") wird NICHT im Frontend geprüft —
+  Gemini beurteilt das und gibt bei unzureichenden Mengen ein Fehlersignal statt Rezepten
+  zurück; n8n reicht das als freundliche Meldung durch ("Ups!"-Dialog).
 
 ## Firestore-Datenmodell
 - **`recipes`** — Auto-ID. Felder = Vertrag 2. Quelle fürs Cookbook.
@@ -89,7 +100,9 @@ Rezepte sind bereits in Firestore gespeichert, jedes mit eigener `id`.
 - Nutzer sieht eine freundliche Meldung (z.B. Quota erreicht).
 - Separater Error-Trigger-Workflow → E-Mail an Entwickler bei technischem Absturz.
 
-**Likes:** ebenfalls pro IP begrenzt (via `recipeLikes`-Existenzprüfung vor dem Hochzählen).
+**Likes (zweiter n8n-Webhook "like-recipe"):** empfängt nur `recipeId` → echte IP aus
+`X-Forwarded-For` lesen + säubern → existiert `recipeLikes/{ip}_{recipeId}` schon?
+Ja → ignorieren. Nein → Dokument anlegen + `likes` im Rezept atomar +1.
 
 ## Ordnerstruktur (in src/app)
 ```
@@ -116,4 +129,8 @@ core/
 
 ## Arbeitsweise
 - Nach jeder Session committen, klare Commit-Messages. n8n-Projekt ebenfalls ins Git.
-- `.gitignore`: u.a. `node_modules`, `src/environments` mit echten Keys.
+- `.gitignore`: `node_modules`, `dist`, `.angular` u.ä. — `src/environments/` wird
+  COMMITTED (enthält nur öffentliche Werte; ohne sie baut das Projekt nicht).
+- Bei Widerspruch Checkliste vs. Design-PDF gewinnt die Checkliste
+  (Zeitkategorien: quick ≤20 / medium 20–45 / complex 45+; Paginierung: 20 pro Seite).
+- Tippfehler aus dem Design ("Coocking", "Recipie", "Cousine") NICHT übernehmen.
