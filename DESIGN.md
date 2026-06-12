@@ -16,8 +16,9 @@ Pixelgenaues Bauen: das jeweilige Screen-Bild NUR in der Aufgabe hochladen, in d
 | `--color-text` | Standard-Fließtext | #1F2A22 ← aus Figma |
 
 ## Typografie
-- **Headings:** rundliche, geometrische Sans (wirkt wie Poppins/Quicksand) ← genaue Schrift aus Figma
-- **Body:** klare Sans ← aus Figma
+- **Headings:** Ubuntu
+
+- **Body:** Quicksand
 - Mindestgrößen (Pflicht laut Checkliste): Fließtext ≥ 16px, Kleingedrucktes ≥ 14px.
 
 ## Abstände & Form

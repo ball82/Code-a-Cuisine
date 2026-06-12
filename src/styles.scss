@@ -1,1 +1,80 @@
-/* You can add global styles to this file, and also import other style files */
+/* ============================================================
+   Code à Cuisine — globale Styles
+   Schrift lokal aus src/assets/fonts (kein externer CDN-Call).
+   ============================================================ */
+
+/* --- Headings: Ubuntu --- */
+@font-face {
+  font-family: 'Ubuntu';
+  src: url('assets/fonts/Ubuntu/Ubuntu-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Ubuntu';
+  src: url('assets/fonts/Ubuntu/Ubuntu-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Ubuntu';
+  src: url('assets/fonts/Ubuntu/Ubuntu-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* --- Body: Quicksand (Variable Font, Gewicht 300–700) --- */
+@font-face {
+  font-family: 'Quicksand';
+  src: url('assets/fonts/Quicksand/Quicksand-VariableFont_wght.ttf') format('truetype-variations');
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* --- Design Tokens (Quelle: DESIGN.md) --- */
+:root {
+  --color-green-dark: #396039;   /* Hero-/Loader-Hintergrund, Buttons, Headings */
+  --color-green-accent: #008000; /* Button-Text auf Creme, Links */
+  --color-cream: #faf0e6;        /* Text auf Grün, Button auf Hero */
+  --color-sage: #3960394d;       /* Karten-Hintergrund */
+  --color-beige: #faf0e6;        /* Pillen/Tags, Eingabefeld-Innenflächen */
+  --color-text: #1f2a22;         /* Standard-Fließtext */
+
+  --font-heading: 'Ubuntu', system-ui, sans-serif;
+  --font-body: 'Quicksand', system-ui, sans-serif;
+}
+
+/* --- Base Reset --- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--color-text);
+  font-size: 1rem; /* Body ≥ 16px (Checkliste) */
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-heading);
+  margin: 0;
+}

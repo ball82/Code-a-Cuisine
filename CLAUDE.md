@@ -4,6 +4,9 @@ KI-Rezeptgenerator. Nutzer gibt vorhandene Zutaten + Präferenzen ein, bekommt 3
 Rezeptvorschläge. Alle generierten Rezepte landen in einer öffentlichen Bibliothek
 (Cookbook). Ziel: Lebensmittelverschwendung reduzieren.
 
+DIE SEITE AUF ENGLISCH ERSTELLEN
+
+
 ## Tech-Stack
 - **Frontend:** Angular 22 (standalone, Signals, `inject()`, KEIN NgModule)
 - **Backend:** n8n Cloud (Workflows = das Backend)

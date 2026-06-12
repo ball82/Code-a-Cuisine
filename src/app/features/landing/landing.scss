@@ -1,0 +1,144 @@
+:host {
+  display: block;
+}
+
+/* ============================================================
+   Hero — mobile first.
+   Grüner Vollflächen-Hintergrund, Inhalt links, Teller rechts
+   angeschnitten. Auf Desktop wächst die Teller-Spalte rechts.
+   ============================================================ */
+.hero {
+  position: relative;
+  min-height: 100dvh;
+  overflow: hidden;
+  background: var(--color-green-dark);
+  padding: clamp(1.5rem, 6vw, 4rem);
+}
+
+/* --- Inhaltsspalte: Logo oben, Intro mittig, Inspiration unten --- */
+.hero__content {
+  position: relative;
+  z-index: 1; /* über den Tellern, damit Text lesbar bleibt */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 2.5rem;
+  min-height: calc(100dvh - clamp(3rem, 12vw, 8rem));
+  max-width: 80%;
+}
+
+.hero__logo {
+  width: clamp(7rem, 30vw, 9.5rem);
+  height: auto;
+}
+
+.hero__intro {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.5rem;
+}
+
+.hero__eyebrow {
+  margin: 0;
+  color: var(--color-cream);
+  font-family: var(--font-heading);
+  font-weight: 400;
+  font-size: clamp(1.1rem, 4.5vw, 1.6rem);
+  line-height: 1.2;
+}
+
+.hero__title {
+  color: var(--color-cream);
+  font-weight: 700;
+  font-size: clamp(2.5rem, 12vw, 5rem);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+}
+
+.hero__cta {
+  display: inline-block;
+  margin-top: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  background: var(--color-cream);
+  color: var(--color-green-accent);
+  font-family: var(--font-heading);
+  font-weight: 500;
+  font-size: clamp(1rem, 3vw, 1.15rem);
+  text-decoration: none;
+  border-radius: 6px;
+  transition: filter 0.2s ease, transform 0.2s ease;
+}
+
+.hero__cta:hover {
+  filter: brightness(0.95);
+  transform: translateY(-1px);
+}
+
+.hero__inspiration {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.hero__inspiration-question {
+  margin: 0;
+  color: var(--color-cream);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: clamp(1.25rem, 5vw, 1.75rem);
+}
+
+.hero__cookbook-link {
+  color: var(--color-cream);
+  text-decoration: none;
+  font-size: clamp(1rem, 3.5vw, 1.2rem);
+  width: fit-content;
+}
+
+.hero__cookbook-link:hover {
+  text-decoration: underline;
+}
+
+/* --- Teller-Kaskade --- */
+.hero__plates {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  width: min(70vw, 26rem);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hero__plates img {
+  width: 100%;
+  height: auto;
+  display: block;
+  margin-block: -9%; /* Teller überlappen sich leicht */
+  filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.2));
+}
+
+
+
+/* ============================================================
+   Desktop: mehr Platz für den Text, größere Teller rechts.
+   ============================================================ */
+@media (max-width: 768px) {
+  .hero__content {
+    max-width: 52%;
+  }
+
+  .hero__plates {
+    top: 50%;
+    right: -6%;
+    width: min(46vw, 34rem);
+  }
+
+  .hero__plates img {
+    margin-block: -6%;
+  }
+}

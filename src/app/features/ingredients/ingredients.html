@@ -1,0 +1,113 @@
+<main class="generator">
+  <img class="generator__logo" src="/img/logo_grün.svg" alt="Code à Cuisine" />
+
+  <header class="generator__head">
+    <h1 class="generator__title">Generate recipe</h1>
+    <p class="generator__subtitle">
+      Got random stuff in your kitchen? Pop it in—we’ve got the perfect recipe waiting.
+    </p>
+  </header>
+
+  <div class="generator__grid">
+    <!-- ===== Eingabe-Karte ===== -->
+    <section class="card card--form" aria-label="Add an ingredient">
+      <div class="form__labels">
+        <span class="form__label">Ingredient</span>
+        <span class="form__label">Serving size</span>
+      </div>
+
+      <div class="form__row">
+        <!-- Name + Autocomplete -->
+        <div class="form__name">
+          <input
+            class="input input--text"
+            type="text"
+            placeholder="e.g. Pasta"
+            autocomplete="off"
+            [ngModel]="name()"
+            (ngModelChange)="name.set($event)"
+            (keyup.enter)="addOrUpdate()" />
+
+          @if (suggestions().length) {
+            <ul class="suggestions" role="listbox">
+              @for (s of suggestions(); track s) {
+                <li class="suggestions__item" role="option" (click)="pick(s)">{{ s }}</li>
+              }
+            </ul>
+          }
+        </div>
+
+        <!-- Menge -->
+        <input
+          class="input input--amount"
+          type="number"
+          min="1"
+          inputmode="numeric"
+          aria-label="Amount"
+          [ngModel]="amount()"
+          (ngModelChange)="amount.set($event)" />
+
+        <!-- Einheit -->
+        <select
+          class="input input--unit"
+          aria-label="Unit"
+          [ngModel]="unit()"
+          (ngModelChange)="unit.set($event)">
+          @for (u of units; track u) {
+            <option [value]="u">{{ u }}</option>
+          }
+        </select>
+
+        <!-- Hinzufügen / Speichern -->
+        <button
+          class="add-btn"
+          type="button"
+          [disabled]="!canAdd()"
+          [attr.aria-label]="editIndex() === null ? 'Add ingredient' : 'Save changes'"
+          (click)="addOrUpdate()">
+          {{ editIndex() === null ? '+' : '✓' }}
+        </button>
+      </div>
+    </section>
+
+    <!-- ===== Listen-Karte ===== -->
+    <section class="card card--list" aria-label="Your ingredients">
+      <h2 class="card__title">List of your Ingredients</h2>
+
+      @if (items().length) {
+        <ul class="ing-list">
+          @for (it of items(); track $index) {
+            <li class="ing-list__row" [class.is-editing]="editIndex() === $index">
+              <span class="ing-list__amount">{{ it.amount }}{{ short(it.unit) }}</span>
+              <span class="ing-list__name">{{ it.name }}</span>
+
+              <button class="icon-btn" type="button" aria-label="Edit" (click)="edit($index)">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    fill="currentColor"
+                    d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+                </svg>
+              </button>
+
+              <button class="icon-btn" type="button" aria-label="Delete" (click)="remove($index)">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    fill="currentColor"
+                    d="M6 7h12l-1 13a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 7zm3-3h6l1 2h4v2H4V6h4l1-2z" />
+                </svg>
+              </button>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="ing-list__empty">No ingredients yet — add your first one on the left.</p>
+      }
+    </section>
+  </div>
+
+  <div class="generator__actions">
+    <button class="next-btn" type="button" [disabled]="!canContinue()" (click)="next()">
+      Next step
+    </button>
+  </div>
+</main>
