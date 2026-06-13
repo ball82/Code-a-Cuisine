@@ -1,0 +1,191 @@
+:host {
+  display: block;
+  background: #fff;
+  min-height: 100dvh;
+}
+
+.cookbook {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: clamp(1rem, 4vw, 2.5rem) clamp(1.5rem, 5vw, 3.5rem) clamp(2rem, 6vw, 4rem);
+}
+
+/* ============================================================
+   Intro-Karte (sage Hintergrund): Text links, Most-liked rechts
+   ============================================================ */
+.intro {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(1.5rem, 4vw, 2.5rem);
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  border-radius: 1.25rem;
+  background: var(--color-sage);
+}
+
+@media (min-width: 56rem) {
+  .intro {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    align-items: start;
+  }
+}
+
+.intro__title {
+  color: var(--color-green-dark);
+  font-size: clamp(2.25rem, 6vw, 3.25rem);
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.intro__lead {
+  margin: 0;
+  max-width: 30ch;
+  color: var(--color-text);
+  font-size: clamp(0.95rem, 2vw, 1.05rem);
+}
+
+.intro__liked-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  color: var(--color-green-dark);
+  font-size: clamp(1.1rem, 3vw, 1.35rem);
+  font-weight: 700;
+}
+
+.intro__liked-icon {
+  font-size: 1.2em;
+}
+
+/* Horizontal scrollbare Mini-Karten-Leiste */
+.liked-list {
+  display: flex;
+  gap: 1rem;
+  margin: 0;
+  padding: 0 0 0.5rem;
+  list-style: none;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.liked-card {
+  flex: 0 0 clamp(13rem, 40vw, 16rem);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-radius: 0.75rem;
+  background: var(--color-cream);
+}
+
+.liked-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.liked-card__time {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--color-text);
+  font-size: 0.8rem;
+}
+
+.liked-card__likes {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: var(--color-sage);
+  color: var(--color-green-dark);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.liked-card__title {
+  margin: 0;
+  color: var(--color-green-dark);
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+/* ============================================================
+   Küchen-Raster
+   ============================================================ */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(1.25rem, 3vw, 2rem) clamp(1.25rem, 3vw, 1.75rem);
+  margin-top: clamp(2rem, 5vw, 3rem);
+}
+
+@media (min-width: 40rem) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 56rem) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  text-decoration: none;
+}
+
+.tile__label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--color-green-accent);
+  font-size: clamp(1.05rem, 2.5vw, 1.25rem);
+  font-weight: 500;
+}
+
+.tile__image {
+  width: 100%;
+  aspect-ratio: 1 / 0.85;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tile:hover .tile__image,
+.tile:focus-visible .tile__image {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgb(57 96 57 / 0.25);
+}
+
+/* ============================================================
+   "Generate new recipe"-Link unten rechts
+   ============================================================ */
+.cookbook__cta {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: clamp(2rem, 5vw, 3rem);
+}
+
+.cookbook__cta-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--color-green-dark);
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 500;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

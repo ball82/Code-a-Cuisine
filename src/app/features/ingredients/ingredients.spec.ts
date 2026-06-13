@@ -17,7 +17,7 @@ describe('Ingredients', () => {
   });
 
   function flushIngredients(): void {
-    httpMock.expectOne('assets/data/ingredients.json').flush(['Pasta', 'Pastrami']);
+    httpMock.expectOne('/data/ingredients.json').flush(['Pasta', 'Pastrami']);
   }
 
   it('should create', () => {

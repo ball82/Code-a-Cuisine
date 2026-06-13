@@ -1,0 +1,57 @@
+<app-header />
+
+<main class="cookbook">
+  <!-- Intro-Karte: links Titel + Beschreibung, rechts die "Most liked"-Leiste -->
+  <section class="intro">
+    <div class="intro__text">
+      <h1 class="intro__title">Cookbook</h1>
+      <p class="intro__lead">
+        From quick bites to gourmet delights, explore them all in our ultimate
+        cookbook and get inspired for your next culinary adventure.
+      </p>
+    </div>
+
+    <div class="intro__liked">
+      <h2 class="intro__liked-heading">
+        Most liked recipes
+        <span class="intro__liked-icon" aria-hidden="true">♡</span>
+      </h2>
+
+      <ul class="liked-list" role="list">
+        @for (recipe of mostLiked(); track recipe.id) {
+          <li class="liked-card">
+            <div class="liked-card__top">
+              <span class="liked-card__time">
+                <span class="liked-card__time-icon" aria-hidden="true">🕒</span>
+                Cooking time: {{ recipe.cookingTimeMinutes }}min
+              </span>
+              <span class="liked-card__likes">
+                <span aria-hidden="true">♡</span>{{ recipe.likes }}
+              </span>
+            </div>
+            <p class="liked-card__title">{{ recipe.title }}</p>
+          </li>
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- Raster der sechs Küchen-Kategorien -->
+  <section class="grid" aria-label="Cuisine categories">
+    @for (cuisine of cuisines; track cuisine.key) {
+      <a class="tile" routerLink="/cookbook" [queryParams]="{ cuisine: cuisine.key }">
+        <h3 class="tile__label">
+          {{ cuisine.label }}
+          <span class="tile__emoji" aria-hidden="true">{{ cuisine.emoji }}</span>
+        </h3>
+        <img class="tile__image" [src]="cuisine.image" [alt]="cuisine.label" />
+      </a>
+    }
+  </section>
+
+  <div class="cookbook__cta">
+    <a class="cookbook__cta-link" routerLink="/ingredients">
+      Generate new recipe <span aria-hidden="true">&rarr;</span>
+    </a>
+  </div>
+</main>
