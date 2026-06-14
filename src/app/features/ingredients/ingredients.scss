@@ -183,7 +183,9 @@
 
 .ing-list__row {
   display: grid;
-  grid-template-columns: 3.5rem 1fr auto auto;
+  /* Bullet (::before) | Menge | Name | Edit | Delete – fünf Spalten,
+     denn das ::before zählt als eigenes Grid-Item. */
+  grid-template-columns: auto 3.25rem 1fr auto auto;
   align-items: center;
   gap: 0.5rem;
 }
@@ -199,6 +201,11 @@
 
 .ing-list__amount {
   text-align: left;
+}
+
+.ing-list__name {
+  min-width: 0; /* darf schrumpfen → lange Namen sprengen die Zeile nicht */
+  overflow-wrap: anywhere;
 }
 
 .ing-list__empty {

@@ -1,0 +1,123 @@
+<main class="prefs">
+  <img class="prefs__logo" src="/img/logo_gruen.svg" alt="Code à Cuisine" />
+
+  <a class="prefs__back" routerLink="/ingredients">
+    <span class="prefs__back-arrow" aria-hidden="true">&larr;</span>
+    Ingredients
+  </a>
+
+  <header class="prefs__head">
+    <h1 class="prefs__title">Choose your preferences</h1>
+  </header>
+
+  <!-- ===== Stepper: Portionen + Köche ===== -->
+  <div class="steppers">
+    <div class="stepper">
+      <span class="stepper__label">How many portions do you need?</span>
+      <div class="stepper__control">
+        <button
+          class="stepper__btn"
+          type="button"
+          aria-label="Fewer portions"
+          [disabled]="!canFewerPortions()"
+          (click)="stepPortions(-1)">
+          &minus;
+        </button>
+        <span class="stepper__value">{{ portions() }}</span>
+        <span class="stepper__unit">{{ portions() === 1 ? 'Portion' : 'Portions' }}</span>
+        <button
+          class="stepper__btn"
+          type="button"
+          aria-label="More portions"
+          [disabled]="!canMorePortions()"
+          (click)="stepPortions(1)">
+          +
+        </button>
+      </div>
+    </div>
+
+    <div class="stepper">
+      <span class="stepper__label">How many are cooking?</span>
+      <div class="stepper__control">
+        <button
+          class="stepper__btn"
+          type="button"
+          aria-label="Fewer cooks"
+          [disabled]="!canFewerCooks()"
+          (click)="stepCooks(-1)">
+          &minus;
+        </button>
+        <span class="stepper__value">{{ cooks() }}</span>
+        <span class="stepper__unit">{{ cooks() === 1 ? 'Person' : 'People' }}</span>
+        <button
+          class="stepper__btn"
+          type="button"
+          aria-label="More cooks"
+          [disabled]="!canMoreCooks()"
+          (click)="stepCooks(1)">
+          +
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Chip-Auswahl ===== -->
+  <section class="card prefs__card">
+    <fieldset class="group">
+      <legend class="group__title">Cooking time</legend>
+      <div class="chips">
+        @for (opt of cookingTimes; track opt.value) {
+          <button
+            class="chip"
+            type="button"
+            [class.is-selected]="cookingTime() === opt.value"
+            [attr.aria-pressed]="cookingTime() === opt.value"
+            (click)="cookingTime.set(opt.value)">
+            <span class="chip__label">{{ opt.label }}</span>
+            @if (opt.hint) {
+              <span class="chip__hint">{{ opt.hint }}</span>
+            }
+          </button>
+        }
+      </div>
+    </fieldset>
+
+    <fieldset class="group">
+      <legend class="group__title">Cuisine</legend>
+      <div class="chips">
+        @for (opt of cuisines; track opt.value) {
+          <button
+            class="chip"
+            type="button"
+            [class.is-selected]="cuisine() === opt.value"
+            [attr.aria-pressed]="cuisine() === opt.value"
+            (click)="cuisine.set(opt.value)">
+            <span class="chip__label">{{ opt.label }}</span>
+          </button>
+        }
+      </div>
+    </fieldset>
+
+    <fieldset class="group">
+      <legend class="group__title">Diet preferences</legend>
+      <div class="chips">
+        @for (opt of diets; track opt.value) {
+          <button
+            class="chip"
+            type="button"
+            [class.is-selected]="diet() === opt.value"
+            [attr.aria-pressed]="diet() === opt.value"
+            (click)="diet.set(opt.value)">
+            <span class="chip__label">{{ opt.label }}</span>
+          </button>
+        }
+      </div>
+    </fieldset>
+  </section>
+
+  <div class="prefs__actions">
+    <button class="generate-btn" type="button" (click)="generate()">
+      Generate a recipe
+    </button>
+  </div>
+</main>
