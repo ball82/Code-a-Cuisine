@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, catchError, map, of, shareReplay, tap } from 'rxjs';
+import { EMPTY, Observable, catchError, expand, of, reduce, shareReplay, tap } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { Recipe } from '../models/recipe';
@@ -26,6 +26,8 @@ interface FirestoreDocument {
 
 interface FirestoreListResponse {
   documents?: FirestoreDocument[];
+  /** Vorhanden, solange es weitere Seiten gibt. */
+  nextPageToken?: string;
 }
 
 /** Wandelt einen typisierten Firestore-Wert in den nativen JS-Wert zurück. */
@@ -48,9 +50,13 @@ function decodeFields(fields: Record<string, FirestoreValue>): Record<string, un
 
 /** Baut aus einem Firestore-Dokument ein Recipe (ID kommt aus dem Doc-Pfad). */
 function decodeRecipe(doc: FirestoreDocument): Recipe {
-  const data = decodeFields(doc.fields ?? {});
+  const data = decodeFields(doc.fields ?? {}) as Omit<Recipe, 'id'>;
   const id = doc.name.split('/').pop() ?? '';
-  return { ...(data as Omit<Recipe, 'id'>), id };
+  // cuisine defensiv auf Kleinbuchstaben normalisieren: der Vertrag schreibt
+  // technische Kleinwerte vor, ältere Daten enthalten aber teils "Italian".
+  // So bleibt kein Rezept nur wegen Gross-/Kleinschreibung aus der Kategorie.
+  const cuisine = String(data.cuisine ?? '').toLowerCase() as Recipe['cuisine'];
+  return { ...data, cuisine, id };
 }
 
 /**
@@ -86,11 +92,25 @@ export class CookbookData {
       return of(SAMPLE_RECIPES);
     }
 
+    // Seitenweise ALLE Rezepte holen: Firestore liefert pro Antwort einen
+    // nextPageToken, solange noch mehr Dokumente existieren. Wir folgen dem
+    // Token via expand und sammeln alle Seiten mit reduce zu einer Liste.
     const base = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/recipes`;
-    const url = apiKey ? `${base}?key=${apiKey}` : base;
+    const pageSize = 300;
 
-    return this.http.get<FirestoreListResponse>(url).pipe(
-      map((res) => (res.documents ?? []).map(decodeRecipe)),
+    const fetchPage = (pageToken?: string): Observable<FirestoreListResponse> => {
+      let url = `${base}?pageSize=${pageSize}`;
+      if (apiKey) url += `&key=${apiKey}`;
+      if (pageToken) url += `&pageToken=${encodeURIComponent(pageToken)}`;
+      return this.http.get<FirestoreListResponse>(url);
+    };
+
+    return fetchPage().pipe(
+      expand((res) => (res.nextPageToken ? fetchPage(res.nextPageToken) : EMPTY)),
+      reduce(
+        (all, res) => all.concat((res.documents ?? []).map(decodeRecipe)),
+        [] as Recipe[]
+      ),
       // Netzwerk-/Rechtefehler dürfen das Cookbook nicht leer lassen.
       catchError(() => of(SAMPLE_RECIPES))
     );
