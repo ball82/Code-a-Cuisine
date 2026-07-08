@@ -19,18 +19,25 @@
 
       <ul class="liked-list" role="list">
         @for (recipe of mostLiked(); track recipe.id) {
-          <li class="liked-card">
-            <div class="liked-card__top">
-              <span class="liked-card__time">
-                <span class="liked-card__time-icon" aria-hidden="true">🕒</span>
-                Cooking time: {{ recipe.cookingTimeMinutes }}min
-              </span>
-              <span class="liked-card__likes">
-                <span aria-hidden="true">♡</span>{{ recipe.likes }}
-              </span>
-            </div>
-            <p class="liked-card__title">{{ recipe.title }}</p>
+          <li>
+            <a
+              class="liked-card"
+              [routerLink]="['/recipe', recipe.id]"
+              [queryParams]="{ from: 'cookbook' }">
+              <div class="liked-card__top">
+                <span class="liked-card__time">
+                  <span class="liked-card__time-icon" aria-hidden="true">🕒</span>
+                  Cooking time: {{ recipe.cookingTimeMinutes }}min
+                </span>
+                <span class="liked-card__likes">
+                  <span aria-hidden="true">♡</span>{{ recipe.likes }}
+                </span>
+              </div>
+              <p class="liked-card__title">{{ recipe.title }}</p>
+            </a>
           </li>
+        } @empty {
+          <li class="liked-empty">No recipes yet — be the first to generate one!</li>
         }
       </ul>
     </div>
@@ -39,7 +46,7 @@
   <!-- Raster der sechs Küchen-Kategorien -->
   <section class="grid" aria-label="Cuisine categories">
     @for (cuisine of cuisines; track cuisine.key) {
-      <a class="tile" routerLink="/cookbook" [queryParams]="{ cuisine: cuisine.key }">
+      <a class="tile" [routerLink]="['/cookbook', cuisine.key]">
         <h3 class="tile__label">
           {{ cuisine.label }}
           <span class="tile__emoji" aria-hidden="true">{{ cuisine.emoji }}</span>
@@ -54,4 +61,8 @@
       Generate new recipe <span aria-hidden="true">&rarr;</span>
     </a>
   </div>
+
+  <footer class="cookbook__footer">
+    <a routerLink="/imprint">Imprint</a>
+  </footer>
 </main>

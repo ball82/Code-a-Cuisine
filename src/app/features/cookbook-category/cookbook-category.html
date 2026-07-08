@@ -1,0 +1,84 @@
+<app-header />
+
+<main class="category">
+  <!-- Banner mit Küchen-Namen -->
+  <header class="banner" [style.background-image]="'url(' + meta().image + ')'">
+    <div class="banner__overlay">
+      <h1 class="banner__title">
+        {{ meta().label }}
+        <span class="banner__emoji" aria-hidden="true">{{ meta().emoji }}</span>
+      </h1>
+    </div>
+  </header>
+
+  <!-- Nummerierte Rezeptliste -->
+  @if (pageRecipes().length) {
+    <ol class="list" role="list">
+      @for (entry of pageRecipes(); track entry.recipe.id) {
+        <li class="row">
+          <a
+            class="row__link"
+            [routerLink]="['/recipe', entry.recipe.id]"
+            [queryParams]="{ from: 'cookbook' }">
+            <span class="row__num" aria-hidden="true">{{ entry.number }}</span>
+            <span class="row__body">
+              <span class="row__time">
+                <span aria-hidden="true">🕒</span>
+                Cooking time: {{ entry.recipe.cookingTimeMinutes }} min
+              </span>
+              <span class="row__title">{{ entry.recipe.title }}</span>
+              <span class="row__tags">
+                @for (tag of entry.recipe.tags; track tag) {
+                  <span class="pill">{{ tag }}</span>
+                }
+              </span>
+            </span>
+            <span class="row__likes"><span aria-hidden="true">♡</span> {{ entry.recipe.likes }}</span>
+          </a>
+        </li>
+      }
+    </ol>
+
+    <!-- Paginierung -->
+    @if (pageCount() > 1) {
+      <nav class="pager" aria-label="Pagination">
+        <button
+          type="button"
+          class="pager__btn"
+          aria-label="Previous page"
+          [disabled]="page() === 1"
+          (click)="goToPage(page() - 1)">
+          &lsaquo;
+        </button>
+        @for (p of pages(); track p) {
+          <button
+            type="button"
+            class="pager__page"
+            [class.is-active]="p === page()"
+            [attr.aria-current]="p === page() ? 'page' : null"
+            (click)="goToPage(p)">
+            {{ p }}
+          </button>
+        }
+        <button
+          type="button"
+          class="pager__btn"
+          aria-label="Next page"
+          [disabled]="page() === pageCount()"
+          (click)="goToPage(page() + 1)">
+          &rsaquo;
+        </button>
+      </nav>
+    }
+  } @else {
+    <p class="category__empty">
+      No {{ meta().label.toLowerCase() }} recipes yet. Generate one to get started!
+    </p>
+  }
+
+  <div class="category__cta">
+    <a class="category__cta-link" routerLink="/ingredients">
+      Generate a recipe <span aria-hidden="true">&rarr;</span>
+    </a>
+  </div>
+</main>

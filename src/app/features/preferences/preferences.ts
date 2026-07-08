@@ -1,9 +1,12 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 import { CookingTime, Cuisine, Diet } from '../../core/models/recipe-request';
 import { RecipeDraft } from '../../core/services/recipe-draft';
 import { RecipeApi } from '../../core/services/recipe-api';
+import { RecipeStore } from '../../core/services/recipe-store';
+import { Loader } from '../../shared/loader/loader';
+import { ErrorDialog } from '../../shared/error-dialog/error-dialog';
 
 /** Eine Chip-Option: technischer Wert + Anzeigetext (+ optionaler Hinweis). */
 interface ChipOption<T> {
@@ -19,13 +22,15 @@ interface ChipOption<T> {
  */
 @Component({
   selector: 'app-preferences',
-  imports: [RouterLink],
+  imports: [RouterLink, Loader, ErrorDialog],
   templateUrl: './preferences.html',
   styleUrl: './preferences.scss'
 })
 export class Preferences {
   private readonly draft = inject(RecipeDraft);
   private readonly api = inject(RecipeApi);
+  private readonly store = inject(RecipeStore);
+  private readonly router = inject(Router);
 
   /** Geteilter Zustand aus dem Draft (Signals). */
   readonly portions = this.draft.portions;
@@ -77,12 +82,17 @@ export class Preferences {
   /** Freundliche Fehlermeldung (Validierung 400 / Quota 429 / Netzwerk) – sonst null. */
   readonly error = signal<string | null>(null);
 
+  /** "Ups!"-Dialog: Gemini/n8n meldet, dass Zutaten/Mengen nicht reichen. */
+  readonly showInsufficient = signal(false);
+
   /**
    * Schickt den Request (Vertrag 1) an den n8n-Webhook und bekommt 3 fertige,
    * bereits in Firestore gespeicherte Rezepte zurück (Vertrag 2). Firebase ist
    * hier NICHT beteiligt – n8n schreibt selbst und antwortet mit den IDs.
    *
-   * Die Ergebnis-Seite folgt separat; vorerst landet die Antwort in der Konsole.
+   * Bei Erfolg landen die Rezepte im RecipeStore und wir wechseln zur
+   * Ergebnisseite. Meldet das Backend „zu wenig Zutaten", zeigen wir den
+   * freundlichen „Ups!"-Dialog statt einer Fehlermeldung.
    */
   generate(): void {
     if (this.loading()) return;
@@ -92,13 +102,24 @@ export class Preferences {
     this.api.generateRecipes(this.draft.toRequest()).subscribe({
       next: (response) => {
         this.loading.set(false);
-        console.log('Recipes from n8n:', response.recipes);
+        if (!response?.recipes?.length) {
+          this.showInsufficient.set(true);
+          return;
+        }
+        this.store.setGenerated(response.recipes);
+        this.router.navigate(['/recipe-results']);
       },
       error: (err) => {
         this.loading.set(false);
         this.error.set(this.messageFor(err));
       }
     });
+  }
+
+  /** Schliesst den „Ups!"-Dialog und führt zurück zu den Zutaten. */
+  dismissInsufficient(): void {
+    this.showInsufficient.set(false);
+    this.router.navigate(['/ingredients']);
   }
 
   /** Übersetzt die n8n-Statuscodes (siehe CLAUDE.md) in eine freundliche Meldung. */

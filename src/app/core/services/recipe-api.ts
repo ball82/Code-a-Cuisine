@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { RecipeRequest } from '../models/recipe-request';
 import { RecipeResponse } from '../models/recipe';
+import { LikeResponse } from '../models/like';
 
 /**
  * Spricht mit den n8n-Webhooks. Schreiben (Rezepte generieren, liken) läuft
@@ -26,11 +27,12 @@ export class RecipeApi {
   }
 
   /**
-   * Liked ein Rezept. Sendet NUR die recipeId – die IP wird serverseitig aus
-   * dem Header ermittelt, niemals vom Client gemeldet.
+   * Liked/entliked ein Rezept (Toggle). Sendet NUR die recipeId – die IP wird
+   * serverseitig aus dem Header ermittelt, niemals vom Client gemeldet.
    * @param recipeId Firestore-ID des zu likenden Rezepts.
+   * @returns Vertrag 3: Zustand nach dem Toggle + aktueller Zählerstand.
    */
-  likeRecipe(recipeId: string): Observable<void> {
-    return this.http.post<void>(environment.likeWebhookUrl, { recipeId });
+  likeRecipe(recipeId: string): Observable<LikeResponse> {
+    return this.http.post<LikeResponse>(environment.likeWebhookUrl, { recipeId });
   }
 }

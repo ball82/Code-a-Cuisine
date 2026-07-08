@@ -129,3 +129,11 @@
     }
   </div>
 </main>
+
+@if (loading()) {
+  <app-loader message="Generating your recipes" />
+}
+
+@if (showInsufficient()) {
+  <app-error-dialog (dismiss)="dismissInsufficient()" />
+}

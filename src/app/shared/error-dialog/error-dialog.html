@@ -1,0 +1,14 @@
+<div class="backdrop" (click)="dismiss.emit()">
+  <div
+    class="dialog"
+    role="alertdialog"
+    aria-modal="true"
+    aria-labelledby="error-dialog-heading"
+    (click)="$event.stopPropagation()">
+    <h2 class="dialog__heading" id="error-dialog-heading">{{ heading() }}</h2>
+    <p class="dialog__message">{{ message() }}</p>
+    <button class="dialog__action" type="button" (click)="dismiss.emit()">
+      {{ actionLabel() }}
+    </button>
+  </div>
+</div>

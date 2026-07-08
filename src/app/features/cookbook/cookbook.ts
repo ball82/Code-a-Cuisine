@@ -1,8 +1,10 @@
-import { Component, signal } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 import { Header } from '../../shared/header/header';
 import { Cuisine } from '../../core/models/recipe-request';
+import { CookbookData } from '../../core/services/cookbook-data';
 
 /** Eine Küchen-Kachel im Cookbook-Raster (festes Kategorie-Bild aus public/img). */
 interface CuisineTile {
@@ -12,18 +14,11 @@ interface CuisineTile {
   image: string;
 }
 
-/** Kompakte Vorschau eines Rezepts in der "Most liked"-Leiste. */
-interface MostLikedPreview {
-  id: string;
-  title: string;
-  cookingTimeMinutes: number;
-  likes: number;
-}
-
 /**
- * Cookbook-Übersicht: "Most liked"-Leiste oben, darunter das Raster der
- * sechs Küchen-Kategorien. Die Kategorien sind fest verdrahtet (feste Bilder),
- * die Rezeptdaten kommen später direkt via Firebase SDK aus der recipes-Collection.
+ * Cookbook-Übersicht: "Most liked"-Leiste oben (live aus Firestore/Beispieldaten,
+ * nach `likes` sortiert), darunter das Raster der sechs Küchen-Kategorien.
+ * Die Kategorien sind fest verdrahtet (feste Bilder), die Rezeptdaten kommen
+ * über CookbookData (direkter Read der recipes-Collection).
  */
 @Component({
   selector: 'app-cookbook',
@@ -32,6 +27,8 @@ interface MostLikedPreview {
   styleUrl: './cookbook.scss'
 })
 export class Cookbook {
+  private readonly cookbookData = inject(CookbookData);
+
   /** Sechs feste Kategorien mit Bildern aus public/img (Dateinamen wie geliefert). */
   readonly cuisines: CuisineTile[] = [
     { key: 'italian', label: 'Italian cuisine', emoji: '🍝', image: '/img/italien_cuisine.svg' },
@@ -42,14 +39,11 @@ export class Cookbook {
     { key: 'fusion', label: 'Fusion cuisine', emoji: '🍱', image: '/img/fusion_cuisine.svg' }
   ];
 
-  /**
-   * Meistgelikte Rezepte für die obere Leiste.
-   * TODO: aus Firestore (recipes, sortiert nach `likes` absteigend) laden, sobald
-   * der direkte Firebase-Read steht. Bis dahin Beispieldaten fürs Layout.
-   */
-  readonly mostLiked = signal<MostLikedPreview[]>([
-    { id: 'sample-1', title: 'Pasta with spinach and cherry tomatoes', cookingTimeMinutes: 20, likes: 66 },
-    { id: 'sample-2', title: 'Low Carb Vegan No-Bake Paleo Bars', cookingTimeMinutes: 35, likes: 57 },
-    { id: 'sample-3', title: 'Schnitzel with potato salad', cookingTimeMinutes: 45, likes: 41 }
-  ]);
+  /** Alle Rezepte (live oder Beispieldaten). */
+  private readonly recipes = toSignal(this.cookbookData.getRecipes(), { initialValue: [] });
+
+  /** Die drei meistgelikten Rezepte für die obere Leiste. */
+  readonly mostLiked = computed(() =>
+    [...this.recipes()].sort((a, b) => b.likes - a.likes).slice(0, 3)
+  );
 }

@@ -1,0 +1,71 @@
+:host {
+  display: contents;
+}
+
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(1.5rem, 4vw, 2.5rem);
+  padding: 1.5rem;
+  background: var(--color-green-dark);
+  text-align: center;
+}
+
+/* Zentriertes Sage-Rechteck als Platzhalter/Bühne für das Bild. */
+.loader__stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(12rem, 45vw, 20rem);
+  aspect-ratio: 4 / 3;
+  border-radius: 1.25rem;
+  background: rgb(250 240 230 / 0.14);
+}
+
+.loader__img {
+  width: 70%;
+  height: auto;
+}
+
+.loader__text {
+  margin: 0;
+  color: var(--color-cream);
+  font-family: var(--font-heading);
+  font-size: clamp(1.25rem, 4vw, 1.75rem);
+  font-weight: 500;
+}
+
+/* Die drei Punkte blinken einzeln nacheinander weg und wieder auf. */
+.loader__dots span {
+  animation: loader-blink 1.4s infinite both;
+}
+
+.loader__dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loader__dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes loader-blink {
+  0%,
+  60%,
+  100% {
+    opacity: 1;
+  }
+  30% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loader__dots span {
+    animation: none;
+  }
+}

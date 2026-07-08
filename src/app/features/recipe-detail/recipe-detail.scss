@@ -1,0 +1,396 @@
+:host {
+  display: block;
+  background: #fff;
+  min-height: 100dvh;
+}
+
+.detail {
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: clamp(1.25rem, 4vw, 2.5rem);
+}
+
+.detail__topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: clamp(1rem, 3vw, 1.75rem);
+}
+
+.detail__logo {
+  width: clamp(5rem, 14vw, 7rem);
+  height: auto;
+}
+
+.detail__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--color-green-accent);
+  font-weight: 600;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+/* ============================================================
+   Warme Creme-Karte
+   ============================================================ */
+.card {
+  padding: clamp(1.5rem, 5vw, 3rem);
+  border-radius: 1.25rem;
+  background: var(--color-cream);
+}
+
+.card__time {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  color: var(--color-text);
+  font-size: 0.95rem;
+}
+
+.card__title {
+  margin: 0.5rem 0 1rem;
+  color: var(--color-green-dark);
+  font-size: clamp(1.9rem, 5vw, 2.75rem);
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.cooking-person {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.cooking-person__label {
+  font-weight: 600;
+  color: var(--color-green-dark);
+}
+
+.chefs,
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chef-pill,
+.pill {
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+  background: var(--color-beige);
+  color: var(--color-green-accent);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.pill {
+  text-transform: capitalize;
+}
+
+.chef-pill {
+  background: var(--color-sage);
+  color: var(--color-green-dark);
+}
+
+.pill--like {
+  background: var(--color-sage);
+  color: var(--color-green-dark);
+  text-transform: none;
+}
+
+/* ============================================================
+   Abschnitte
+   ============================================================ */
+.section-title {
+  color: var(--color-green-dark);
+  font-size: clamp(1.25rem, 3vw, 1.6rem);
+  font-weight: 700;
+}
+
+.nutrition,
+.ingredients,
+.directions,
+.like {
+  margin-top: clamp(1.75rem, 4vw, 2.5rem);
+}
+
+.nutrition__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.portion-stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  background: var(--color-sage);
+}
+
+.portion-stepper__btn {
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  border-radius: 50%;
+  background: var(--color-green-dark);
+  color: var(--color-cream);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.portion-stepper__value {
+  min-width: 6.5rem;
+  text-align: center;
+  font-weight: 600;
+  color: var(--color-green-dark);
+}
+
+.nutrition__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 40rem) {
+  .nutrition__grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.nutrition__item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  background: var(--color-sage);
+  text-align: center;
+}
+
+.nutrition__value {
+  color: var(--color-green-dark);
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.nutrition__key {
+  font-size: 0.85rem;
+  color: var(--color-text);
+}
+
+/* --- Zutaten --- */
+.ingredients__cols {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(1rem, 3vw, 2rem);
+  margin-top: 1rem;
+}
+
+@media (min-width: 40rem) {
+  .ingredients__cols {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.ingredients__sub {
+  margin-bottom: 0.5rem;
+  color: var(--color-green-accent);
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 500;
+}
+
+.ingredients__list {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+/* --- Kochschritte --- */
+.steps {
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.step {
+  display: flex;
+  gap: 0.85rem;
+}
+
+.step__num {
+  flex: 0 0 auto;
+  width: 2rem;
+  height: 2rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-green-dark);
+  color: var(--color-cream);
+  font-family: var(--font-heading);
+  font-weight: 700;
+}
+
+.step__body {
+  flex: 1;
+}
+
+.step__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.step__title {
+  margin: 0;
+  color: var(--color-green-dark);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.chef-badge {
+  padding: 0.1rem 0.6rem;
+  border-radius: 999px;
+  background: var(--color-sage);
+  color: var(--color-green-dark);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.step__text {
+  margin: 0.35rem 0 0;
+  color: var(--color-text);
+}
+
+/* --- Like --- */
+.like {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.like__label {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-weight: 500;
+  color: var(--color-green-dark);
+}
+
+.like__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1.1rem;
+  border: 2px solid var(--color-green-dark);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-green-dark);
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.1s ease;
+
+  &:hover:not(:disabled) {
+    background: var(--color-sage);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.96);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: progress;
+  }
+}
+
+.like__btn.is-liked {
+  background: var(--color-green-dark);
+  color: var(--color-cream);
+}
+
+.like__heart {
+  font-size: 1.15rem;
+}
+
+/* --- CTA-Leiste --- */
+.detail__cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: clamp(2rem, 5vw, 3rem);
+}
+
+.detail__cta-book {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.4rem;
+  border-radius: 999px;
+  background: var(--color-green-dark);
+  color: var(--color-cream);
+  font-family: var(--font-heading);
+  font-weight: 500;
+  text-decoration: none;
+
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+.detail__cta-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--color-green-dark);
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 500;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

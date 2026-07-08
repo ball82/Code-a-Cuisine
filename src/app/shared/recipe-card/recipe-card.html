@@ -1,0 +1,31 @@
+<article class="card">
+  <header class="card__head">
+    <span class="card__bell" aria-hidden="true">🔔</span>
+    @if (index() !== null) {
+      <span class="card__eyebrow">Recipe {{ index() }}</span>
+    }
+  </header>
+
+  <h3 class="card__title">{{ recipe().title }}</h3>
+
+  <p class="card__time">
+    <span class="card__time-icon" aria-hidden="true">🕒</span>
+    Cooking time: {{ recipe().cookingTimeMinutes }} min
+  </p>
+
+  <ul class="card__tags" role="list">
+    @for (tag of recipe().tags; track tag) {
+      <li class="pill">{{ tag }}</li>
+    }
+    <li class="pill pill--like">
+      <span aria-hidden="true">♡</span> {{ recipe().likes }}
+    </li>
+  </ul>
+
+  <a
+    class="card__view"
+    [routerLink]="['/recipe', recipe().id]"
+    [queryParams]="{ from: context() }">
+    View
+  </a>
+</article>

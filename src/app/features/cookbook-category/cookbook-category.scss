@@ -1,0 +1,200 @@
+:host {
+  display: block;
+  background: #fff;
+  min-height: 100dvh;
+}
+
+.category {
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: clamp(1rem, 4vw, 2.5rem) clamp(1.25rem, 5vw, 3rem) clamp(2rem, 6vw, 4rem);
+}
+
+/* ============================================================
+   Banner
+   ============================================================ */
+.banner {
+  border-radius: 1.25rem;
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+}
+
+.banner__overlay {
+  display: flex;
+  align-items: flex-end;
+  min-height: clamp(9rem, 26vw, 14rem);
+  padding: clamp(1.25rem, 4vw, 2rem);
+  background: linear-gradient(to top, rgb(31 42 34 / 0.7), rgb(31 42 34 / 0.1));
+}
+
+.banner__title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-cream);
+  font-size: clamp(1.75rem, 5vw, 2.75rem);
+  font-weight: 700;
+}
+
+/* ============================================================
+   Nummerierte Rezeptliste
+   ============================================================ */
+.list {
+  margin: clamp(1.5rem, 4vw, 2.5rem) 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.row__link {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.75rem, 2vw, 1.25rem);
+  padding: clamp(0.85rem, 2vw, 1.25rem);
+  border-radius: 0.9rem;
+  background: var(--color-sage);
+  color: var(--color-text);
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover,
+  &:focus-visible {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgb(57 96 57 / 0.2);
+  }
+}
+
+.row__num {
+  flex: 0 0 auto;
+  width: 2.25rem;
+  height: 2.25rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-green-dark);
+  color: var(--color-cream);
+  font-family: var(--font-heading);
+  font-weight: 700;
+}
+
+.row__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.row__time {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+}
+
+.row__title {
+  color: var(--color-green-dark);
+  font-family: var(--font-heading);
+  font-size: clamp(1.05rem, 2.5vw, 1.25rem);
+  font-weight: 500;
+}
+
+.row__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.pill {
+  padding: 0.15rem 0.65rem;
+  border-radius: 999px;
+  background: var(--color-beige);
+  color: var(--color-green-accent);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.row__likes {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--color-green-dark);
+  font-weight: 600;
+}
+
+/* ============================================================
+   Paginierung
+   ============================================================ */
+.pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-top: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+.pager__btn,
+.pager__page {
+  min-width: 2.25rem;
+  height: 2.25rem;
+  padding: 0 0.5rem;
+  border: 1px solid var(--color-sage);
+  border-radius: 0.5rem;
+  background: transparent;
+  color: var(--color-green-dark);
+  font-family: var(--font-heading);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background: var(--color-sage);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.pager__page.is-active {
+  background: var(--color-green-dark);
+  color: var(--color-cream);
+  border-color: var(--color-green-dark);
+}
+
+/* ============================================================
+   Empty-State + CTA
+   ============================================================ */
+.category__empty {
+  margin: clamp(2rem, 6vw, 3.5rem) 0;
+  text-align: center;
+  color: var(--color-text);
+}
+
+.category__cta {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: clamp(2rem, 5vw, 3rem);
+}
+
+.category__cta-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--color-green-dark);
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 500;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

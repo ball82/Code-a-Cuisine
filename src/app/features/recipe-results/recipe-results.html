@@ -1,0 +1,35 @@
+<main class="results">
+  <a class="results__logo-link" routerLink="/" aria-label="Code à Cuisine — home">
+    <img class="results__logo" src="/img/logo_baige.svg" alt="Code à Cuisine" />
+  </a>
+
+  <header class="results__head">
+    <div class="results__intro">
+      <h1 class="results__title">Generated recipes</h1>
+      <p class="results__subtitle">
+        Here are three recipes tailored to your ingredients and preferences.
+        Pick one and start cooking!
+      </p>
+
+      <ul class="results__tags" role="list">
+        @for (tag of activeTags(); track tag) {
+          <li class="results__tag">{{ tag }}</li>
+        }
+      </ul>
+    </div>
+
+    <img class="results__image" src="/img/results_img.svg" alt="" aria-hidden="true" />
+  </header>
+
+  <section class="results__grid" aria-label="Generated recipes">
+    @for (recipe of recipes(); track recipe.id; let i = $index) {
+      <app-recipe-card [recipe]="recipe" [index]="i + 1" context="results" />
+    }
+  </section>
+
+  <div class="results__cta">
+    <a class="results__cta-link" routerLink="/ingredients">
+      Generate new recipe <span aria-hidden="true">&rarr;</span>
+    </a>
+  </div>
+</main>

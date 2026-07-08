@@ -1,0 +1,90 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  height: 100%;
+  padding: clamp(1.25rem, 3vw, 1.75rem);
+  border-radius: 1rem;
+  background: var(--color-cream);
+}
+
+.card__head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.card__bell {
+  font-size: 1.35rem;
+}
+
+.card__eyebrow {
+  color: var(--color-green-dark);
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.card__title {
+  color: var(--color-green-dark);
+  font-size: clamp(1.15rem, 2.5vw, 1.4rem);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.card__time {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  color: var(--color-text);
+  font-size: 0.9rem;
+}
+
+.card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pill {
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+  background: var(--color-beige);
+  color: var(--color-green-accent);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.pill--like {
+  background: var(--color-sage);
+  color: var(--color-green-dark);
+  text-transform: none;
+}
+
+.card__view {
+  align-self: flex-start;
+  margin-top: auto;
+  padding: 0.55rem 1.5rem;
+  border-radius: 999px;
+  background: var(--color-green-dark);
+  color: var(--color-cream);
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 0.9;
+  }
+}
