@@ -5,7 +5,7 @@
 export const environment = {
   production: false,
   /** n8n-Webhook für die Rezeptgenerierung. */
-  recipeWebhookUrl: '',
+  recipeWebhookUrl: 'https://ball82.app.n8n.cloud/webhook/generate-recipe',
   /** n8n-Webhook fürs Liken eines Rezepts. */
   likeWebhookUrl: '',
   /** Öffentliche Firebase-Config (zum direkten Lesen der recipes-Collection). */

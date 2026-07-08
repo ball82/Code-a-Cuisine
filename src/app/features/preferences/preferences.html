@@ -116,8 +116,16 @@
   </section>
 
   <div class="prefs__actions">
-    <button class="generate-btn" type="button" (click)="generate()">
-      Generate a recipe
+    <button
+      class="generate-btn"
+      type="button"
+      [disabled]="loading()"
+      (click)="generate()">
+      {{ loading() ? 'Generating…' : 'Generate a recipe' }}
     </button>
+
+    @if (error()) {
+      <p class="prefs__error" role="alert">{{ error() }}</p>
+    }
   </div>
 </main>
