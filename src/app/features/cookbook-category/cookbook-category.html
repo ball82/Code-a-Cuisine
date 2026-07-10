@@ -5,7 +5,7 @@
   <header class="banner" [style.background-image]="'url(' + meta().image + ')'">
     <div class="banner__overlay">
       <h1 class="banner__title">
-        {{ meta().label }}
+        {{ i18n.t('cuisineFull.' + cuisine()) }}
         <span class="banner__emoji" aria-hidden="true">{{ meta().emoji }}</span>
       </h1>
     </div>
@@ -24,7 +24,7 @@
             <span class="row__body">
               <span class="row__time">
                 <span aria-hidden="true">🕒</span>
-                Cooking time: {{ entry.recipe.cookingTimeMinutes }} min
+                {{ i18n.t('common.cookingTime') }}: {{ entry.recipe.cookingTimeMinutes }} {{ i18n.t('common.min') }}
               </span>
               <span class="row__title">{{ entry.recipe.title }}</span>
               <span class="row__tags">
@@ -41,11 +41,11 @@
 
     <!-- Paginierung -->
     @if (pageCount() > 1) {
-      <nav class="pager" aria-label="Pagination">
+      <nav class="pager" [attr.aria-label]="i18n.t('category.pagination')">
         <button
           type="button"
           class="pager__btn"
-          aria-label="Previous page"
+          [attr.aria-label]="i18n.t('category.prevPage')"
           [disabled]="page() === 1"
           (click)="goToPage(page() - 1)">
           &lsaquo;
@@ -63,7 +63,7 @@
         <button
           type="button"
           class="pager__btn"
-          aria-label="Next page"
+          [attr.aria-label]="i18n.t('category.nextPage')"
           [disabled]="page() === pageCount()"
           (click)="goToPage(page() + 1)">
           &rsaquo;
@@ -71,14 +71,12 @@
       </nav>
     }
   } @else {
-    <p class="category__empty">
-      No {{ meta().label.toLowerCase() }} recipes yet. Generate one to get started!
-    </p>
+    <p class="category__empty">{{ i18n.t('category.empty') }}</p>
   }
 
   <div class="category__cta">
     <a class="category__cta-link" routerLink="/ingredients">
-      Generate a recipe <span aria-hidden="true">&rarr;</span>
+      {{ i18n.t('cta.generateA') }} <span aria-hidden="true">&rarr;</span>
     </a>
   </div>
 </main>

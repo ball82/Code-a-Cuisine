@@ -1,7 +1,8 @@
-import { Component, input } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { Recipe } from '../../core/models/recipe';
+import { I18n } from '../../core/services/i18n';
 
 /**
  * Sage-Karte für ein Rezept in der Ergebnis-Übersicht: Glocke + "Recipe N",
@@ -16,6 +17,8 @@ import { Recipe } from '../../core/models/recipe';
   styleUrl: './recipe-card.scss'
 })
 export class RecipeCard {
+  readonly i18n = inject(I18n);
+
   /** Das darzustellende Rezept. */
   readonly recipe = input.required<Recipe>();
   /** Optionale Nummer für das "Recipe N"-Label (1-basiert). */

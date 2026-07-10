@@ -5,7 +5,8 @@
       "Bash(npm run *)",
       "Bash(grep -iE 'env|key|secret|credential|service.?account|\\\\.pem$|\\\\.p12$|\\\\.json$')",
       "Bash(git grep *)",
-      "Bash(grep -iE 'service.?account|\\\\.env|credential|secret|private.?key|\\\\.pem$|\\\\.p12$')"
+      "Bash(grep -iE 'service.?account|\\\\.env|credential|secret|private.?key|\\\\.pem$|\\\\.p12$')",
+      "Bash(node --input-type=module -e ' *)"
     ]
   }
 }

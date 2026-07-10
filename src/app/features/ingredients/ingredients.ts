@@ -6,6 +6,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { Ingredient, Unit } from '../../core/models/ingredient';
 import { IngredientData } from '../../core/services/ingredient-data';
 import { RecipeDraft } from '../../core/services/recipe-draft';
+import { I18n } from '../../core/services/i18n';
 
 /**
  * Schritt 1 des Generators ("Generate recipe").
@@ -22,6 +23,7 @@ export class Ingredients {
   private readonly ingredientData = inject(IngredientData);
   private readonly draft = inject(RecipeDraft);
   private readonly router = inject(Router);
+  readonly i18n = inject(I18n);
 
   /** Erlaubte Einheiten (Vertrag 1 — technische Kleinbuchstaben). */
   readonly units: Unit[] = ['gram', 'ml', 'liter', 'piece'];
@@ -45,13 +47,23 @@ export class Ingredients {
     initialValue: [] as string[]
   });
 
-  /** Vorschläge: Treffer am Wortanfang, ohne exakten Treffer, max. 6. */
+  /**
+   * Vorschläge: Teilwort-Treffer (nicht nur Wortanfang), ohne exakten Treffer,
+   * max. 8. Wortanfang-Treffer werden vorgereiht, der Rest alphabetisch.
+   */
   readonly suggestions = computed(() => {
     const q = this.name().trim().toLowerCase();
     if (!q) return [];
     const names = this.allNames();
     if (names.some((n) => n.toLowerCase() === q)) return [];
-    return names.filter((n) => n.toLowerCase().startsWith(q)).slice(0, 6);
+    return names
+      .filter((n) => n.toLowerCase().includes(q))
+      .sort((a, b) => {
+        const aStarts = a.toLowerCase().startsWith(q) ? 0 : 1;
+        const bStarts = b.toLowerCase().startsWith(q) ? 0 : 1;
+        return aStarts - bStarts || a.localeCompare(b);
+      })
+      .slice(0, 8);
   });
 
   /** "+"/"Speichern" nur aktiv bei Name + Menge > 0 (Validierung Vertrag 1). */

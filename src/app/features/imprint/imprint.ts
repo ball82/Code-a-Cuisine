@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 
 import { Header } from '../../shared/header/header';
+import { I18n } from '../../core/services/i18n';
 
 /**
  * Impressum / rechtliche Angaben. Statische Inhaltsseite, erreichbar über den
@@ -12,4 +13,6 @@ import { Header } from '../../shared/header/header';
   templateUrl: './imprint.html',
   styleUrl: './imprint.scss'
 })
-export class Imprint {}
+export class Imprint {
+  readonly i18n = inject(I18n);
+}
