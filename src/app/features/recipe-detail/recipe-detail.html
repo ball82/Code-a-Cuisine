@@ -5,7 +5,7 @@
         <img class="detail__logo" src="/img/logo_gruen.svg" alt="Code à Cuisine" />
       </a>
       <a class="detail__back" [routerLink]="backLink">
-        <span aria-hidden="true">&larr;</span> {{ i18n.t(backLabel) }}
+        <span aria-hidden="true">&larr;</span> {{ backLabel }}
       </a>
     </div>
 
@@ -14,16 +14,16 @@
       <header class="card__head">
         <p class="card__time">
           <span aria-hidden="true">🕒</span>
-          {{ i18n.t('common.cookingTime') }}: {{ recipe.cookingTimeMinutes }} {{ i18n.t('common.min') }}
+          Cooking time: {{ recipe.cookingTimeMinutes }} min
         </p>
         <h1 class="card__title">{{ recipe.title }}</h1>
 
         <div class="card__meta">
           <div class="cooking-person">
-            <span class="cooking-person__label">{{ i18n.t('detail.cookingPerson') }}</span>
+            <span class="cooking-person__label">Cooking person</span>
             <span class="chefs">
               @for (chef of chefs(); track chef) {
-                <span class="chef-pill">{{ i18n.t('detail.chef') }} {{ chef }}</span>
+                <span class="chef-pill">Chef {{ chef }}</span>
               }
             </span>
           </div>
@@ -38,7 +38,7 @@
                 class="pill pill--like"
                 [class.is-liked]="liked()"
                 [attr.aria-pressed]="liked()"
-                [attr.aria-label]="i18n.t('detail.giveHeart')"
+                aria-label="Give it a heart"
                 [disabled]="likeBusy()"
                 (click)="toggleLike()">
                 <span aria-hidden="true">{{ liked() ? '♥' : '♡' }}</span> {{ likeCount() }}
@@ -51,23 +51,23 @@
       <!-- ===== Nährwerte (skalierbar) ===== -->
       <section class="nutrition" aria-label="Nutritional information">
         <div class="nutrition__head">
-          <h2 class="section-title">{{ i18n.t('detail.nutrition') }}</h2>
+          <h2 class="section-title">Nutritional information</h2>
           <div class="portion-stepper">
             <button
               type="button"
               class="portion-stepper__btn"
-              [attr.aria-label]="i18n.t('preferences.fewerPortions')"
+              aria-label="Fewer portions"
               [disabled]="portions() <= 1"
               (click)="stepPortions(-1)">
               &minus;
             </button>
             <span class="portion-stepper__value">
-              {{ portions() }} {{ portions() === 1 ? i18n.t('detail.portion') : i18n.t('detail.portions') }}
+              {{ portions() }} {{ portions() === 1 ? 'portion' : 'portions' }}
             </span>
             <button
               type="button"
               class="portion-stepper__btn"
-              [attr.aria-label]="i18n.t('preferences.morePortions')"
+              aria-label="More portions"
               [disabled]="portions() >= 12"
               (click)="stepPortions(1)">
               +
@@ -79,19 +79,19 @@
           <ul class="nutrition__grid" role="list">
             <li class="nutrition__item">
               <span class="nutrition__value">{{ n.calories }}</span>
-              <span class="nutrition__key">{{ i18n.t('nutrition.energy') }}</span>
+              <span class="nutrition__key">kcal energy</span>
             </li>
             <li class="nutrition__item">
               <span class="nutrition__value">{{ n.protein }} g</span>
-              <span class="nutrition__key">{{ i18n.t('nutrition.protein') }}</span>
+              <span class="nutrition__key">protein</span>
             </li>
             <li class="nutrition__item">
               <span class="nutrition__value">{{ n.fat }} g</span>
-              <span class="nutrition__key">{{ i18n.t('nutrition.fat') }}</span>
+              <span class="nutrition__key">fat</span>
             </li>
             <li class="nutrition__item">
               <span class="nutrition__value">{{ n.carbs }} g</span>
-              <span class="nutrition__key">{{ i18n.t('nutrition.carbs') }}</span>
+              <span class="nutrition__key">carbs</span>
             </li>
           </ul>
         }
@@ -99,10 +99,10 @@
 
       <!-- ===== Zutaten ===== -->
       <section class="ingredients">
-        <h2 class="section-title">{{ i18n.t('detail.ingredients') }}</h2>
+        <h2 class="section-title">Ingredients</h2>
         <div class="ingredients__cols">
           <div class="ingredients__col">
-            <h3 class="ingredients__sub">{{ i18n.t('detail.yourIngredients') }}</h3>
+            <h3 class="ingredients__sub">Your ingredients</h3>
             <ul class="ingredients__list" role="list">
               @for (ing of recipe.yourIngredients; track ing.name) {
                 <li>{{ formatIngredient(ing) }}</li>
@@ -112,7 +112,7 @@
 
           @if (recipe.extraIngredients.length) {
             <div class="ingredients__col">
-              <h3 class="ingredients__sub">{{ i18n.t('detail.extraIngredients') }}</h3>
+              <h3 class="ingredients__sub">Extra ingredients</h3>
               <ul class="ingredients__list" role="list">
                 @for (ing of recipe.extraIngredients; track ing.name) {
                   <li>{{ formatIngredient(ing) }}</li>
@@ -125,7 +125,7 @@
 
       <!-- ===== Kochschritte ===== -->
       <section class="directions">
-        <h2 class="section-title">{{ i18n.t('detail.directions') }}</h2>
+        <h2 class="section-title">Directions</h2>
         <ol class="steps">
           @for (step of recipe.directions; track step.step) {
             <li class="step">
@@ -134,7 +134,7 @@
                 <div class="step__head">
                   <h3 class="step__title">{{ step.title }}</h3>
                   @if (recipe.cooks > 1) {
-                    <span class="chef-badge">{{ i18n.t('detail.chef') }} {{ step.chef }}</span>
+                    <span class="chef-badge">Chef {{ step.chef }}</span>
                   }
                 </div>
                 <p class="step__text">{{ step.instruction }}</p>
@@ -149,10 +149,10 @@
     <!-- ===== CTA-Leiste ===== -->
     <div class="detail__cta">
       <a class="detail__cta-book" routerLink="/cookbook">
-        <span aria-hidden="true">📖</span> {{ i18n.t('nav.cookbook') }}
+        <span aria-hidden="true">📖</span> Cookbook
       </a>
       <a class="detail__cta-link" routerLink="/ingredients">
-        {{ i18n.t('cta.generateNew') }} <span aria-hidden="true">&rarr;</span>
+        Generate new recipe <span aria-hidden="true">&rarr;</span>
       </a>
     </div>
   </main>

@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, HostListener, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -6,7 +6,6 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { Ingredient, Unit } from '../../core/models/ingredient';
 import { IngredientData } from '../../core/services/ingredient-data';
 import { RecipeDraft } from '../../core/services/recipe-draft';
-import { I18n } from '../../core/services/i18n';
 
 /**
  * Schritt 1 des Generators ("Generate recipe").
@@ -23,7 +22,6 @@ export class Ingredients {
   private readonly ingredientData = inject(IngredientData);
   private readonly draft = inject(RecipeDraft);
   private readonly router = inject(Router);
-  readonly i18n = inject(I18n);
 
   /** Erlaubte Einheiten (Vertrag 1 — technische Kleinbuchstaben). */
   readonly units: Unit[] = ['gram', 'ml', 'liter', 'piece'];
@@ -35,6 +33,12 @@ export class Ingredients {
 
   /** Index der Zeile, die gerade bearbeitet wird – sonst null (= Neueintrag). */
   readonly editIndex = signal<number | null>(null);
+
+  /**
+   * Auf/Zu-Zustand des eigenen Einheiten-Dropdowns. Ersetzt das native
+   * <select>, dessen OS-Popup sich nicht positionieren/stylen ließ.
+   */
+  readonly unitOpen = signal(false);
 
   /**
    * Die fertige Liste liegt im RecipeDraft-Service (geteilter Zustand), damit
@@ -80,6 +84,31 @@ export class Ingredients {
   /** Übernimmt einen Autocomplete-Vorschlag ins Namensfeld. */
   pick(name: string): void {
     this.name.set(name);
+  }
+
+  /** Öffnet/schließt das Einheiten-Dropdown. */
+  toggleUnit(): void {
+    this.unitOpen.update((open) => !open);
+  }
+
+  /** Wählt eine Einheit und schließt das Dropdown. */
+  pickUnit(u: Unit): void {
+    this.unit.set(u);
+    this.unitOpen.set(false);
+  }
+
+  /** Klick außerhalb schließt das Einheiten-Dropdown. */
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(e: MouseEvent): void {
+    if (this.unitOpen() && !(e.target as HTMLElement).closest('.unit-select')) {
+      this.unitOpen.set(false);
+    }
+  }
+
+  /** Escape schließt das Einheiten-Dropdown. */
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    this.unitOpen.set(false);
   }
 
   /** Fügt die aktuelle Eingabe hinzu – oder überschreibt die bearbeitete Zeile. */

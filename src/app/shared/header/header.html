@@ -3,11 +3,10 @@
     <a class="header__logo" routerLink="/" aria-label="Code à Cuisine — home">
       <img src="/img/logo_gruen.svg" alt="Code à Cuisine" />
     </a>
-    <app-language-toggle class="header__lang" />
   </div>
 
   <button type="button" class="header__back" (click)="goBack()">
     <span class="header__back-arrow" aria-hidden="true">&larr;</span>
-    {{ i18n.t('nav.back') }}
+    Back
   </button>
 </header>

@@ -15,23 +15,6 @@
   padding: clamp(1.5rem, 6vw, 4rem);
 }
 
-/* --- Sprachumschalter oben links (über den Tellern) --- */
-.hero__lang {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  z-index: 2;
-  color: var(--color-cream);
-}
-
-/* Unter 620px (Mobile) nach oben rechts umschalten. */
-@media (max-width: 620px) {
-  .hero__lang {
-    left: auto;
-    right: 10px;
-  }
-}
-
 /* --- Inhaltsspalte: Logo oben, Intro mittig, Inspiration unten --- */
 .hero__content {
   position: relative;
@@ -142,17 +125,20 @@
 
 
 /* ============================================================
-   Desktop: mehr Platz für den Text, größere Teller rechts.
+   Mobile (≤768px): großzügige Teller, rechts angeschnitten.
    ============================================================ */
 @media (max-width: 768px) {
   .hero__content {
     max-width: 52%;
   }
 
+  /* Teller größer und rechts angeschnitten: breiter + weiter nach rechts
+     geschoben, sodass ~1/4 jenseits des Bildschirmrands liegt
+     (overflow: hidden am .hero schneidet ab). */
   .hero__plates {
     top: 50%;
-    right: -6%;
-    width: min(46vw, 34rem);
+    right: -20%;
+    width: min(72vw, 30rem);
   }
 
   .hero__plates img {

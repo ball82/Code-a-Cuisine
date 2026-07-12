@@ -5,7 +5,6 @@ import { Ingredient, Unit } from '../../core/models/ingredient';
 import { Recipe } from '../../core/models/recipe';
 import { RecipeApi } from '../../core/services/recipe-api';
 import { RecipeStore } from '../../core/services/recipe-store';
-import { I18n } from '../../core/services/i18n';
 
 /** Kurzform der Einheit für die Zutatenzeile. */
 const UNIT_SHORT: Record<Unit, string> = { gram: 'g', ml: 'ml', liter: 'l', piece: '×' };
@@ -29,15 +28,14 @@ export class RecipeDetail {
   private readonly router = inject(Router);
   private readonly store = inject(RecipeStore);
   private readonly api = inject(RecipeApi);
-  readonly i18n = inject(I18n);
 
   /** Das anzuzeigende Rezept (aus dem Store per ID). */
   readonly recipe: Recipe | undefined;
 
-  /** Herkunft → bestimmt den Zurück-Weg (Label als i18n-Schlüssel). */
+  /** Herkunft → bestimmt den Zurück-Weg (Link + Beschriftung). */
   private readonly from = this.route.snapshot.queryParamMap.get('from');
   readonly backLink = this.from === 'cookbook' ? '/cookbook' : '/recipe-results';
-  readonly backLabel = this.from === 'cookbook' ? 'nav.cookbook' : 'nav.recipes';
+  readonly backLabel = this.from === 'cookbook' ? 'Cookbook' : 'Recipes';
 
   /** Portionen für die Nährwert-Skalierung (Werte im Vertrag sind pro Portion). */
   readonly portions = signal(1);

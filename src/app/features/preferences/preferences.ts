@@ -5,7 +5,7 @@ import { CookingTime, Cuisine, Diet } from '../../core/models/recipe-request';
 import { RecipeDraft } from '../../core/services/recipe-draft';
 import { RecipeApi } from '../../core/services/recipe-api';
 import { RecipeStore } from '../../core/services/recipe-store';
-import { I18n } from '../../core/services/i18n';
+import { CookbookData } from '../../core/services/cookbook-data';
 import { Loader } from '../../shared/loader/loader';
 import { ErrorDialog } from '../../shared/error-dialog/error-dialog';
 
@@ -31,8 +31,8 @@ export class Preferences {
   private readonly draft = inject(RecipeDraft);
   private readonly api = inject(RecipeApi);
   private readonly store = inject(RecipeStore);
+  private readonly cookbook = inject(CookbookData);
   private readonly router = inject(Router);
-  readonly i18n = inject(I18n);
 
   /** Geteilter Zustand aus dem Draft (Signals). */
   readonly portions = this.draft.portions;
@@ -109,6 +109,8 @@ export class Preferences {
           return;
         }
         this.store.setGenerated(response.recipes);
+        // Sofort ins Cookbook spiegeln, damit sie ohne Seiten-Reload auftauchen.
+        this.cookbook.addGenerated(response.recipes);
         this.router.navigate(['/recipe-results']);
       },
       error: (err) => {
@@ -124,15 +126,11 @@ export class Preferences {
     this.router.navigate(['/ingredients']);
   }
 
-  /**
-   * Übersetzt die n8n-Statuscodes (siehe CLAUDE.md) in einen i18n-Schlüssel.
-   * Wir speichern den Schlüssel (nicht den fertigen Text), damit die Meldung bei
-   * einem Sprachwechsel mitwechselt.
-   */
+  /** Übersetzt die n8n-Statuscodes (siehe CLAUDE.md) in eine freundliche Meldung. */
   private messageFor(err: unknown): string {
     const status = (err as { status?: number }).status;
-    if (status === 400) return 'error.validation';
-    if (status === 429) return 'error.quota';
-    return 'error.generic';
+    if (status === 400) return 'Please check your ingredients and preferences and try again.';
+    if (status === 429) return 'Our daily recipe quota is used up. Please try again tomorrow.';
+    return 'Something went wrong while generating your recipes. Please try again.';
   }
 }

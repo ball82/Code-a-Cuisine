@@ -43,6 +43,12 @@
   font-size: clamp(0.95rem, 2vw, 1.05rem);
 }
 
+/* min-width: 0 erlaubt der Grid-Zelle zu schrumpfen, damit die
+   Karten-Leiste darunter intern scrollt statt die Seite zu verbreitern. */
+.intro__liked {
+  min-width: 0;
+}
+
 .intro__liked-heading {
   display: flex;
   align-items: center;
@@ -64,6 +70,7 @@
   margin: 0;
   padding: 0 0 0.5rem;
   list-style: none;
+  min-width: 0;
   overflow-x: auto;
   scrollbar-width: thin;
 }

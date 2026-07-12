@@ -115,9 +115,59 @@
   padding-inline: 0.5rem;
 }
 
+/* --- Einheiten-Dropdown (eigenes, ersetzt das native <select>) --- */
+.unit-select {
+  position: relative;
+  flex: 0 0 auto;
+}
+
 .input--unit {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
   cursor: pointer;
   padding-right: 0.75rem;
+  white-space: nowrap;
+}
+
+.unit-select__chevron {
+  width: 1rem;
+  height: 1rem;
+  color: var(--color-green-dark);
+  transition: transform 0.15s ease;
+}
+
+.unit-select.is-open .unit-select__chevron {
+  transform: rotate(180deg);
+}
+
+.unit-menu {
+  position: absolute;
+  top: calc(100% + 0.25rem);
+  right: 0;
+  z-index: 3;
+  min-width: 100%;
+  margin: 0;
+  padding: 0.25rem;
+  list-style: none;
+  background: var(--color-beige);
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.unit-menu__item {
+  padding: 0.45rem 0.9rem;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.unit-menu__item:hover {
+  background: rgba(57, 96, 57, 0.12);
+}
+
+.unit-menu__item.is-selected {
+  font-weight: 600;
 }
 
 /* --- "+"-Button --- */
@@ -151,8 +201,10 @@
   position: absolute;
   top: calc(100% + 0.25rem);
   left: 0;
-  right: 0;
+  right: auto;
   z-index: 2;
+  min-width: 100%;
+  max-width: min(18rem, 80vw);
   margin: 0;
   padding: 0.25rem;
   list-style: none;
@@ -162,9 +214,12 @@
 }
 
 .suggestions__item {
-  padding: 0.45rem 0.75rem;
+  padding: 0.45rem 0.9rem;
   border-radius: 8px;
   cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .suggestions__item:hover {

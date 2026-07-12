@@ -2,7 +2,7 @@
   <header class="card__head">
     <span class="card__bell" aria-hidden="true">🔔</span>
     @if (index() !== null) {
-      <span class="card__eyebrow">{{ i18n.t('card.recipe') }} {{ index() }}</span>
+      <span class="card__eyebrow">Recipe {{ index() }}</span>
     }
   </header>
 
@@ -10,7 +10,7 @@
 
   <p class="card__time">
     <span class="card__time-icon" aria-hidden="true">🕒</span>
-    {{ i18n.t('common.cookingTime') }}: {{ recipe().cookingTimeMinutes }} {{ i18n.t('common.min') }}
+    Cooking time: {{ recipe().cookingTimeMinutes }} min
   </p>
 
   <ul class="card__tags" role="list">
@@ -26,6 +26,6 @@
     class="card__view"
     [routerLink]="['/recipe', recipe().id]"
     [queryParams]="{ from: context() }">
-    {{ i18n.t('card.view') }}
+    View
   </a>
 </article>

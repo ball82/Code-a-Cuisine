@@ -1,6 +1,4 @@
 <section class="hero">
-  <app-language-toggle class="hero__lang" />
-
   <!-- Kaskadierende Teller-Fotos: rechts (Desktop) bzw. rechts angeschnitten (Mobile).
        Rein dekorativ → aria-hidden, leeres alt. -->
   <div class="hero__plates" aria-hidden="true">
@@ -13,14 +11,14 @@
     <img class="hero__logo" src="/img/logo_baige.svg" alt="Code à Cuisine" />
 
     <div class="hero__intro">
-      <p class="hero__eyebrow">{{ i18n.t('landing.eyebrow') }}</p>
+      <p class="hero__eyebrow">AI-Powered recipe generator</p>
       <h1 class="hero__title">Code à Cuisine</h1>
-      <a class="hero__cta" routerLink="/ingredients">{{ i18n.t('cta.getStarted') }}</a>
+      <a class="hero__cta" routerLink="/ingredients">Get started</a>
     </div>
 
     <div class="hero__inspiration">
-      <p class="hero__inspiration-question">{{ i18n.t('landing.inspiration') }}</p>
-      <a class="hero__cookbook-link" routerLink="/cookbook">{{ i18n.t('landing.goToCookbook') }}&nbsp;&rarr;</a>
+      <p class="hero__inspiration-question">Hungry for inspiration?</p>
+      <a class="hero__cookbook-link" routerLink="/cookbook">Go to cookbook&nbsp;&rarr;</a>
     </div>
   </div>
 </section>

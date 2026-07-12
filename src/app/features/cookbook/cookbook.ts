@@ -1,11 +1,9 @@
 import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { toSignal } from '@angular/core/rxjs-interop';
 
 import { Header } from '../../shared/header/header';
 import { Cuisine } from '../../core/models/recipe-request';
 import { CookbookData } from '../../core/services/cookbook-data';
-import { I18n } from '../../core/services/i18n';
 
 /** Eine Küchen-Kachel im Cookbook-Raster (festes Kategorie-Bild aus public/img). */
 interface CuisineTile {
@@ -29,7 +27,6 @@ interface CuisineTile {
 })
 export class Cookbook {
   private readonly cookbookData = inject(CookbookData);
-  readonly i18n = inject(I18n);
 
   /** Sechs feste Kategorien mit Bildern aus public/img (Dateinamen wie geliefert). */
   readonly cuisines: CuisineTile[] = [
@@ -42,7 +39,7 @@ export class Cookbook {
   ];
 
   /** Alle Rezepte (live oder Beispieldaten). */
-  private readonly recipes = toSignal(this.cookbookData.getRecipes(), { initialValue: [] });
+  private readonly recipes = this.cookbookData.recipes;
 
   /** Die drei meistgelikten Rezepte für die obere Leiste. */
   readonly mostLiked = computed(() =>

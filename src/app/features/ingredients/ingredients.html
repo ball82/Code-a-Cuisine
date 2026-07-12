@@ -2,16 +2,16 @@
   <img class="generator__logo" src="/img/logo_gruen.svg" alt="Code à Cuisine" />
 
   <header class="generator__head">
-    <h1 class="generator__title">{{ i18n.t('ingredients.title') }}</h1>
-    <p class="generator__subtitle">{{ i18n.t('ingredients.subtitle') }}</p>
+    <h1 class="generator__title">Generate recipe</h1>
+    <p class="generator__subtitle">Got random stuff in your kitchen? Pop it in—we’ve got the perfect recipe waiting.</p>
   </header>
 
   <div class="generator__grid">
     <!-- ===== Eingabe-Karte ===== -->
-    <section class="card card--form" [attr.aria-label]="i18n.t('ingredients.addAria')">
+    <section class="card card--form" aria-label="Add an ingredient">
       <div class="form__labels">
-        <span class="form__label">{{ i18n.t('ingredients.ingredient') }}</span>
-        <span class="form__label">{{ i18n.t('ingredients.servingSize') }}</span>
+        <span class="form__label">Ingredient</span>
+        <span class="form__label">Serving size</span>
       </div>
 
       <div class="form__row">
@@ -20,7 +20,7 @@
           <input
             class="input input--text"
             type="text"
-            [attr.placeholder]="i18n.t('ingredients.placeholder')"
+            placeholder="e.g. Pasta"
             autocomplete="off"
             [ngModel]="name()"
             (ngModelChange)="name.set($event)"
@@ -41,27 +41,54 @@
           type="number"
           min="1"
           inputmode="numeric"
-          [attr.aria-label]="i18n.t('ingredients.amountAria')"
+          aria-label="Amount"
           [ngModel]="amount()"
           (ngModelChange)="amount.set($event)" />
 
-        <!-- Einheit -->
-        <select
-          class="input input--unit"
-          [attr.aria-label]="i18n.t('ingredients.unitAria')"
-          [ngModel]="unit()"
-          (ngModelChange)="unit.set($event)">
-          @for (u of units; track u) {
-            <option [value]="u">{{ i18n.t('unit.' + u) }}</option>
+        <!-- Einheit (eigenes Dropdown statt native <select>, damit sich das
+             Menü sauber unter dem Feld positionieren und stylen lässt) -->
+        <div class="unit-select" [class.is-open]="unitOpen()">
+          <button
+            class="input input--unit"
+            type="button"
+            aria-label="Unit"
+            aria-haspopup="listbox"
+            [attr.aria-expanded]="unitOpen()"
+            (click)="toggleUnit()">
+            <span class="unit-select__value">{{ unit() }}</span>
+            <svg class="unit-select__chevron" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M6 9l6 6 6-6" />
+            </svg>
+          </button>
+
+          @if (unitOpen()) {
+            <ul class="unit-menu" role="listbox" aria-label="Unit">
+              @for (u of units; track u) {
+                <li
+                  class="unit-menu__item"
+                  role="option"
+                  [class.is-selected]="unit() === u"
+                  [attr.aria-selected]="unit() === u"
+                  (click)="pickUnit(u)">
+                  {{ u }}
+                </li>
+              }
+            </ul>
           }
-        </select>
+        </div>
 
         <!-- Hinzufügen / Speichern -->
         <button
           class="add-btn"
           type="button"
           [disabled]="!canAdd()"
-          [attr.aria-label]="editIndex() === null ? i18n.t('ingredients.addBtn') : i18n.t('ingredients.saveBtn')"
+          [attr.aria-label]="editIndex() === null ? 'Add ingredient' : 'Save changes'"
           (click)="addOrUpdate()">
           {{ editIndex() === null ? '+' : '✓' }}
         </button>
@@ -69,8 +96,8 @@
     </section>
 
     <!-- ===== Listen-Karte ===== -->
-    <section class="card card--list" [attr.aria-label]="i18n.t('ingredients.listAria')">
-      <h2 class="card__title">{{ i18n.t('ingredients.listTitle') }}</h2>
+    <section class="card card--list" aria-label="Your ingredients">
+      <h2 class="card__title">List of your Ingredients</h2>
 
       @if (items().length) {
         <ul class="ing-list">
@@ -79,7 +106,7 @@
               <span class="ing-list__amount">{{ it.amount }}{{ short(it.unit) }}</span>
               <span class="ing-list__name">{{ it.name }}</span>
 
-              <button class="icon-btn" type="button" [attr.aria-label]="i18n.t('ingredients.editBtn')" (click)="edit($index)">
+              <button class="icon-btn" type="button" aria-label="Edit" (click)="edit($index)">
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path
                     fill="currentColor"
@@ -87,7 +114,7 @@
                 </svg>
               </button>
 
-              <button class="icon-btn" type="button" [attr.aria-label]="i18n.t('ingredients.deleteBtn')" (click)="remove($index)">
+              <button class="icon-btn" type="button" aria-label="Delete" (click)="remove($index)">
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path
                     fill="currentColor"
@@ -98,14 +125,14 @@
           }
         </ul>
       } @else {
-        <p class="ing-list__empty">{{ i18n.t('ingredients.empty') }}</p>
+        <p class="ing-list__empty">No ingredients yet — add your first one on the left.</p>
       }
     </section>
   </div>
 
   <div class="generator__actions">
     <button class="next-btn" type="button" [disabled]="!canContinue()" (click)="next()">
-      {{ i18n.t('ingredients.next') }}
+      Next step
     </button>
   </div>
 </main>

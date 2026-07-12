@@ -5,12 +5,12 @@
 
   <header class="results__head">
     <div class="results__intro">
-      <h1 class="results__title">{{ i18n.t('results.title') }}</h1>
-      <p class="results__subtitle">{{ i18n.t('results.subtitle') }}</p>
+      <h1 class="results__title">Generated recipes</h1>
+      <p class="results__subtitle">Here are three recipes tailored to your ingredients and preferences. Pick one and start cooking!</p>
 
       <ul class="results__tags" role="list">
         @for (tag of activeTags(); track tag) {
-          <li class="results__tag">{{ i18n.t(tag) }}</li>
+          <li class="results__tag">{{ tag }}</li>
         }
       </ul>
     </div>
@@ -26,7 +26,7 @@
 
   <div class="results__cta">
     <a class="results__cta-link" routerLink="/ingredients">
-      {{ i18n.t('cta.generateNew') }} <span aria-hidden="true">&rarr;</span>
+      Generate new recipe <span aria-hidden="true">&rarr;</span>
     </a>
   </div>
 </main>

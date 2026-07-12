@@ -4,9 +4,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 
 import { Header } from '../../shared/header/header';
 import { Cuisine } from '../../core/models/recipe-request';
-import { Recipe } from '../../core/models/recipe';
 import { CookbookData } from '../../core/services/cookbook-data';
-import { I18n } from '../../core/services/i18n';
 
 /** Anzeige-Metadaten je Küche (Name, Emoji, Banner-Bild). */
 const CUISINE_META: Record<Cuisine, { label: string; emoji: string; image: string }> = {
@@ -34,14 +32,11 @@ const PAGE_SIZE = 20;
 export class CookbookCategory {
   private readonly route = inject(ActivatedRoute);
   private readonly cookbookData = inject(CookbookData);
-  readonly i18n = inject(I18n);
 
   private readonly params = toSignal(this.route.paramMap, {
     initialValue: this.route.snapshot.paramMap
   });
-  private readonly allRecipes = toSignal(this.cookbookData.getRecipes(), {
-    initialValue: [] as Recipe[]
-  });
+  private readonly allRecipes = this.cookbookData.recipes;
 
   /** Aktuelle Küche aus dem Routen-Parameter. */
   readonly cuisine = computed<Cuisine>(() => (this.params().get('cuisine') as Cuisine) ?? 'italian');
