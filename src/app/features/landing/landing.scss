@@ -15,13 +15,21 @@
   padding: clamp(1.5rem, 6vw, 4rem);
 }
 
-/* --- Sprachumschalter oben rechts (über den Tellern) --- */
+/* --- Sprachumschalter oben links (über den Tellern) --- */
 .hero__lang {
   position: absolute;
-  top: clamp(1rem, 4vw, 2rem);
-  right: clamp(1rem, 5vw, 3rem);
+  top: 10px;
+  left: 10px;
   z-index: 2;
   color: var(--color-cream);
+}
+
+/* Unter 620px (Mobile) nach oben rechts umschalten. */
+@media (max-width: 620px) {
+  .hero__lang {
+    left: auto;
+    right: 10px;
+  }
 }
 
 /* --- Inhaltsspalte: Logo oben, Intro mittig, Inspiration unten --- */

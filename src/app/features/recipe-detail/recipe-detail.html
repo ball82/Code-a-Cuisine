@@ -32,7 +32,18 @@
             @for (tag of recipe.tags; track tag) {
               <li class="pill">{{ tag }}</li>
             }
-            <li class="pill pill--like"><span aria-hidden="true">♡</span> {{ likeCount() }}</li>
+            <li>
+              <button
+                type="button"
+                class="pill pill--like"
+                [class.is-liked]="liked()"
+                [attr.aria-pressed]="liked()"
+                [attr.aria-label]="i18n.t('detail.giveHeart')"
+                [disabled]="likeBusy()"
+                (click)="toggleLike()">
+                <span aria-hidden="true">{{ liked() ? '♥' : '♡' }}</span> {{ likeCount() }}
+              </button>
+            </li>
           </ul>
         </div>
       </header>
@@ -133,20 +144,6 @@
         </ol>
       </section>
 
-      <!-- ===== Like ===== -->
-      <section class="like">
-        <p class="like__label">{{ i18n.t('detail.giveHeart') }}</p>
-        <button
-          type="button"
-          class="like__btn"
-          [class.is-liked]="liked()"
-          [attr.aria-pressed]="liked()"
-          [disabled]="likeBusy()"
-          (click)="toggleLike()">
-          <span class="like__heart" aria-hidden="true">{{ liked() ? '♥' : '♡' }}</span>
-          {{ likeCount() }}
-        </button>
-      </section>
     </article>
 
     <!-- ===== CTA-Leiste ===== -->

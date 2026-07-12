@@ -110,10 +110,38 @@
   color: var(--color-green-dark);
 }
 
+/* Das Likes-Pill ist zugleich der Like/Unlike-Button. */
 .pill--like {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
   background: var(--color-sage);
   color: var(--color-green-dark);
   text-transform: none;
+  border: none;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+
+  &:hover:not(:disabled) {
+    filter: brightness(0.95);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.94);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: progress;
+  }
+}
+
+.pill--like.is-liked {
+  background: var(--color-green-dark);
+  color: var(--color-cream);
 }
 
 /* ============================================================
@@ -127,8 +155,7 @@
 
 .nutrition,
 .ingredients,
-.directions,
-.like {
+.directions {
   margin-top: clamp(1.75rem, 4vw, 2.5rem);
 }
 
@@ -299,58 +326,6 @@
 .step__text {
   margin: 0.35rem 0 0;
   color: var(--color-text);
-}
-
-/* --- Like --- */
-.like {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.like__label {
-  margin: 0;
-  font-family: var(--font-heading);
-  font-weight: 500;
-  color: var(--color-green-dark);
-}
-
-.like__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.5rem 1.1rem;
-  border: 2px solid var(--color-green-dark);
-  border-radius: 999px;
-  background: transparent;
-  color: var(--color-green-dark);
-  font-family: var(--font-heading);
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s ease, color 0.2s ease, transform 0.1s ease;
-
-  &:hover:not(:disabled) {
-    background: var(--color-sage);
-  }
-
-  &:active:not(:disabled) {
-    transform: scale(0.96);
-  }
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: progress;
-  }
-}
-
-.like__btn.is-liked {
-  background: var(--color-green-dark);
-  color: var(--color-cream);
-}
-
-.like__heart {
-  font-size: 1.15rem;
 }
 
 /* --- CTA-Leiste --- */

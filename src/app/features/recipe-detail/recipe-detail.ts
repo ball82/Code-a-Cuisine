@@ -112,7 +112,7 @@ export class RecipeDetail {
     this.api.likeRecipe(r.id).subscribe({
       next: (res) => {
         this.liked.set(res.liked);
-        this.likeCount.set(res.newLikeCount);
+        this.likeCount.set(res.likes);
         this.store.setLiked(r.id, res.liked);
         this.releaseAfterCooldown();
       },
