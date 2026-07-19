@@ -81,6 +81,12 @@ export class CookbookData {
   private readonly added = signal<Recipe[]>([]);
 
   /**
+   * true, sobald der erste Firestore-Load durch ist (auch bei Fehler → Beispieldaten).
+   * Die Detailseite wartet darauf, bevor sie einen unbekannten Deep-Link umleitet.
+   */
+  readonly ready = signal(false);
+
+  /**
    * Alle Cookbook-Rezepte: zuerst die frisch generierten (neueste zuerst),
    * dann die geladenen. Zwei getrennte Quellen, damit ein spät eintreffender
    * Firestore-Load die lokal ergänzten Rezepte nicht überschreibt.
@@ -96,6 +102,7 @@ export class CookbookData {
     this.load().subscribe((recipes) => {
       this.store.remember(recipes);
       this.loaded.set(recipes);
+      this.ready.set(true);
     });
   }
 

@@ -12,6 +12,16 @@ export type Cuisine =
   | 'gourmet'
   | 'fusion';
 
+/** Anzeigetexte für die Küchenstile (technischer Wert → Label fürs UI). */
+export const CUISINE_LABELS: Record<Cuisine, string> = {
+  german: 'German',
+  italian: 'Italian',
+  japanese: 'Japanese',
+  indian: 'Indian',
+  gourmet: 'Gourmet',
+  fusion: 'Fusion'
+};
+
 /** Erlaubte Ernährungsformen. */
 export type Diet = 'vegetarian' | 'vegan' | 'keto' | 'none';
 

@@ -3,7 +3,7 @@ import { RouterLink } from '@angular/router';
 
 
 import { Header } from '../../shared/header/header';
-import { Cuisine } from '../../core/models/recipe-request';
+import { Cuisine, CUISINE_LABELS } from '../../core/models/recipe-request';
 import { CookbookData } from '../../core/services/cookbook-data';
 
 /** Eine Küchen-Kachel im Cookbook-Raster (festes Kategorie-Bild aus public/img). */
@@ -28,6 +28,9 @@ interface CuisineTile {
 })
 export class Cookbook {
   private readonly cookbookData = inject(CookbookData);
+
+  /** Anzeigetexte für den Kochstil (US12: Kochstil in der "Most liked"-Leiste). */
+  readonly cuisineLabels = CUISINE_LABELS;
 
   /** Sechs feste Kategorien mit Bildern aus public/img (Dateinamen wie geliefert). */
   readonly cuisines: CuisineTile[] = [

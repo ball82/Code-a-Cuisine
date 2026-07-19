@@ -13,6 +13,11 @@
     Cooking time: {{ recipe().cookingTimeMinutes }} min
   </p>
 
+  <p class="card__cuisine">
+    <span class="card__cuisine-icon" aria-hidden="true">🍽️</span>
+    {{ cuisineLabels[recipe().cuisine] }} cuisine
+  </p>
+
   <ul class="card__tags" role="list">
     @for (tag of recipe().tags; track tag) {
       <li class="pill">{{ tag }}</li>

@@ -16,6 +16,12 @@ export interface Direction {
   /** Zahl 1–3, mappt auf "Chef 1/2/3". Bei 1 Koch: alle Schritte chef: 1. */
   chef: number;
   instruction: string;
+  /**
+   * Markiert einen Schritt, der parallel zum vorangehenden läuft (z.B. während
+   * einer Wartezeit im Ofen oder von einem zweiten Koch gleichzeitig erledigt).
+   * Optional: ältere Rezepte ohne dieses Feld gelten als rein sequenziell.
+   */
+  parallel?: boolean;
 }
 
 /** Vertrag 2 — ein von Gemini erzeugtes, in Firestore gespeichertes Rezept. */

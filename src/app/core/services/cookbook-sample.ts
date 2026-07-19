@@ -50,8 +50,10 @@ export const SAMPLE_RECIPES: Recipe[] = [
       { name: 'White wine', amount: 100, unit: 'ml' }
     ],
     directions: [
-      { step: 1, title: 'Toast the rice', chef: 1, instruction: 'Toast the rice, deglaze with wine.' },
-      { step: 2, title: 'Add stock gradually', chef: 2, instruction: 'Ladle in warm stock while stirring until creamy.' }
+      { step: 1, title: 'Prep the mushrooms', chef: 1, instruction: 'Clean and slice the mushrooms, then sauté them until golden and set aside.' },
+      { step: 2, title: 'Warm the stock', chef: 2, parallel: true, instruction: 'While chef 1 preps the mushrooms, heat the vegetable stock and keep it gently simmering.' },
+      { step: 3, title: 'Toast the rice', chef: 1, instruction: 'Toast the arborio rice in a little oil, then deglaze with the white wine.' },
+      { step: 4, title: 'Add stock gradually', chef: 2, instruction: 'Ladle the warm stock into the rice while stirring until creamy, then fold in the mushrooms.' }
     ],
     likes: 48,
     createdAt: '2026-06-12T09:10:00.000Z'

@@ -1,4 +1,4 @@
-@if (recipe; as recipe) {
+@if (recipe(); as recipe) {
   <main class="detail">
     <div class="detail__topbar">
       <a class="detail__logo-link" routerLink="/" aria-label="Code à Cuisine — home">
@@ -126,22 +126,52 @@
       <!-- ===== Kochschritte ===== -->
       <section class="directions">
         <h2 class="section-title">Directions</h2>
-        <ol class="steps">
-          @for (step of recipe.directions; track step.step) {
-            <li class="step">
-              <span class="step__num" aria-hidden="true">{{ step.step }}</span>
-              <div class="step__body">
-                <div class="step__head">
-                  <h3 class="step__title">{{ step.title }}</h3>
-                  @if (recipe.cooks > 1) {
-                    <span class="chef-badge">Chef {{ step.chef }}</span>
+
+        @if (recipe.cooks > 1) {
+          <!-- US9: eigene ToDo-Liste je Koch – Aufgaben klar nach Person getrennt.
+               Die globale Schrittnummer bleibt sichtbar, damit die zeitliche
+               Abfolge über die Spalten hinweg lesbar ist. -->
+          <div class="crew">
+            @for (chef of chefs(); track chef) {
+              <div class="crew__col">
+                <h3 class="crew__name">Chef {{ chef }}</h3>
+                <ol class="steps steps--crew" role="list">
+                  @for (step of stepsForChef(chef); track step.step) {
+                    <li class="step" [class.step--parallel]="step.parallel">
+                      <span class="step__num" aria-hidden="true">{{ step.step }}</span>
+                      <div class="step__body">
+                        <div class="step__head">
+                          <h4 class="step__title">{{ step.title }}</h4>
+                          @if (step.parallel) {
+                            <span class="step__parallel">⇄ Parallel</span>
+                          }
+                        </div>
+                        <p class="step__text">{{ step.instruction }}</p>
+                      </div>
+                    </li>
                   }
-                </div>
-                <p class="step__text">{{ step.instruction }}</p>
+                </ol>
               </div>
-            </li>
-          }
-        </ol>
+            }
+          </div>
+        } @else {
+          <ol class="steps">
+            @for (step of recipe.directions; track step.step) {
+              <li class="step" [class.step--parallel]="step.parallel">
+                <span class="step__num" aria-hidden="true">{{ step.step }}</span>
+                <div class="step__body">
+                  <div class="step__head">
+                    <h3 class="step__title">{{ step.title }}</h3>
+                    @if (step.parallel) {
+                      <span class="step__parallel">⇄ Parallel</span>
+                    }
+                  </div>
+                  <p class="step__text">{{ step.instruction }}</p>
+                </div>
+              </li>
+            }
+          </ol>
+        }
       </section>
 
     </article>

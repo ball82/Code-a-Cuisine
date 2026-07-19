@@ -319,13 +319,63 @@
   border-radius: 999px;
   background: var(--color-sage);
   color: var(--color-green-dark);
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 600;
 }
 
 .step__text {
   margin: 0.35rem 0 0;
   color: var(--color-text);
+}
+
+/* --- ToDo-Listen pro Koch (US9) --- */
+.crew {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(1rem, 3vw, 2rem);
+  margin-top: 1rem;
+}
+
+@media (min-width: 40rem) {
+  .crew {
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  }
+}
+
+.crew__col {
+  padding: 1rem 1.1rem;
+  border-radius: 0.9rem;
+  background: var(--color-sage);
+}
+
+.crew__name {
+  margin: 0 0 0.75rem;
+  color: var(--color-green-dark);
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.steps--crew {
+  margin: 0;
+}
+
+/* --- Parallel-Markierung (US8) --- */
+.step__parallel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.1rem 0.6rem;
+  border-radius: 999px;
+  background: var(--color-green-accent);
+  color: var(--color-cream);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+/* Parallele Schritte optisch abheben (linke Kante). */
+.step--parallel .step__num {
+  background: var(--color-green-accent);
 }
 
 /* --- CTA-Leiste --- */

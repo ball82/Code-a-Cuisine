@@ -37,13 +37,18 @@
   line-height: 1.2;
 }
 
-.card__time {
+.card__time,
+.card__cuisine {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
   margin: 0;
   color: var(--color-text);
   font-size: 0.9rem;
+}
+
+.card__cuisine {
+  margin-top: -0.4rem;
 }
 
 .card__tags {
