@@ -104,17 +104,17 @@
           <div class="ingredients__col">
             <h3 class="ingredients__sub">Your ingredients</h3>
             <ul class="ingredients__list" role="list">
-              @for (ing of recipe.yourIngredients; track ing.name) {
+              @for (ing of yourIngredients(); track ing.name) {
                 <li>{{ formatIngredient(ing) }}</li>
               }
             </ul>
           </div>
 
-          @if (recipe.extraIngredients.length) {
+          @if (extraIngredients().length) {
             <div class="ingredients__col">
               <h3 class="ingredients__sub">Extra ingredients</h3>
               <ul class="ingredients__list" role="list">
-                @for (ing of recipe.extraIngredients; track ing.name) {
+                @for (ing of extraIngredients(); track ing.name) {
                   <li>{{ formatIngredient(ing) }}</li>
                 }
               </ul>

@@ -41,6 +41,10 @@ Pixelgenaues Bauen: das jeweilige Screen-Bild NUR in der Aufgabe hochladen, in d
 ### landing (Hero)
 Grüner Hintergrund. Logo oben links. Große Headline "AI-Powered recipe generator / **Code à Cuisine**". Creme-Button "Get started". Unten "Hungry for inspiration? → Go to cookbook". Rechts (Desktop) bzw. oben kaskadierend (Mobile) drei runde Teller-Fotos.
 
+**Asset-Anforderung `teller_1/2/3.svg` (bei Re-Export aus Figma beachten!):** Die viewBox MUSS eng auf die Form beschnitten sein — Kreis/Ellipse füllt die Box, Mittelpunkt bei 50%. Figma exportiert die Teller sonst so, wie sie im Frame beschnitten waren (`teller_1` oben, `teller_3` unten gekappt, unterschiedlich viel Luft in der Box). Das Layout stapelt die Teller über eine einzige Überlappungs-Konstante; ungleiche Boxen ⇒ ungleiche Mittelpunkt-Abstände ("Teller nicht gleich übereinander") und flache Schnittkanten mitten im Grün. Soll-Werte: `teller_1` 470×470 / `viewBox="0 -42 470 470"`, `teller_2` 484×484 / `viewBox="0 6 484 484"`, `teller_3` 482.6×502.4 / `viewBox="0.109 6.085 482.6 502.4"` (leicht oval = schräg fotografierter Teller, kein Fehler).
+
+**Responsive-Regel Hero:** Die Teller sind höhenbasiert dimensioniert und schrumpfen beim Verschmälern NICHT mit — sie werden vom rechten Bildschirmrand zunehmend angeschnitten. Der Inhalt ist links verankert (max. 1400px, **kein** `margin-inline: auto`), damit das Logo auf jedem Screen gleich weit vom Rand steht.
+
 ### ingredients ("Generate recipe")
 Weißer Hintergrund, zentrierte grüne Heading + Untertitel. Desktop: zwei Sage-Karten nebeneinander. Links: Eingabefeld "Ingredient" mit Autocomplete-Dropdown, "Serving size" (Zahl + Einheit-Dropdown), "+"-Button. Rechts: "List of your Ingredients" — Liste `• Menge  Name` mit Edit-/Delete-Icon je Zeile. **Neueste Zutat steht oben.** Mobile: Karten gestapelt. "Next step"-Button unten rechts (erscheint sobald Zutaten da sind).
 

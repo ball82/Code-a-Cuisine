@@ -1,0 +1,650 @@
+{
+  "name": "recipe-generator",
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "const header = $input.first().json.headers['x-forwarded-for'] ?? '';\nconst rawIp = header.split(',')[0].trim();\nconst cleanIp = rawIp.replace(/[.:]/g, '_');\n\n// Datum im Format YYYY-MM-DD (UTC)\nconst date = new Date().toISOString().slice(0, 10);\n\n// Fertige Firestore-Doc-IDs\nconst ipUsageId = `${cleanIp}_${date}`;\nconst dailyUsageId = date;\n\nreturn [{ json: { rawIp, cleanIp, date, ipUsageId, dailyUsageId } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        32,
+        -432
+      ],
+      "id": "1be435ce-52c1-4444-8b6d-5a4f1408b1d4",
+      "name": "IP auslesen und säubern"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $('recipe-webhook').first().json.body;\n\nconst UNITS = ['gram', 'ml', 'liter', 'piece'];\nconst COOKING_TIMES = ['quick', 'medium', 'complex'];\nconst CUISINES = ['german', 'italian', 'japanese', 'indian', 'gourmet', 'fusion'];\nconst DIETS = ['vegetarian', 'vegan', 'keto', 'none'];\n\nconst errors = [];\n\n// ingredients\nif (!Array.isArray(body.ingredients) || body.ingredients.length === 0) {\n  errors.push('ingredients must have at least one entry');\n} else {\n  body.ingredients.forEach((ing, i) => {\n    if (!ing.name || typeof ing.name !== 'string') errors.push(`ingredients[${i}]: name missing`);\n    if (!ing.amount || ing.amount <= 0) errors.push(`ingredients[${i}]: amount must be > 0`);\n    if (!UNITS.includes(ing.unit)) errors.push(`ingredients[${i}]: unit invalid`);\n  });\n}\n\n// portions\nif (!Number.isInteger(body.portions) || body.portions < 1 || body.portions > 12) {\n  errors.push('portions must be an integer between 1 and 12');\n}\n\n// cooks\nif (!Number.isInteger(body.cooks) || body.cooks < 1 || body.cooks > 3) {\n  errors.push('cooks must be an integer between 1 and 3');\n}\n\n// cookingTime, cuisine, diet\nif (!COOKING_TIMES.includes(body.cookingTime)) errors.push('cookingTime invalid');\nif (!CUISINES.includes(body.cuisine)) errors.push('cuisine invalid');\nif (!DIETS.includes(body.diet)) errors.push('diet invalid');\n\n// Ergebnis\nif (errors.length > 0) {\n  return [{ json: { valid: false, errors } }];\n}\n\nreturn [{ json: { valid: true, body } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        160,
+        0
+      ],
+      "id": "3fed471f-1eaf-4384-8446-ea34bdc7ba45",
+      "name": "Validate Input"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "generate-recipe",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -80,
+        -64
+      ],
+      "id": "dedf575b-7b26-4d71-9c78-85d8f8c701e0",
+      "name": "recipe-webhook",
+      "webhookId": "fa079f11-b730-4ec4-bba3-4f4ad176df6c",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"error\": \"Invalid input\", \"details\": $('Validate Input').first().json.errors } }}",
+        "options": {
+          "responseCode": 400
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        384,
+        176
+      ],
+      "id": "52a4f87a-7a45-4945-a857-588fa97033da",
+      "name": "Fehler: Validierung"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "projectId": "code-a-cuisine-9c87f",
+        "collection": "ipUsage",
+        "documentId": "={{ $('IP auslesen und säubern').first().json.ipUsageId }}"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        384,
+        -464
+      ],
+      "id": "3a0cf2bc-8d36-4202-b6e0-68553d024e78",
+      "name": "ipUsage lesen",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleApi": {
+          "id": "cdvoQV6M9dZLN3MF",
+          "name": "Google Service Account account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "projectId": "code-a-cuisine-9c87f",
+        "collection": "dailyUsage",
+        "documentId": "={{ $('IP auslesen und säubern').first().json.dailyUsageId }}"
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        496,
+        -224
+      ],
+      "id": "a5811920-e306-44f9-9ba6-0c6d44346827",
+      "name": "dailyUsage lesen",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleApi": {
+          "id": "cdvoQV6M9dZLN3MF",
+          "name": "Google Service Account account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Beide Zähler lesen, fehlend = 0\nconst ipItem = $('ipUsage lesen').first().json;\nconst dailyItem = $('dailyUsage lesen').first().json;\n\nconst ipCount = ipItem.count ?? 0;\nconst dailyCount = dailyItem.count ?? 0;\n\nconst IP_LIMIT = 3;\nconst DAILY_LIMIT = 12;\n\nlet blocked = false;\nlet reason = '';\n\nif (dailyCount >= DAILY_LIMIT) {\n  blocked = true;\n  reason = 'daily_limit';\n} else if (ipCount >= IP_LIMIT) {\n  blocked = true;\n  reason = 'ip_limit';\n}\n\nreturn [{ json: { blocked, reason, ipCount, dailyCount } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        608,
+        0
+      ],
+      "id": "48007526-cf25-4cd4-80f9-cea4d615b1b9",
+      "name": "Quota prüfen"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "7da922c8-da25-409d-bb33-152b988fe141",
+              "leftValue": "={{ $json.blocked }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        720,
+        -448
+      ],
+      "id": "4611a1cd-bb93-4eca-9f3d-3cc4ade1a7a7",
+      "name": "Quota-Tor"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "2c1ffbea-8ab0-4769-8bb9-2498f562750a",
+              "leftValue": "={{ $json.valid }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        272,
+        -304
+      ],
+      "id": "2fa1e12a-8885-42f1-968f-699e34e686f0",
+      "name": "Gültige Anfragen",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"error\": \"quota_exceeded\", \"reason\": $('Quota prüfen').first().json.reason } }}",
+        "options": {
+          "responseCode": 429
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        944,
+        -448
+      ],
+      "id": "d65d4052-f709-430c-8ecf-90d0a7b03005",
+      "name": "Fehler: Quota"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $('recipe-webhook').first().json.body;\n\n// Nutzer-Eingaben lesbar für den Prompt aufbereiten\nconst ingredientList = body.ingredients\n  .map(i => `${i.amount} ${i.unit} ${i.name}`)\n  .join(', ');\n\n// System-/Instruktions-Text\nconst promptText = `You are a professional recipe creator. Generate EXACTLY 3 distinct recipes.\n\nUSER INPUT:\n- Available ingredients: ${ingredientList}\n- Portions: ${body.portions}\n- Number of cooks: ${body.cooks}\n- Cooking time preference: ${body.cookingTime}\n- Cuisine: ${body.cuisine}\n- Diet: ${body.diet}\n\nHARD RULES:\n1. Each recipe MUST use at least 70% of the user's available ingredients (in \"yourIngredients\").\n2. Each recipe may add AT MOST 3 extra ingredients (in \"extraIngredients\").\n3. Respect the diet \"${body.diet}\" strictly. If \"none\", no restriction.\n4. Respect the cuisine \"${body.cuisine}\".\n5. Nutrition values are PER SINGLE PORTION, not total.\n6. Distribute cooking steps across ${body.cooks} cook(s) using the \"chef\" field (1 to ${body.cooks}). If there is only 1 cook, every step has chef = 1.\n7. Check quantity plausibility: amounts must realistically serve ${body.portions} portion(s).\n8. All units must be one of: gram, ml, liter, piece.\n9. Steps must be numbered starting at 1 and be in logical order.\n\nReturn ONLY structured JSON matching the provided schema.`;\n\n// responseSchema für Gemini (Vertrag 2, ohne id/likes/createdAt — die setzt n8n später)\nconst responseSchema = {\n  type: \"object\",\n  properties: {\n    recipes: {\n      type: \"array\",\n      items: {\n        type: \"object\",\n        properties: {\n          title: { type: \"string\" },\n          cuisine: { type: \"string\" },\n          tags: { type: \"array\", items: { type: \"string\" } },\n          cookingTimeMinutes: { type: \"integer\" },\n          portions: { type: \"integer\" },\n          cooks: { type: \"integer\" },\n          nutritionPerPortion: {\n            type: \"object\",\n            properties: {\n              calories: { type: \"integer\" },\n              protein: { type: \"integer\" },\n              fat: { type: \"integer\" },\n              carbs: { type: \"integer\" }\n            },\n            required: [\"calories\", \"protein\", \"fat\", \"carbs\"]\n          },\n          yourIngredients: {\n            type: \"array\",\n            items: {\n              type: \"object\",\n              properties: {\n                name: { type: \"string\" },\n                amount: { type: \"number\" },\n                unit: { type: \"string\" }\n              },\n              required: [\"name\", \"amount\", \"unit\"]\n            }\n          },\n          extraIngredients: {\n            type: \"array\",\n            items: {\n              type: \"object\",\n              properties: {\n                name: { type: \"string\" },\n                amount: { type: \"number\" },\n                unit: { type: \"string\" }\n              },\n              required: [\"name\", \"amount\", \"unit\"]\n            }\n          },\n          directions: {\n            type: \"array\",\n            items: {\n              type: \"object\",\n              properties: {\n                step: { type: \"integer\" },\n                title: { type: \"string\" },\n                chef: { type: \"integer\" },\n                instruction: { type: \"string\" }\n              },\n              required: [\"step\", \"title\", \"chef\", \"instruction\"]\n            }\n          }\n        },\n        required: [\"title\", \"cuisine\", \"tags\", \"cookingTimeMinutes\", \"portions\", \"cooks\", \"nutritionPerPortion\", \"yourIngredients\", \"extraIngredients\", \"directions\"]\n      }\n    }\n  },\n  required: [\"recipes\"]\n};\n\nreturn [{ json: { promptText, responseSchema } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        832,
+        0
+      ],
+      "id": "601f671a-b05b-42ff-9dda-dbe5ffa1f26a",
+      "name": "Gemini-Prompt bauen"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googlePalmApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  contents: [{ parts: [{ text: $json.promptText }] }],\n  generationConfig: {\n    responseMimeType: \"application/json\",\n    responseSchema: $json.responseSchema\n  }\n}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        944,
+        -288
+      ],
+      "id": "72dd3d51-0529-4e52-9912-2264984a48a7",
+      "name": "Gemini aufrufen",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "0OZN0A35BKkbUbFu",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $('Gemini aufrufen').first().json;\n\n// 1. Den Text-Teil herausholen\nlet rawText;\ntry {\n  rawText = response.candidates[0].content.parts[0].text;\n} catch (e) {\n  throw new Error('Gemini response has unexpected structure (no candidates/parts)');\n}\n\n// 2. String zu echtem Objekt parsen\nlet parsed;\ntry {\n  parsed = JSON.parse(rawText);\n} catch (e) {\n  throw new Error('Gemini did not return valid JSON: ' + e.message);\n}\n\n// 3. Struktur prüfen: genau 3 Rezepte\nif (!Array.isArray(parsed.recipes)) {\n  throw new Error('Gemini response missing \"recipes\" array');\n}\nif (parsed.recipes.length !== 3) {\n  throw new Error(`Expected exactly 3 recipes, got ${parsed.recipes.length}`);\n}\n\n// 4. Pro Rezept: max. 3 extraIngredients (Vertrag-Regel)\nparsed.recipes.forEach((r, i) => {\n  if (!Array.isArray(r.extraIngredients)) {\n    throw new Error(`Recipe ${i}: extraIngredients missing`);\n  }\n  if (r.extraIngredients.length > 3) {\n    throw new Error(`Recipe ${i}: too many extraIngredients (${r.extraIngredients.length})`);\n  }\n});\n\n// Alles ok → die 3 Rezepte als einzelne Items weitergeben\nreturn parsed.recipes.map(recipe => ({ json: recipe }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1056,
+        0
+      ],
+      "id": "f6ab8bfc-73b6-465e-b018-31cd5944374d",
+      "name": "Gemini-Antwort prüfen"
+    },
+    {
+      "parameters": {
+        "jsCode": "const now = new Date().toISOString();\n\nreturn $input.all().map(item => ({\n  json: {\n    ...item.json,\n    createdAt: now\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1168,
+        -288
+      ],
+      "id": "40f696c2-176f-4b62-901b-4d5dcd97d78e",
+      "name": "Server-Felder ergänzen"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "create",
+        "projectId": "code-a-cuisine-9c87f",
+        "collection": "recipes",
+        "columns": "title, cuisine, tags, cookingTimeMinutes, portions, cooks, nutritionPerPortion, yourIngredients, extraIngredients, directions, createdAt",
+        "simple": false
+      },
+      "type": "n8n-nodes-base.googleFirebaseCloudFirestore",
+      "typeVersion": 1.1,
+      "position": [
+        1280,
+        0
+      ],
+      "id": "416edcf9-6e27-471e-b83d-8dbc826a06e5",
+      "name": "Rezept speichern",
+      "credentials": {
+        "googleApi": {
+          "id": "cdvoQV6M9dZLN3MF",
+          "name": "Google Service Account account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const allItems = $input.all();\n\nconst recipeIds = allItems.map(item => {\n  return item.json.id ?? item.json.name.split('/').pop();\n});\n\nreturn [{ json: { recipeIds } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1392,
+        -288
+      ],
+      "id": "3336a2e5-d759-4021-b218-b0ea391cbf21",
+      "name": "Ergebnisse bündeln"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://firestore.googleapis.com/v1/projects/code-a-cuisine-9c87f/databases/(default)/documents:commit",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  writes: $json.recipeIds.map(id => ({\n    transform: {\n      document: \"projects/code-a-cuisine-9c87f/databases/(default)/documents/recipes/\" + id,\n      fieldTransforms: [{\n        fieldPath: \"likes\",\n        increment: { integerValue: \"0\" }\n      }]\n    }\n  }))\n}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1504,
+        0
+      ],
+      "id": "e87c9c48-ccc5-4116-960b-50856bb75499",
+      "name": "Likes initialisieren",
+      "credentials": {
+        "googleApi": {
+          "id": "cdvoQV6M9dZLN3MF",
+          "name": "Google Service Account account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://firestore.googleapis.com/v1/projects/code-a-cuisine-9c87f/databases/(default)/documents:commit",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  writes: [{\n    transform: {\n      document: \"projects/code-a-cuisine-9c87f/databases/(default)/documents/ipUsage/\" + $('IP auslesen und säubern').first().json.ipUsageId,\n      fieldTransforms: [{\n        fieldPath: \"count\",\n        increment: { integerValue: \"1\" }\n      }]\n    }\n  }]\n}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1616,
+        -288
+      ],
+      "id": "f0861c4d-dcf6-48fd-9ca2-2a4c5f9084b9",
+      "name": "ipUsage hochsetzen",
+      "credentials": {
+        "googleApi": {
+          "id": "cdvoQV6M9dZLN3MF",
+          "name": "Google Service Account account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://firestore.googleapis.com/v1/projects/code-a-cuisine-9c87f/databases/(default)/documents:commit",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  writes: [{\n    transform: {\n      document: \"projects/code-a-cuisine-9c87f/databases/(default)/documents/dailyUsage/\" + $('IP auslesen und säubern').first().json.dailyUsageId,\n      fieldTransforms: [{\n        fieldPath: \"count\",\n        increment: { integerValue: \"1\" }\n      }]\n    }\n  }]\n}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1728,
+        -16
+      ],
+      "id": "e463256b-935e-4a69-883b-a8e76c765ca0",
+      "name": "dailyUsage hochsetzen",
+      "credentials": {
+        "googleApi": {
+          "id": "cdvoQV6M9dZLN3MF",
+          "name": "Google Service Account account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const recipes = $('Server-Felder ergänzen').all().map(item => item.json);\nconst recipeIds = $('Ergebnisse bündeln').first().json.recipeIds;\n\nconst recipesWithIds = recipes.map((recipe, i) => ({\n  id: recipeIds[i],\n  ...recipe,\n  likes: 0\n}));\n\nreturn [{ json: { recipes: recipesWithIds } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1856,
+        -320
+      ],
+      "id": "5c318a2c-a1c2-44a6-a46f-4db38e8455c5",
+      "name": "Antwort bauen"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1968,
+        -16
+      ],
+      "id": "220aaf13-04ed-4b98-9012-1e12f9dce25b",
+      "name": "Antwort zurückgeben"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "IP auslesen und säubern": {
+      "main": [
+        [
+          {
+            "node": "Validate Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "recipe-webhook": {
+      "main": [
+        [
+          {
+            "node": "IP auslesen und säubern",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Input": {
+      "main": [
+        [
+          {
+            "node": "Gültige Anfragen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ipUsage lesen": {
+      "main": [
+        [
+          {
+            "node": "dailyUsage lesen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "dailyUsage lesen": {
+      "main": [
+        [
+          {
+            "node": "Quota prüfen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Quota prüfen": {
+      "main": [
+        [
+          {
+            "node": "Quota-Tor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Quota-Tor": {
+      "main": [
+        [
+          {
+            "node": "Fehler: Quota",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Gemini-Prompt bauen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gültige Anfragen": {
+      "main": [
+        [
+          {
+            "node": "ipUsage lesen",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fehler: Validierung",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini-Prompt bauen": {
+      "main": [
+        [
+          {
+            "node": "Gemini aufrufen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini aufrufen": {
+      "main": [
+        [
+          {
+            "node": "Gemini-Antwort prüfen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini-Antwort prüfen": {
+      "main": [
+        [
+          {
+            "node": "Server-Felder ergänzen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Server-Felder ergänzen": {
+      "main": [
+        [
+          {
+            "node": "Rezept speichern",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rezept speichern": {
+      "main": [
+        [
+          {
+            "node": "Ergebnisse bündeln",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ergebnisse bündeln": {
+      "main": [
+        [
+          {
+            "node": "Likes initialisieren",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Likes initialisieren": {
+      "main": [
+        [
+          {
+            "node": "ipUsage hochsetzen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ipUsage hochsetzen": {
+      "main": [
+        [
+          {
+            "node": "dailyUsage hochsetzen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "dailyUsage hochsetzen": {
+      "main": [
+        [
+          {
+            "node": "Antwort bauen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Antwort bauen": {
+      "main": [
+        [
+          {
+            "node": "Antwort zurückgeben",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "288592be-488b-4856-b9e7-af3914d8d5be",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3e40def7fc85a5d9511cb2d48d14f2abc51334becff0ff239b4f61dca479cf16"
+  },
+  "nodeGroups": [],
+  "id": "lg6W16c5hRJHqFom",
+  "tags": []
+}

@@ -9,6 +9,11 @@ import { RecipeStore } from '../../core/services/recipe-store';
 /** Kurzform der Einheit für die Zutatenzeile. */
 const UNIT_SHORT: Record<Unit, string> = { gram: 'g', ml: 'ml', liter: 'l', piece: '×' };
 
+/** Rundet eine skalierte Menge auf max. 1 Nachkommastelle (ganze Zahlen bleiben ganz). */
+function roundAmount(amount: number): number {
+  return Math.round(amount * 10) / 10;
+}
+
 /**
  * Rezept-Detailseite. Zeigt Nährwerte (skalierbar über einen Portions-Regler),
  * Zutaten (deine + Extra), die Kochschritte mit Chef-Badges und einen
@@ -59,10 +64,32 @@ export class RecipeDetail {
     };
   });
 
+  /**
+   * Skalierungsfaktor für die Zutatenmengen: gewählte Portionen ÷ Portionen,
+   * für die das Rezept ursprünglich generiert wurde. Bei gleicher Portionszahl
+   * bleibt er 1 (Originalmengen).
+   */
+  readonly scale = computed(() => {
+    const base = this.recipe?.portions ?? 0;
+    return base > 0 ? this.portions() / base : 1;
+  });
+
+  /** Zutaten des Nutzers, auf die gewählte Portionszahl hochgerechnet. */
+  readonly yourIngredients = computed(() => this.scaleList(this.recipe?.yourIngredients));
+
+  /** Zusätzlich benötigte Zutaten, ebenfalls auf die Portionszahl skaliert. */
+  readonly extraIngredients = computed(() => this.scaleList(this.recipe?.extraIngredients));
+
   /** Chef-Nummern von 1..cooks (für die "Cooking person"-Pillen). */
   readonly chefs = computed(() =>
     this.recipe ? Array.from({ length: this.recipe.cooks }, (_, i) => i + 1) : []
   );
+
+  /** Rechnet eine Zutatenliste mit dem aktuellen Skalierungsfaktor hoch (Menge × Faktor). */
+  private scaleList(list: Ingredient[] | undefined): Ingredient[] {
+    const factor = this.scale();
+    return (list ?? []).map((ing) => ({ ...ing, amount: roundAmount(ing.amount * factor) }));
+  }
 
   constructor() {
     const id = this.route.snapshot.paramMap.get('id');
