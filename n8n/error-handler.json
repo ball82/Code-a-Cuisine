@@ -1,0 +1,94 @@
+{
+  "name": "error-handler",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        -360,
+        0
+      ],
+      "id": "91a24696-da4e-4303-bb72-2b7ec4c3b551",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Der Error Trigger liefert den Kontext des fehlgeschlagenen Workflow-Laufs.\n// Wir ziehen die wichtigsten Felder defensiv heraus (Struktur variiert je\n// nach Fehlerquelle) und bauen daraus ein flaches Fehler-Dokument.\nconst t = $input.first().json;\nconst execution = t.execution ?? {};\nconst workflow = t.workflow ?? {};\nconst err = execution.error ?? {};\n\nconst message = err.message ?? 'Unbekannter Fehler';\nconst failedNode = err.node?.name ?? execution.lastNodeExecuted ?? 'unbekannt';\nconst workflowName = workflow.name ?? 'unbekannt';\nconst workflowId = workflow.id ?? 'unbekannt';\nconst executionId = String(execution.id ?? 'n/a');\nconst executionUrl = execution.url ?? '';\nconst timestamp = new Date().toISOString();\n\n// Eigene Doc-ID je Fehler (Zeitstempel + Execution-ID), Firestore-tauglich gemacht.\nconst docId = `${timestamp.replace(/[:.]/g, '-')}_${executionId}`;\n\nreturn [{ json: { docId, workflowName, workflowId, failedNode, message, executionId, executionUrl, timestamp } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -120,
+        0
+      ],
+      "id": "26cecdfb-6b2a-4462-a7da-f541cd2f4b79",
+      "name": "Fehler aufbereiten"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://firestore.googleapis.com/v1/projects/code-a-cuisine-9c87f/databases/(default)/documents:commit",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  writes: [{\n    update: {\n      name: \"projects/code-a-cuisine-9c87f/databases/(default)/documents/errors/\" + $json.docId,\n      fields: {\n        workflowName: { stringValue: $json.workflowName },\n        workflowId:   { stringValue: $json.workflowId },\n        failedNode:   { stringValue: $json.failedNode },\n        message:      { stringValue: $json.message },\n        executionId:  { stringValue: $json.executionId },\n        executionUrl: { stringValue: $json.executionUrl },\n        timestamp:    { timestampValue: $json.timestamp }\n      }\n    }\n  }]\n}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        140,
+        0
+      ],
+      "id": "c472bced-13d8-460a-9d0b-f683b67e58da",
+      "name": "Fehler in Firestore schreiben",
+      "credentials": {
+        "googleApi": {
+          "id": "cdvoQV6M9dZLN3MF",
+          "name": "Google Service Account account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fehler aufbereiten",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fehler aufbereiten": {
+      "main": [
+        [
+          {
+            "node": "Fehler in Firestore schreiben",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "620672e1-0dc3-4628-bbb6-b3fea29f591a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3e40def7fc85a5d9511cb2d48d14f2abc51334becff0ff239b4f61dca479cf16"
+  },
+  "nodeGroups": [],
+  "id": "6lRfmxI5r30AU9ly",
+  "tags": []
+}

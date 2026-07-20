@@ -15,6 +15,41 @@ function roundAmount(amount: number): number {
   return Math.round(amount * 10) / 10;
 }
 
+/** Energiegehalt pro Gramm Makronährstoff (kcal) – Basis der Prozent-Aufteilung. */
+const KCAL_PER_GRAM = { protein: 4, fat: 9, carbs: 4 } as const;
+
+/** Ein Segment der Makroverteilung für Chart, Legende und Tabelle. */
+export interface MacroSlice {
+  /** Schlüssel = zugleich CSS-Klassenendung (protein/fat/carbs). */
+  key: 'protein' | 'fat' | 'carbs';
+  label: string;
+  /** Auf die gewählte Portionszahl skalierte Menge in Gramm. */
+  grams: number;
+  /** Ganzzahliger Anteil an der Nährenergie; die drei Werte ergeben zusammen 100. */
+  percent: number;
+  /** Datenfarbe des Segments (CSS-Variable aus styles.scss). */
+  color: string;
+}
+
+/**
+ * Rundet Anteile so auf ganze Prozent, dass die Summe exakt 100 bleibt
+ * (Largest-Remainder-Verfahren): erst abrunden, dann die verbleibenden Punkte
+ * an die Werte mit dem grössten Nachkomma-Rest verteilen.
+ */
+function roundPercentages(shares: number[]): number[] {
+  const raw = shares.map((s) => s * 100);
+  const floors = raw.map(Math.floor);
+  let remainder = 100 - floors.reduce((a, b) => a + b, 0);
+  const order = raw
+    .map((value, i) => ({ i, frac: value - floors[i] }))
+    .sort((a, b) => b.frac - a.frac);
+  const result = [...floors];
+  for (let k = 0; k < order.length && remainder > 0; k++, remainder--) {
+    result[order[k].i]++;
+  }
+  return result;
+}
+
 /**
  * Rezept-Detailseite. Zeigt Nährwerte (skalierbar über einen Portions-Regler),
  * Zutaten (deine + Extra), die Kochschritte mit Chef-Badges und einen
@@ -80,6 +115,47 @@ export class RecipeDetail {
       carbs: Math.round(n.carbs * f)
     };
   });
+
+  /**
+   * Makroverteilung (US10): Anteil der drei Makronährstoffe an der Nährenergie.
+   * Die Prozente kommen aus dem Energiegehalt (Fett 9 kcal/g, Protein/Carbs je
+   * 4 kcal/g), nicht aus der Masse – so entspricht die Aufteilung dem, was der
+   * kcal-Wert oben ausmacht. Die Prozente sind portionsunabhängig (ein
+   * Verhältnis); die Gramm-Angaben skalieren mit dem Portionsregler.
+   */
+  readonly macros = computed<MacroSlice[]>(() => {
+    const n = this.nutrition();
+    if (!n) return [];
+    const energy = {
+      protein: n.protein * KCAL_PER_GRAM.protein,
+      fat: n.fat * KCAL_PER_GRAM.fat,
+      carbs: n.carbs * KCAL_PER_GRAM.carbs
+    };
+    const total = energy.protein + energy.fat + energy.carbs;
+    const keys = ['protein', 'fat', 'carbs'] as const;
+    const labels = { protein: 'Protein', fat: 'Fat', carbs: 'Carbs' };
+    const colors = {
+      protein: 'var(--chart-protein)',
+      fat: 'var(--chart-fat)',
+      carbs: 'var(--chart-carbs)'
+    };
+    // Ohne Nährenergie (alle Makros 0) bleibt die Aufteilung leer statt 0/0.
+    const percents = total > 0 ? roundPercentages(keys.map((k) => energy[k] / total)) : [0, 0, 0];
+    return keys.map((key, i) => ({
+      key,
+      label: labels[key],
+      grams: n[key],
+      percent: percents[i],
+      color: colors[key]
+    }));
+  });
+
+  /** Barrierefreie Textfassung der Makroverteilung (für den Screenreader). */
+  readonly macroSummary = computed(() =>
+    this.macros()
+      .map((m) => `${m.label} ${m.percent}%`)
+      .join(', ')
+  );
 
   /**
    * Skalierungsfaktor für die Zutatenmengen: gewählte Portionen ÷ Portionen,

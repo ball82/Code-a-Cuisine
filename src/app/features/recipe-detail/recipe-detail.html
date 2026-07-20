@@ -94,6 +94,42 @@
               <span class="nutrition__key">carbs</span>
             </li>
           </ul>
+
+          <!-- ===== Makroverteilung (US10) =====
+               100%-Stapelbalken der Nährenergie – bleibt auch schmal lesbar.
+               Prozent und Gramm stehen zusätzlich in der Legende (Datenfarbe
+               allein trägt keine Information). -->
+          @if (macros().length) {
+            <figure class="macros">
+              <figcaption class="macros__caption">Macronutrient split (by energy)</figcaption>
+
+              <div
+                class="macrobar"
+                role="img"
+                [attr.aria-label]="'Macronutrient split: ' + macroSummary()">
+                @for (m of macros(); track m.key) {
+                  <div
+                    class="macrobar__seg"
+                    [style.flex-grow]="m.percent"
+                    [style.background]="m.color">
+                    @if (m.percent >= 10) {
+                      <span class="macrobar__pct">{{ m.percent }}%</span>
+                    }
+                  </div>
+                }
+              </div>
+
+              <ul class="macros__legend" role="list">
+                @for (m of macros(); track m.key) {
+                  <li class="macros__legend-item">
+                    <span class="macros__swatch" [style.background]="m.color" aria-hidden="true"></span>
+                    <span class="macros__legend-label">{{ m.label }}</span>
+                    <span class="macros__legend-val">{{ m.percent }}% · {{ m.grams }} g</span>
+                  </li>
+                }
+              </ul>
+            </figure>
+          }
         }
       </section>
 

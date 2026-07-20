@@ -117,10 +117,22 @@
     <button
       class="generate-btn"
       type="button"
-      [disabled]="loading()"
+      [disabled]="loading() || quota.remaining() === 0"
       (click)="generate()">
       {{ loading() ? 'Generating…' : 'Generate a recipe' }}
     </button>
+
+    <!-- Transparenz (US11): heutiges IP-Tageskontingent sichtbar machen. -->
+    <p class="prefs__quota">
+      @if (quota.remaining() === null) {
+        You can generate up to {{ quota.dailyLimit }} recipes per day.
+      } @else if (quota.remaining() === 0) {
+        You've used all {{ quota.dailyLimit }} of today's generations — come back tomorrow.
+      } @else {
+        {{ quota.remaining() }} of {{ quota.dailyLimit }} recipe
+        {{ quota.remaining() === 1 ? 'generation' : 'generations' }} left today.
+      }
+    </p>
 
     @if (error(); as e) {
       <p class="prefs__error" role="alert">{{ e }}</p>

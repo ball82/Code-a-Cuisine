@@ -97,7 +97,7 @@
   border-radius: 999px;
   background: var(--color-beige);
   color: var(--color-green-accent);
-  font-size: 0.8rem;
+  font-size: 0.875rem;
   font-weight: 600;
 }
 
@@ -120,7 +120,7 @@
   text-transform: none;
   border: none;
   font-family: inherit;
-  font-size: 0.8rem;
+  font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
@@ -234,8 +234,81 @@
 }
 
 .nutrition__key {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: var(--color-text);
+}
+
+/* --- Makroverteilung (100%-Stapelbalken) --- */
+.macros {
+  margin: 1.25rem 0 0;
+}
+
+.macros__caption {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 0.5rem;
+}
+
+.macrobar {
+  display: flex;
+  width: 100%;
+  height: 2rem;
+  border-radius: 999px;
+  overflow: hidden;
+  /* 2px Fugen in Flächenfarbe (Karte = Creme) trennen die Segmente. */
+  gap: 2px;
+  background: var(--color-cream);
+}
+
+.macrobar__seg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  flex-basis: 0;
+  overflow: hidden;
+}
+
+.macrobar__pct {
+  /* Label liegt in der Datenfarbe – Creme gewählt, deckt Blau/Grün/Magenta. */
+  color: var(--color-cream);
+  font-size: 0.9rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.macros__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.1rem;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.macros__legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+}
+
+.macros__swatch {
+  width: 0.85rem;
+  height: 0.85rem;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.macros__legend-label {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.macros__legend-val {
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
 }
 
 /* --- Zutaten --- */

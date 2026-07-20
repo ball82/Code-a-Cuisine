@@ -193,7 +193,7 @@
     {
       "parameters": {
         "respondWith": "json",
-        "responseBody": "={{ { \"error\": \"quota_exceeded\", \"reason\": $('Quota prüfen').first().json.reason } }}",
+        "responseBody": "={{ { \"error\": \"quota_exceeded\", \"reason\": $('Quota prüfen').first().json.reason, \"remaining\": 0 } }}",
         "options": {
           "responseCode": 429
         }
@@ -389,7 +389,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const recipes = $('Server-Felder ergänzen').all().map(item => item.json);\nconst recipeIds = $('Ergebnisse bündeln').first().json.recipeIds;\n\nconst recipesWithIds = recipes.map((recipe, i) => ({\n  id: recipeIds[i],\n  ...recipe,\n  likes: 0\n}));\n\nreturn [{ json: { recipes: recipesWithIds } }];"
+        "jsCode": "const recipes = $('Server-Felder ergänzen').all().map(item => item.json);\nconst recipeIds = $('Ergebnisse bündeln').first().json.recipeIds;\n\nconst recipesWithIds = recipes.map((recipe, i) => ({\n  id: recipeIds[i],\n  ...recipe,\n  likes: 0\n}));\n\n// Transparenz (US11): verbleibende IP-Generierungen für heute mitgeben.\n// ipCount ist der Stand VOR dieser Anfrage; sie zählt selbst noch dazu.\nconst IP_LIMIT = 3;\nconst ipCount = $('Quota prüfen').first().json.ipCount ?? 0;\nconst remaining = Math.max(0, IP_LIMIT - (ipCount + 1));\n\nreturn [{ json: { recipes: recipesWithIds, remaining } }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -637,7 +637,8 @@
   "settings": {
     "executionOrder": "v1",
     "binaryMode": "separate",
-    "availableInMCP": false
+    "availableInMCP": false,
+    "errorWorkflow": "6lRfmxI5r30AU9ly"
   },
   "versionId": "b9958efa-b9ea-4a55-b4ab-a81cf7f858f6",
   "meta": {

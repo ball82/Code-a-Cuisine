@@ -6,6 +6,7 @@ import { RecipeDraft } from '../../core/services/recipe-draft';
 import { RecipeApi } from '../../core/services/recipe-api';
 import { RecipeStore } from '../../core/services/recipe-store';
 import { CookbookData } from '../../core/services/cookbook-data';
+import { QuotaStatus } from '../../core/services/quota-status';
 import { Loader } from '../../shared/loader/loader';
 import { ErrorDialog } from '../../shared/error-dialog/error-dialog';
 
@@ -33,6 +34,8 @@ export class Preferences {
   private readonly store = inject(RecipeStore);
   private readonly cookbook = inject(CookbookData);
   private readonly router = inject(Router);
+  /** Verbleibende Tages-Generierungen – für die Transparenz-Zeile am Button. */
+  readonly quota = inject(QuotaStatus);
 
   /** Geteilter Zustand aus dem Draft (Signals). */
   readonly portions = this.draft.portions;
@@ -108,6 +111,8 @@ export class Preferences {
           this.showInsufficient.set(true);
           return;
         }
+        // Server-bestätigten Rest-Stand merken (falls das Backend ihn liefert).
+        if (typeof response.remaining === 'number') this.quota.record(response.remaining);
         this.store.setGenerated(response.recipes);
         // Sofort ins Cookbook spiegeln, damit sie ohne Seiten-Reload auftauchen.
         this.cookbook.addGenerated(response.recipes);
@@ -115,6 +120,8 @@ export class Preferences {
       },
       error: (err) => {
         this.loading.set(false);
+        // Bei ausgeschöpfter Quota (429) den Rest-Stand auf 0 setzen.
+        if ((err as { status?: number }).status === 429) this.quota.record(0);
         this.error.set(this.messageFor(err));
       }
     });

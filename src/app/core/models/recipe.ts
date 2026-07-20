@@ -48,4 +48,9 @@ export interface Recipe {
 /** Vertrag 2 — Antwort von n8n an Angular: genau 3 Rezepte mit IDs. */
 export interface RecipeResponse {
   recipes: Recipe[];
+  /**
+   * Verbleibende Generierungen für die IP an diesem Tag (US11-Transparenz).
+   * Optional: ältere Backend-Versionen liefern das Feld noch nicht.
+   */
+  remaining?: number;
 }

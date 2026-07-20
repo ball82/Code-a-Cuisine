@@ -173,5 +173,5 @@ Response: `{ "liked": true, "newLikeCount": 5 }`
 
 - [x] Backend-Workflows (recipe-generator, like-recipe, error-handler)
 - [x] Firestore Security Rules
-- [ ] Angular-Frontend (Eingabeformular, Cookbook, Rezeptdetail, Like-Button)
+- [x] Angular-Frontend (Eingabeformular, Cookbook, Rezeptdetail, Like-Button)
 - [ ] Optional: IP-Hashing für Datenschutz, TTL-Policy für alte Zähler-Dokumente

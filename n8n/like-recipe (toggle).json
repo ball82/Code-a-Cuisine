@@ -297,7 +297,8 @@
   "settings": {
     "executionOrder": "v1",
     "binaryMode": "separate",
-    "availableInMCP": false
+    "availableInMCP": false,
+    "errorWorkflow": "6lRfmxI5r30AU9ly"
   },
   "versionId": "e074681c-97b4-4de0-a886-ebd45924c874",
   "meta": {
