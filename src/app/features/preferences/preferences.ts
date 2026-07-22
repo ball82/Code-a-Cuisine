@@ -67,16 +67,31 @@ export class Preferences {
     { value: 'none', label: 'No preferences' }
   ];
 
-  /** Stepper-Grenzen (Vertrag 1: portions 1–12, cooks 1–3). */
+  /** Ob die Portionszahl noch erhöht werden darf (Obergrenze 12, Vertrag 1). */
   readonly canMorePortions = computed(() => this.portions() < 12);
+
+  /** Ob die Portionszahl noch verringert werden darf (Untergrenze 1). */
   readonly canFewerPortions = computed(() => this.portions() > 1);
+
+  /** Ob die Anzahl kochender Personen noch erhöht werden darf (Obergrenze 3). */
   readonly canMoreCooks = computed(() => this.cooks() < 3);
+
+  /** Ob die Anzahl kochender Personen noch verringert werden darf (Untergrenze 1). */
   readonly canFewerCooks = computed(() => this.cooks() > 1);
 
+  /**
+   * Ändert die Portionszahl und hält sie im gültigen Bereich 1–12 (Vertrag 1).
+   * @param delta Schrittweite, üblicherweise +1 oder −1.
+   */
   stepPortions(delta: number): void {
     this.portions.update((p) => Math.min(12, Math.max(1, p + delta)));
   }
 
+  /**
+   * Ändert die Anzahl kochender Personen und hält sie im gültigen Bereich 1–3
+   * (Vertrag 1).
+   * @param delta Schrittweite, üblicherweise +1 oder −1.
+   */
   stepCooks(delta: number): void {
     this.cooks.update((c) => Math.min(3, Math.max(1, c + delta)));
   }
@@ -95,9 +110,12 @@ export class Preferences {
    * bereits in Firestore gespeicherte Rezepte zurück (Vertrag 2). Firebase ist
    * hier NICHT beteiligt – n8n schreibt selbst und antwortet mit den IDs.
    *
-   * Bei Erfolg landen die Rezepte im RecipeStore und wir wechseln zur
-   * Ergebnisseite. Meldet das Backend „zu wenig Zutaten", zeigen wir den
-   * freundlichen „Ups!"-Dialog statt einer Fehlermeldung.
+   * Bei Erfolg landen die Rezepte im RecipeStore, werden zur sofortigen Anzeige
+   * ins Cookbook gespiegelt (ohne Seiten-Reload) und wir wechseln zur
+   * Ergebnisseite; einen vom Server bestätigten `remaining`-Stand übernimmt der
+   * {@link QuotaStatus}. Meldet das Backend „zu wenig Zutaten", erscheint der
+   * freundliche „Ups!"-Dialog statt einer Fehlermeldung. Bei ausgeschöpfter
+   * Quota (429) wird der Rest-Stand auf 0 gesetzt.
    */
   generate(): void {
     if (this.loading()) return;
@@ -111,16 +129,13 @@ export class Preferences {
           this.showInsufficient.set(true);
           return;
         }
-        // Server-bestätigten Rest-Stand merken (falls das Backend ihn liefert).
         if (typeof response.remaining === 'number') this.quota.record(response.remaining);
         this.store.setGenerated(response.recipes);
-        // Sofort ins Cookbook spiegeln, damit sie ohne Seiten-Reload auftauchen.
         this.cookbook.addGenerated(response.recipes);
         this.router.navigate(['/recipe-results']);
       },
       error: (err) => {
         this.loading.set(false);
-        // Bei ausgeschöpfter Quota (429) den Rest-Stand auf 0 setzen.
         if ((err as { status?: number }).status === 429) this.quota.record(0);
         this.error.set(this.messageFor(err));
       }

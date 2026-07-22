@@ -13,6 +13,11 @@
   margin-inline: auto;
 }
 
+/* Klickbar zurück zur Home-Seite; der Anker umschliesst nur das Logo. */
+.prefs__logo-link {
+  display: inline-block;
+}
+
 .prefs__logo {
   width: clamp(6rem, 16vw, 8.5rem);
   height: auto;

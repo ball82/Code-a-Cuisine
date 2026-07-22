@@ -43,25 +43,34 @@ export class QuotaStatus {
     return new Date().toISOString().slice(0, 10);
   }
 
+  /**
+   * Liest den persistierten Rest-Stand, aber nur wenn er von heute ist. Ein Stand
+   * von gestern gilt nicht mehr – der Zähler ist über Nacht zurückgesetzt.
+   * @returns Der heutige `remaining`-Wert oder `null`, wenn keiner vorliegt.
+   */
   private loadForToday(): number | null {
     if (typeof localStorage === 'undefined') return null;
     try {
       const raw = localStorage.getItem(QUOTA_KEY);
       if (!raw) return null;
       const stored = JSON.parse(raw) as StoredQuota;
-      // Ein Stand von gestern gilt heute nicht mehr – der Zähler ist zurückgesetzt.
       return stored.date === this.today() ? stored.remaining : null;
     } catch {
       return null;
     }
   }
 
+  /**
+   * Schreibt den Rest-Stand samt Datum ins localStorage. Ist das localStorage
+   * nicht verfügbar (privater Modus), gilt die Anzeige nur für die Sitzung.
+   * @param value Zu speichernder Stand (Datum + verbleibende Generierungen).
+   */
   private persist(value: StoredQuota): void {
     if (typeof localStorage === 'undefined') return;
     try {
       localStorage.setItem(QUOTA_KEY, JSON.stringify(value));
     } catch {
-      /* localStorage nicht verfügbar (privater Modus) – Anzeige gilt nur für die Sitzung. */
+      return;
     }
   }
 }

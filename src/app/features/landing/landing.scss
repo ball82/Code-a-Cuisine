@@ -4,8 +4,12 @@
 
 /* ============================================================
    Hero — mobile first.
-   Grüner Vollflächen-Hintergrund (full-bleed), Inhalt links in einem
-   auf 1400px begrenzten Container, Teller rechts angeschnitten.
+   Grüner Vollflächen-Hintergrund (full-bleed) auf .hero. Zwei entkoppelte Ebenen:
+   • .hero__plates — die Teller-Kaskade, verankert am VIEWPORT-Rand (nicht an einem
+     Band). Dadurch laufen sie auf JEDER Breite an der echten rechten Bildschirm-
+     kante raus bzw. sitzen bündig daran — nie mit Grün rechts daneben.
+   • .hero__inner  — der Text-/Content, zentriert auf max. 1400px.
+   .hero { overflow: hidden } kappt die Teller an der Viewport-Kante.
    ============================================================ */
 .hero {
   --hero-pad: clamp(1.5rem, 6vw, 4rem);
@@ -14,35 +18,37 @@
      Hero-Höhe exakt füllen, damit die Teller ganz sichtbar sind (Figma-Vorlage:
      Durchmesser ≈ 49% der Frame-Höhe, Teller berühren oben/unten den Rand).
 
-     Sichtbare Stapelhöhe = 3.041 × Durchmesser + 4 × margin-block
-                          = 3.041 − 4 × 0.21 = 2.201 × --plate-size.
-     Bei 47vh ⇒ 1.034 × Hero-Höhe: der Stapel ragt nur ~1.7% je Seite heraus.
-     Teller also praktisch vollständig sichtbar, aber garantiert nie schwebend.
+     Sichtbare Stapelhöhe = 2.201 × --plate-size ⇒ bei 47vh ≈ 1.034 × Hero-Höhe:
+     der Stapel ragt nur ~1.7% je Seite heraus, Teller praktisch vollständig
+     sichtbar, aber nie schwebend.
 
-     ACHTUNG, zwei erprobte Fallen:
-     • Ein vw-Term (früher `max(38vh, 30vw)`) sprengt auf breiten/flachen Screens
-       die Höhe: auf 1791×1005 gewann 30vw=537 gegen 38vh=382 ⇒ Stapel 1486px bei
-       1005px Viewport ⇒ 46% jedes Tellers weggeschnitten.
-     • Eine Obergrenze unterhalb des vh-Terms (früher 34rem) kippt es andersrum:
-       Stapel kürzer als der Viewport ⇒ er schwebt mitten im Grün.
-     Deshalb: nur `max()` mit einem rem-Boden, der die Invariante nie unterschreitet.
-
+     ACHTUNG: keinen vw-Term und keine rem-Obergrenze unterhalb des vh-Terms
+     einbauen — beides zerreisst die Höhen-Invariante (Details siehe Git-Historie).
      Weil der Wert nicht an der Breite hängt, schrumpfen die Teller beim
      Schmalerwerden nicht — sie werden nur rechts stärker angeschnitten. */
   --plate-size: max(15rem, 47vh);
 
   position: relative;
   min-height: 100dvh;
-  overflow: hidden; /* schneidet die überstehenden Teller rechts ab */
+  overflow: hidden; /* schneidet die überstehenden Teller an der Viewport-Kante ab */
   background: var(--color-green-dark);
 }
 
-/* --- Content-Container: Grün bleibt full-bleed, der Inhalt endet bei 1400px.
-   Bewusst KEIN margin-inline: auto — der Inhalt bleibt links verankert, damit
-   das Logo auf jedem Screen gleich weit vom Rand steht (sonst 744px auf 2760px). --- */
+/* --- Inhaltsband: begrenzt NUR den Content auf max. 1400px.
+   Unter 1400px bleibt die Content-Box breit genug für mobiles Layout.
+   Ab großen Viewports wird der Content linksbündig gehalten, damit er nicht
+   zu stark nach innen wandert. --- */
 .hero__inner {
   max-width: 1400px;
+  margin-inline: auto;
   padding: var(--hero-pad);
+}
+
+@media (min-width: 1200px) {
+  .hero__inner {
+    margin-inline-start: clamp(1rem, 2.5vw, 4rem);
+    margin-inline-end: auto;
+  }
 }
 
 /* --- Inhaltsspalte: Logo oben, Intro mittig, Inspiration unten --- */
@@ -54,9 +60,9 @@
   justify-content: space-between;
   gap: 2.5rem;
   min-height: calc(100dvh - 2 * var(--hero-pad));
-  /* Nie unter die Teller laufen: Textspalte fest begrenzt. Die 57% beziehen sich
-     auf .hero__inner; inkl. Padding endet die rechte Textkante damit über alle
-     Breiten bei ≈56% des Viewports — die Teller starten frühestens bei 60%. */
+  /* Nie unter die Teller laufen: Textspalte fest begrenzt. Auf schmalen Screens
+     endet die rechte Textkante bei ≈57% der Bandbreite, die Teller starten
+     frühestens bei 60% des Viewports. */
   max-width: min(57%, 34rem);
 }
 
@@ -138,27 +144,16 @@
    füllt die Box, Mittelpunkt bei 50%) — nur dann sind die Mittelpunkt-Abstände
    im Stapel gleich. Siehe DESIGN.md.
 
-   Horizontal wird über die LINKE Kante positioniert, nicht über die rechte:
-   dadurch wandert der rechte Bildschirmrand beim Verkleinern über die Teller
-   und schneidet sie immer weiter an — statt sie zu verkleinern.
-
-   left = max(zwei Regeln):
-   • 60%  → schmale Screens: Textspalte (endet bei ≈56%) bleibt frei, die Teller
-            laufen weit über den rechten Rand hinaus (starker Anschnitt).
-   • 100% - Tellerbreite → breite Screens: rechte Tellerkante bündig mit dem
-            Bildschirmrand, Teller vollständig sichtbar (so wie in der Vorlage).
-   Umschlagpunkt bei Viewport-Breite = 2.5 × --plate-size (≈ 1.18 × Hero-Höhe):
-   darunter wandert der rechte Rand über die Teller und schneidet sie zunehmend an.
-
-   Vertikal: top/bottom: 0 macht den Container exakt so hoch wie der Hero,
-   justify-content: center verteilt den Überstand des höheren Stapels garantiert
-   gleichmäßig auf oben und unten. */
+   Auf Desktop wird der Stapel rechtsbündig am Viewport ausgerichtet, so dass
+   die äußere Tellerkante bündig mit dem Bildschirmrand bleibt. Auf schmaleren
+   Viewports wird die Kaskade früher nach innen geschoben, damit der Textraum
+   frei bleibt. */
 .hero__plates {
   position: absolute;
   top: 0;
   bottom: 0;
-  left: max(60%, 100% - var(--plate-size));
-  width: var(--plate-size); /* explizit statt shrink-to-fit → hängt nicht am left-Wert */
+  right: 0;
+  width: var(--plate-size); /* explizit statt shrink-to-fit → hängt nicht am right-Wert */
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -166,15 +161,38 @@
   z-index: 0;
 }
 
+@media (max-width: 1400px) {
+  .hero__plates {
+    left: 60%;
+    right: auto;
+  }
+}
+
+@media (min-width: 1400px) {
+  .hero__plates {
+    right: 1rem;
+  }
+}
+
+@media (min-width: 1600px) {
+  .hero__plates {
+    right: 1.25rem;
+  }
+}
+
+@media (min-width: 1800px) {
+  .hero__plates {
+    right: 1.5rem;
+  }
+}
+
 .hero__plates img {
   width: 100%;
   height: auto;
   display: block;
   /* Überlappung. −0.21 ⇒ Mitte-zu-Mitte-Schritt = 0.58 × Durchmesser, also ~42%
-     Überlappung — aus der Figma-Vorlage gemessen. Die enge Kaskade ist der Grund,
-     warum die Teller klein sein dürfen und die Höhe trotzdem füllen.
-     Länge statt Prozent: %-Margins beziehen sich auf die Container-BREITE, die
-     früher am left-Wert hing (−17.8px auf dem Desktop, −6.6px auf dem Handy). */
+     Überlappung — aus der Figma-Vorlage gemessen. Länge statt Prozent, weil
+     %-Margins sich auf die Container-BREITE bezögen. */
   margin-block: calc(var(--plate-size) * -0.21);
   filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.2));
 }

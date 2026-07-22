@@ -58,6 +58,10 @@ export class RecipeStore {
     });
   }
 
+  /**
+   * Lädt die gelikten Rezept-IDs aus dem localStorage.
+   * @returns Set der IDs; leer, wenn nichts gespeichert oder nicht lesbar ist.
+   */
   private loadLiked(): Set<string> {
     if (typeof localStorage === 'undefined') return new Set();
     try {
@@ -68,12 +72,17 @@ export class RecipeStore {
     }
   }
 
+  /**
+   * Schreibt die gelikten Rezept-IDs ins localStorage. Ist es nicht verfügbar
+   * (privater Modus), bleibt der Like nur für die Sitzung erhalten.
+   * @param ids Aktueller Satz gelikter Rezept-IDs.
+   */
   private persist(ids: Set<string>): void {
     if (typeof localStorage === 'undefined') return;
     try {
       localStorage.setItem(LIKED_KEY, JSON.stringify([...ids]));
     } catch {
-      /* localStorage nicht verfügbar (privater Modus) – Like bleibt nur für die Sitzung. */
+      return;
     }
   }
 }

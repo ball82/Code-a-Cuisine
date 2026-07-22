@@ -1,6 +1,6 @@
 import { Component, computed, HostListener, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 
 import { Ingredient, Unit } from '../../core/models/ingredient';
@@ -14,7 +14,7 @@ import { RecipeDraft } from '../../core/services/recipe-draft';
  */
 @Component({
   selector: 'app-ingredients',
-  imports: [FormsModule],
+  imports: [FormsModule, RouterLink],
   templateUrl: './ingredients.html',
   styleUrl: './ingredients.scss'
 })
@@ -150,6 +150,10 @@ export class Ingredients {
     this.router.navigate(['/preferences']);
   }
 
+  /**
+   * Setzt das Eingabeformular auf die Ausgangswerte zurück (leerer Name, 100 g)
+   * und verlässt einen etwaigen Bearbeitungsmodus.
+   */
   private reset(): void {
     this.name.set('');
     this.amount.set(100);

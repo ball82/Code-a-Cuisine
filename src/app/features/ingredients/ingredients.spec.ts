@@ -16,6 +16,7 @@ describe('Ingredients', () => {
     httpMock = TestBed.inject(HttpTestingController);
   });
 
+  /** Beantwortet den Autocomplete-Request der Komponente mit zwei Testzutaten. */
   function flushIngredients(): void {
     httpMock.expectOne('/data/ingredients.json').flush(['Pasta', 'Pastrami']);
   }
@@ -36,7 +37,6 @@ describe('Ingredients', () => {
     cmp.addOrUpdate();
 
     expect(cmp.items()).toEqual([{ name: 'Pasta', amount: 100, unit: 'gram' }]);
-    // Formular wird nach dem Hinzufügen zurückgesetzt
     expect(cmp.name()).toBe('');
   });
 

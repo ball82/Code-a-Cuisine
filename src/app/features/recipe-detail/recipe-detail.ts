@@ -121,7 +121,8 @@ export class RecipeDetail {
    * Die Prozente kommen aus dem Energiegehalt (Fett 9 kcal/g, Protein/Carbs je
    * 4 kcal/g), nicht aus der Masse – so entspricht die Aufteilung dem, was der
    * kcal-Wert oben ausmacht. Die Prozente sind portionsunabhängig (ein
-   * Verhältnis); die Gramm-Angaben skalieren mit dem Portionsregler.
+   * Verhältnis); die Gramm-Angaben skalieren mit dem Portionsregler. Ohne
+   * Nährenergie (alle Makros 0) bleibt die Aufteilung bei 0 % statt 0/0.
    */
   readonly macros = computed<MacroSlice[]>(() => {
     const n = this.nutrition();
@@ -139,7 +140,6 @@ export class RecipeDetail {
       fat: 'var(--chart-fat)',
       carbs: 'var(--chart-carbs)'
     };
-    // Ohne Nährenergie (alle Makros 0) bleibt die Aufteilung leer statt 0/0.
     const percents = total > 0 ? roundPercentages(keys.map((k) => energy[k] / total)) : [0, 0, 0];
     return keys.map((key, i) => ({
       key,
@@ -194,11 +194,14 @@ export class RecipeDetail {
     return this.recipe()?.directions.filter((d) => d.chef === chef) ?? [];
   }
 
+  /**
+   * Richtet einen Effekt ein, der reaktiv auf das Rezept reagiert: Sobald es
+   * vorliegt (aus dem Store sofort, aus dem Cookbook nach dem Laden), werden die
+   * Startwerte (Portionen, Likes, Like-Status) einmalig gesetzt. Erst wenn das
+   * Cookbook fertig geladen ist UND das Rezept dann immer noch fehlt, leitet er
+   * zurück ins Cookbook – so überlebt ein Deep-Link/Reload die kurze Ladephase.
+   */
   constructor() {
-    // Reaktiv: Sobald das Rezept vorliegt (Store sofort, Cookbook nach dem Laden),
-    // die Startwerte einmalig setzen. Erst wenn das Cookbook fertig geladen ist
-    // UND das Rezept dann immer noch fehlt, zurück ins Cookbook umleiten – so
-    // überlebt ein Deep-Link/Reload die kurze Ladephase.
     effect(() => {
       const recipe = this.recipe();
       if (recipe) {
@@ -216,6 +219,11 @@ export class RecipeDetail {
     });
   }
 
+  /**
+   * Ändert die angezeigte Portionszahl und hält sie im Bereich 1–12. Nährwerte
+   * und Zutatenmengen skalieren reaktiv mit.
+   * @param delta Schrittweite, üblicherweise +1 oder −1.
+   */
   stepPortions(delta: number): void {
     this.portions.update((p) => Math.min(12, Math.max(1, p + delta)));
   }
@@ -252,7 +260,6 @@ export class RecipeDetail {
         this.releaseAfterCooldown();
       },
       error: () => {
-        // Netzwerk-/Backend-Fehler → optimistische Änderung zurücknehmen.
         this.liked.set(prevLiked);
         this.likeCount.set(prevCount);
         this.releaseAfterCooldown();
@@ -260,6 +267,10 @@ export class RecipeDetail {
     });
   }
 
+  /**
+   * Gibt den Like-Button nach einer kurzen Abklingzeit (~500 ms) wieder frei –
+   * schützt gegen versehentliche Doppelklicks direkt nach einem Toggle.
+   */
   private releaseAfterCooldown(): void {
     setTimeout(() => this.likeBusy.set(false), 500);
   }

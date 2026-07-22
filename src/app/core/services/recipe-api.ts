@@ -57,7 +57,7 @@ export class RecipeApi {
       try {
         localStorage.setItem(USER_ID_KEY, id);
       } catch {
-        /* localStorage nicht verfügbar – ID gilt nur für diese Sitzung. */
+        return id;
       }
     }
     return id;

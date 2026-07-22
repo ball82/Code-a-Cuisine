@@ -33,13 +33,18 @@ export class CookbookCategory {
   private readonly route = inject(ActivatedRoute);
   private readonly cookbookData = inject(CookbookData);
 
+  /** Routen-Parameter als Signal (mit dem Snapshot als Startwert). */
   private readonly params = toSignal(this.route.paramMap, {
     initialValue: this.route.snapshot.paramMap
   });
+
+  /** Alle geladenen Cookbook-Rezepte (Quelle vor der Küchen-Filterung). */
   private readonly allRecipes = this.cookbookData.recipes;
 
   /** Aktuelle Küche aus dem Routen-Parameter. */
   readonly cuisine = computed<Cuisine>(() => (this.params().get('cuisine') as Cuisine) ?? 'italian');
+
+  /** Banner-Metadaten (Label, Emoji, Bild) der aktuellen Küche. */
   readonly meta = computed(() => CUISINE_META[this.cuisine()] ?? CUISINE_META['italian']);
 
   /** Nach Küche gefiltert, neueste zuerst. */
@@ -51,7 +56,11 @@ export class CookbookCategory {
 
   /** 1-basierte aktuelle Seite. */
   readonly page = signal(1);
+
+  /** Gesamtzahl der Seiten (mindestens 1, auch bei leerer Liste). */
   readonly pageCount = computed(() => Math.max(1, Math.ceil(this.recipes().length / PAGE_SIZE)));
+
+  /** Seitenzahlen `[1..pageCount]` für die Paginierungs-Navigation. */
   readonly pages = computed(() => Array.from({ length: this.pageCount() }, (_, i) => i + 1));
 
   /** Rezepte der aktuellen Seite (mit fortlaufender Nummer). */
@@ -62,14 +71,22 @@ export class CookbookCategory {
       .map((recipe, i) => ({ recipe, number: start + i + 1 }));
   });
 
+  /**
+   * Setzt die Paginierung bei jedem Kategoriewechsel zurück auf Seite 1, damit
+   * man nicht auf einer nicht mehr existierenden Seite der neuen Küche landet.
+   */
   constructor() {
-    // Kategoriewechsel → zurück auf Seite 1.
     effect(() => {
       this.cuisine();
       this.page.set(1);
     });
   }
 
+  /**
+   * Wechselt zur angegebenen Seite, begrenzt auf den gültigen Bereich
+   * `[1, pageCount]`.
+   * @param page Gewünschte 1-basierte Seitenzahl.
+   */
   goToPage(page: number): void {
     this.page.set(Math.min(this.pageCount(), Math.max(1, page)));
   }

@@ -19,11 +19,13 @@ interface FirestoreValue {
   mapValue?: { fields?: Record<string, FirestoreValue> };
 }
 
+/** Ein Firestore-Dokument aus der REST-API: Pfadname plus typisierte Felder. */
 interface FirestoreDocument {
   name: string;
   fields?: Record<string, FirestoreValue>;
 }
 
+/** Antwort des Firestore-List-Endpunkts (eine Seite von Dokumenten). */
 interface FirestoreListResponse {
   documents?: FirestoreDocument[];
   /** Vorhanden, solange es weitere Seiten gibt. */
@@ -42,19 +44,29 @@ function decodeValue(value: FirestoreValue): unknown {
   return null;
 }
 
+/**
+ * Dekodiert eine Firestore-Feldabbildung rekursiv in ein natives Objekt.
+ * @param fields Feld-Map eines Dokuments oder verschachtelten `mapValue`.
+ * @returns Objekt mit denselben Schlüsseln und nativen JS-Werten.
+ */
 function decodeFields(fields: Record<string, FirestoreValue>): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(fields)) out[key] = decodeValue(value);
   return out;
 }
 
-/** Baut aus einem Firestore-Dokument ein Recipe (ID kommt aus dem Doc-Pfad). */
+/**
+ * Baut aus einem Firestore-Dokument ein {@link Recipe}; die ID stammt aus dem
+ * Doc-Pfad. Das `cuisine`-Feld wird defensiv auf Kleinbuchstaben normalisiert:
+ * der Vertrag schreibt technische Kleinwerte vor, ältere Daten enthalten aber
+ * teils "Italian" – so fällt kein Rezept nur wegen Gross-/Kleinschreibung aus
+ * seiner Kategorie.
+ * @param doc Rohes Firestore-Dokument aus der REST-Antwort.
+ * @returns Das dekodierte Rezept.
+ */
 function decodeRecipe(doc: FirestoreDocument): Recipe {
   const data = decodeFields(doc.fields ?? {}) as Omit<Recipe, 'id'>;
   const id = doc.name.split('/').pop() ?? '';
-  // cuisine defensiv auf Kleinbuchstaben normalisieren: der Vertrag schreibt
-  // technische Kleinwerte vor, ältere Daten enthalten aber teils "Italian".
-  // So bleibt kein Rezept nur wegen Gross-/Kleinschreibung aus der Kategorie.
   const cuisine = String(data.cuisine ?? '').toLowerCase() as Recipe['cuisine'];
   return { ...data, cuisine, id };
 }
@@ -97,8 +109,12 @@ export class CookbookData {
     return [...added, ...rest];
   });
 
+  /**
+   * Startet beim Erzeugen des Services den einmaligen Firestore-Load und legt die
+   * Rezepte zugleich in den {@link RecipeStore}, damit die Detailseite sie per ID
+   * findet. `ready` wird danach gesetzt (auch im Fehlerfall über die Beispieldaten).
+   */
   constructor() {
-    // In den Store legen, damit die Detailseite Rezepte per ID findet.
     this.load().subscribe((recipes) => {
       this.store.remember(recipes);
       this.loaded.set(recipes);
@@ -120,18 +136,29 @@ export class CookbookData {
     });
   }
 
+  /**
+   * Liest alle Rezepte aus Firestore. Ohne hinterlegte Firebase-Config liefert
+   * die Methode lokale Beispieldaten. Andernfalls holt sie seitenweise ALLE
+   * Dokumente: Firestore gibt pro Antwort einen `nextPageToken`, solange weitere
+   * existieren; dem folgen wir via `expand` und sammeln die Seiten mit `reduce`
+   * zu einer Liste. Netzwerk-/Rechtefehler dürfen das Cookbook nicht leer lassen,
+   * daher fällt `catchError` ebenfalls auf die Beispieldaten zurück.
+   * @returns Observable, das genau einmal die vollständige Rezeptliste emittiert.
+   */
   private load(): Observable<Recipe[]> {
     const { projectId, apiKey } = environment.firebase;
     if (!projectId) {
       return of(SAMPLE_RECIPES);
     }
 
-    // Seitenweise ALLE Rezepte holen: Firestore liefert pro Antwort einen
-    // nextPageToken, solange noch mehr Dokumente existieren. Wir folgen dem
-    // Token via expand und sammeln alle Seiten mit reduce zu einer Liste.
     const base = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/recipes`;
     const pageSize = 300;
 
+    /**
+     * Holt eine einzelne Firestore-Seite.
+     * @param pageToken Token der Folgeseite; fehlt bei der ersten Seite.
+     * @returns Observable mit der Firestore-Listenantwort.
+     */
     const fetchPage = (pageToken?: string): Observable<FirestoreListResponse> => {
       let url = `${base}?pageSize=${pageSize}`;
       if (apiKey) url += `&key=${apiKey}`;
@@ -145,7 +172,6 @@ export class CookbookData {
         (all, res) => all.concat((res.documents ?? []).map(decodeRecipe)),
         [] as Recipe[]
       ),
-      // Netzwerk-/Rechtefehler dürfen das Cookbook nicht leer lassen.
       catchError(() => of(SAMPLE_RECIPES))
     );
   }

@@ -53,8 +53,12 @@ export class RecipeResults {
     return tags;
   });
 
+  /**
+   * Leitet bei Direktaufruf oder Reload ohne vorhandene Ergebnisse zurück zum
+   * Generator-Start (`/ingredients`) – ohne generierte Rezepte gäbe es nichts
+   * anzuzeigen.
+   */
   constructor() {
-    // Direktaufruf oder Reload ohne Ergebnisse → zurück zum Generator-Start.
     if (this.recipes().length === 0) {
       this.router.navigate(['/ingredients']);
     }
