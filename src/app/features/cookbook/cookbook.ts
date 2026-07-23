@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 
 
 import { Header } from '../../shared/header/header';
+import { Footer } from '../../shared/footer/footer';
 import { Cuisine, CUISINE_LABELS } from '../../core/models/recipe-request';
 import { CookbookData } from '../../core/services/cookbook-data';
 
@@ -22,7 +23,7 @@ interface CuisineTile {
  */
 @Component({
   selector: 'app-cookbook',
-  imports: [Header, RouterLink],
+  imports: [Header, Footer, RouterLink],
   templateUrl: './cookbook.html',
   styleUrl: './cookbook.scss'
 })

@@ -6,6 +6,7 @@ import { RecipeStore } from '../../core/services/recipe-store';
 import { RecipeDraft } from '../../core/services/recipe-draft';
 import { RecipeCard } from '../../shared/recipe-card/recipe-card';
 import { Header } from '../../shared/header/header';
+import { Footer } from '../../shared/footer/footer';
 
 /** Anzeige-Labels für die Präferenz-Tags (technischer Wert → Text). */
 const CUISINE_LABEL: Record<Cuisine, string> = {
@@ -35,7 +36,7 @@ const DIET_LABEL: Record<Diet, string> = {
  */
 @Component({
   selector: 'app-recipe-results',
-  imports: [RouterLink, RecipeCard, Header],
+  imports: [RouterLink, RecipeCard, Header, Footer],
   templateUrl: './recipe-results.html',
   styleUrl: './recipe-results.scss'
 })

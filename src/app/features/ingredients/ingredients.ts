@@ -7,6 +7,7 @@ import { Ingredient, Unit } from '../../core/models/ingredient';
 import { IngredientData } from '../../core/services/ingredient-data';
 import { RecipeDraft } from '../../core/services/recipe-draft';
 import { Header } from '../../shared/header/header';
+import { Footer } from '../../shared/footer/footer';
 
 /**
  * Schritt 1 des Generators ("Generate recipe").
@@ -15,7 +16,7 @@ import { Header } from '../../shared/header/header';
  */
 @Component({
   selector: 'app-ingredients',
-  imports: [FormsModule, Header],
+  imports: [FormsModule, Header, Footer],
   templateUrl: './ingredients.html',
   styleUrl: './ingredients.scss'
 })

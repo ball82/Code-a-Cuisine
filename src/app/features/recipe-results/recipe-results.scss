@@ -1,11 +1,13 @@
 :host {
-  display: block;
+  display: flex;
+  flex-direction: column;
   background: var(--color-green-dark);
   min-height: 100dvh;
   --header-max-width: 75rem;
 }
 
 .results {
+  flex: 1;
   max-width: 75rem;
   margin: 0 auto;
   padding: 0 clamp(1.5rem, 5vw, 3.5rem) clamp(1.5rem, 5vw, 3.5rem);

@@ -1,10 +1,12 @@
 :host {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
   --header-max-width: 60rem;
 }
 
 .prefs {
-  min-height: 100dvh;
+  flex: 1;
   padding: 0 clamp(1.5rem, 5vw, 3.5rem) clamp(1.5rem, 5vw, 3.5rem);
   max-width: 60rem;
   margin-inline: auto;

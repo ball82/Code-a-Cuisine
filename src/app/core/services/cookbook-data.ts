@@ -137,6 +137,18 @@ export class CookbookData {
   }
 
   /**
+   * Übernimmt den neuen Like-Zählerstand (aus der Like-Antwort) in beide Quellen
+   * (geladen + lokal ergänzt), damit die Cookbook-Karten und die "Most liked"-
+   * Leiste den Wert sofort zeigen – ohne Firestore-Reload.
+   */
+  updateLikeCount(id: string, likes: number): void {
+    const patch = (list: Recipe[]) =>
+      list.some((r) => r.id === id) ? list.map((r) => (r.id === id ? { ...r, likes } : r)) : list;
+    this.loaded.update(patch);
+    this.added.update(patch);
+  }
+
+  /**
    * Liest alle Rezepte aus Firestore. Ohne hinterlegte Firebase-Config liefert
    * die Methode lokale Beispieldaten. Andernfalls holt sie seitenweise ALLE
    * Dokumente: Firestore gibt pro Antwort einen `nextPageToken`, solange weitere

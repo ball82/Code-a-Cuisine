@@ -1,6 +1,6 @@
-<app-header [backLabel]="backLabel" [backLink]="backLink" back-position="top" />
-
 @if (recipe(); as recipe) {
+  <app-header [backLabel]="backLabel" [backLink]="backLink" back-position="top" />
+
   <main class="detail">
     <article class="card">
       <!-- ===== Kopf ===== -->
@@ -214,5 +214,8 @@
         Generate new recipe <span aria-hidden="true">&rarr;</span>
       </a>
     </div>
+
   </main>
+
+  <app-footer />
 }

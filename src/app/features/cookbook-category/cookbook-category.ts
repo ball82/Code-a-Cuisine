@@ -3,6 +3,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 
 import { Header } from '../../shared/header/header';
+import { Footer } from '../../shared/footer/footer';
 import { Cuisine } from '../../core/models/recipe-request';
 import { CookbookData } from '../../core/services/cookbook-data';
 
@@ -25,7 +26,7 @@ const PAGE_SIZE = 20;
  */
 @Component({
   selector: 'app-cookbook-category',
-  imports: [Header, RouterLink],
+  imports: [Header, Footer, RouterLink],
   templateUrl: './cookbook-category.html',
   styleUrl: './cookbook-category.scss'
 })

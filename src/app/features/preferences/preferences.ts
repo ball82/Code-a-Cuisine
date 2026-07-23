@@ -10,6 +10,7 @@ import { QuotaStatus } from '../../core/services/quota-status';
 import { Loader } from '../../shared/loader/loader';
 import { ErrorDialog } from '../../shared/error-dialog/error-dialog';
 import { Header } from '../../shared/header/header';
+import { Footer } from '../../shared/footer/footer';
 
 /** Eine Chip-Option: technischer Wert + Anzeigetext (+ optionaler Hinweis). */
 interface ChipOption<T> {
@@ -25,7 +26,7 @@ interface ChipOption<T> {
  */
 @Component({
   selector: 'app-preferences',
-  imports: [Loader, ErrorDialog, Header],
+  imports: [Loader, ErrorDialog, Header, Footer],
   templateUrl: './preferences.html',
   styleUrl: './preferences.scss'
 })

@@ -42,6 +42,20 @@ export class RecipeStore {
     return this.cache.get(id);
   }
 
+  /**
+   * Übernimmt den neuen Like-Zählerstand (aus der Like-Antwort) in den
+   * Lookup-Cache und die Ergebnisliste, damit Detail- und Ergebniskarten den
+   * Wert ohne Reload zeigen. Die betroffenen Rezepte werden durch neue Objekte
+   * ersetzt, damit die Signale reaktiv nachziehen.
+   */
+  updateLikeCount(id: string, likes: number): void {
+    const cached = this.cache.get(id);
+    if (cached) this.cache.set(id, { ...cached, likes });
+    this.generated.update((list) =>
+      list.some((r) => r.id === id) ? list.map((r) => (r.id === id ? { ...r, likes } : r)) : list
+    );
+  }
+
   /** Hat dieser Browser das Rezept geliked? */
   isLiked(id: string): boolean {
     return this.liked().has(id);

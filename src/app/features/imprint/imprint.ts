@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 
 import { Header } from '../../shared/header/header';
+import { Footer } from '../../shared/footer/footer';
 
 /**
  * Impressum / rechtliche Angaben. Statische Inhaltsseite, erreichbar über den
@@ -8,7 +9,7 @@ import { Header } from '../../shared/header/header';
  */
 @Component({
   selector: 'app-imprint',
-  imports: [Header],
+  imports: [Header, Footer],
   templateUrl: './imprint.html',
   styleUrl: './imprint.scss'
 })
