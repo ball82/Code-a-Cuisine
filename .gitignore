@@ -49,3 +49,9 @@ service-account*.json
 *-firebase-adminsdk-*.json
 .env
 .env.*
+
+# Internal working docs & tooling (kept locally, not for the public repo)
+.claude/
+CLAUDE.md
+DESIGN.md
+PROJEKT-KONTEXT.md
