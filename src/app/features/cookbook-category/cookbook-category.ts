@@ -8,12 +8,12 @@ import { CookbookData } from '../../core/services/cookbook-data';
 
 /** Anzeige-Metadaten je Küche (Name, Emoji, Banner-Bild). */
 const CUISINE_META: Record<Cuisine, { label: string; emoji: string; image: string }> = {
-  italian: { label: 'Italian cuisine', emoji: '🍝', image: '/img/italien_cuisine.svg' },
-  german: { label: 'German cuisine', emoji: '🥨', image: '/img/german_cuisine.svg' },
-  japanese: { label: 'Japanese cuisine', emoji: '🥢', image: '/img/japanese_cuisine.svg' },
-  indian: { label: 'Indian cuisine', emoji: '🍛', image: '/img/indian_cuisine.svg' },
-  gourmet: { label: 'Gourmet cuisine', emoji: '✨', image: '/img/gourmet_cusine.svg' },
-  fusion: { label: 'Fusion cuisine', emoji: '🍱', image: '/img/fusion_cuisine.svg' }
+  italian: { label: 'Italian cuisine', emoji: '🍝', image: 'img/italien_cuisine.svg' },
+  german: { label: 'German cuisine', emoji: '🥨', image: 'img/german_cuisine.svg' },
+  japanese: { label: 'Japanese cuisine', emoji: '🥢', image: 'img/japanese_cuisine.svg' },
+  indian: { label: 'Indian cuisine', emoji: '🍛', image: 'img/indian_cuisine.svg' },
+  gourmet: { label: 'Gourmet cuisine', emoji: '✨', image: 'img/gourmet_cusine.svg' },
+  fusion: { label: 'Fusion cuisine', emoji: '🍱', image: 'img/fusion_cuisine.svg' }
 };
 
 /** Checkliste: 20 Rezepte pro Seite. */

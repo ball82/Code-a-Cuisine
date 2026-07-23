@@ -34,12 +34,12 @@ export class Cookbook {
 
   /** Sechs feste Kategorien mit Bildern aus public/img (Dateinamen wie geliefert). */
   readonly cuisines: CuisineTile[] = [
-    { key: 'italian', label: 'Italian cuisine', emoji: '🍝', image: '/img/italien_cuisine.svg' },
-    { key: 'german', label: 'German cuisine', emoji: '🥨', image: '/img/german_cuisine.svg' },
-    { key: 'japanese', label: 'Japanese cuisine', emoji: '🥢', image: '/img/japanese_cuisine.svg' },
-    { key: 'gourmet', label: 'Gourmet cuisine', emoji: '✨', image: '/img/gourmet_cusine.svg' },
-    { key: 'indian', label: 'Indian cuisine', emoji: '🍛', image: '/img/indian_cuisine.svg' },
-    { key: 'fusion', label: 'Fusion cuisine', emoji: '🍱', image: '/img/fusion_cuisine.svg' }
+    { key: 'italian', label: 'Italian cuisine', emoji: '🍝', image: 'img/italien_cuisine.svg' },
+    { key: 'german', label: 'German cuisine', emoji: '🥨', image: 'img/german_cuisine.svg' },
+    { key: 'japanese', label: 'Japanese cuisine', emoji: '🥢', image: 'img/japanese_cuisine.svg' },
+    { key: 'gourmet', label: 'Gourmet cuisine', emoji: '✨', image: 'img/gourmet_cusine.svg' },
+    { key: 'indian', label: 'Indian cuisine', emoji: '🍛', image: 'img/indian_cuisine.svg' },
+    { key: 'fusion', label: 'Fusion cuisine', emoji: '🍱', image: 'img/fusion_cuisine.svg' }
   ];
 
   /** Alle Rezepte (live oder Beispieldaten). */
