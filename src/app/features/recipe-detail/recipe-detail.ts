@@ -6,6 +6,7 @@ import { Direction, Recipe } from '../../core/models/recipe';
 import { RecipeApi } from '../../core/services/recipe-api';
 import { RecipeStore } from '../../core/services/recipe-store';
 import { CookbookData } from '../../core/services/cookbook-data';
+import { Header } from '../../shared/header/header';
 
 /** Kurzform der Einheit für die Zutatenzeile. */
 const UNIT_SHORT: Record<Unit, string> = { gram: 'g', ml: 'ml', liter: 'l', piece: '×' };
@@ -60,7 +61,7 @@ function roundPercentages(shares: number[]): number[] {
  */
 @Component({
   selector: 'app-recipe-detail',
-  imports: [RouterLink],
+  imports: [RouterLink, Header],
   templateUrl: './recipe-detail.html',
   styleUrl: './recipe-detail.scss'
 })

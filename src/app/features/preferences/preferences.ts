@@ -1,5 +1,5 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 
 import { CookingTime, Cuisine, Diet } from '../../core/models/recipe-request';
 import { RecipeDraft } from '../../core/services/recipe-draft';
@@ -9,6 +9,7 @@ import { CookbookData } from '../../core/services/cookbook-data';
 import { QuotaStatus } from '../../core/services/quota-status';
 import { Loader } from '../../shared/loader/loader';
 import { ErrorDialog } from '../../shared/error-dialog/error-dialog';
+import { Header } from '../../shared/header/header';
 
 /** Eine Chip-Option: technischer Wert + Anzeigetext (+ optionaler Hinweis). */
 interface ChipOption<T> {
@@ -24,7 +25,7 @@ interface ChipOption<T> {
  */
 @Component({
   selector: 'app-preferences',
-  imports: [RouterLink, Loader, ErrorDialog],
+  imports: [Loader, ErrorDialog, Header],
   templateUrl: './preferences.html',
   styleUrl: './preferences.scss'
 })

@@ -1,14 +1,7 @@
+<app-header [backLabel]="backLabel" [backLink]="backLink" back-position="top" />
+
 @if (recipe(); as recipe) {
   <main class="detail">
-    <div class="detail__topbar">
-      <a class="detail__logo-link" routerLink="/" aria-label="Code à Cuisine — home">
-        <img class="detail__logo" src="img/logo_gruen.svg" alt="Code à Cuisine" />
-      </a>
-      <a class="detail__back" [routerLink]="backLink">
-        <span aria-hidden="true">&larr;</span> {{ backLabel }}
-      </a>
-    </div>
-
     <article class="card">
       <!-- ===== Kopf ===== -->
       <header class="card__head">

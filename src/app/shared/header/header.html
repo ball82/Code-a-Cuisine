@@ -1,12 +1,35 @@
-<header class="header">
+<header class="header" [class.header--dark]="theme === 'dark'">
   <div class="header__top">
     <a class="header__logo" routerLink="/" aria-label="Code à Cuisine — home">
-      <img src="img/logo_gruen.svg" alt="Code à Cuisine" />
+      <img [src]="logoSrc" alt="Code à Cuisine" />
     </a>
+
+    @if (backLabel && backPosition === 'top') {
+      @if (backLink) {
+        <a class="header__back header__back--top" [routerLink]="backLink">
+          <span class="header__back-arrow" aria-hidden="true">&larr;</span>
+          {{ backLabel }}
+        </a>
+      } @else {
+        <button type="button" class="header__back header__back--top" (click)="goBack()">
+          <span class="header__back-arrow" aria-hidden="true">&larr;</span>
+          {{ backLabel }}
+        </button>
+      }
+    }
   </div>
 
-  <button type="button" class="header__back" (click)="goBack()">
-    <span class="header__back-arrow" aria-hidden="true">&larr;</span>
-    Back
-  </button>
+  @if (backLabel && backPosition === 'below') {
+    @if (backLink) {
+      <a class="header__back header__back--below" [routerLink]="backLink">
+        <span class="header__back-arrow" aria-hidden="true">&larr;</span>
+        {{ backLabel }}
+      </a>
+    } @else {
+      <button type="button" class="header__back header__back--below" (click)="goBack()">
+        <span class="header__back-arrow" aria-hidden="true">&larr;</span>
+        {{ backLabel }}
+      </button>
+    }
+  }
 </header>

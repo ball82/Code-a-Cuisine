@@ -1,11 +1,12 @@
 import { Component, computed, HostListener, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 
 import { Ingredient, Unit } from '../../core/models/ingredient';
 import { IngredientData } from '../../core/services/ingredient-data';
 import { RecipeDraft } from '../../core/services/recipe-draft';
+import { Header } from '../../shared/header/header';
 
 /**
  * Schritt 1 des Generators ("Generate recipe").
@@ -14,7 +15,7 @@ import { RecipeDraft } from '../../core/services/recipe-draft';
  */
 @Component({
   selector: 'app-ingredients',
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, Header],
   templateUrl: './ingredients.html',
   styleUrl: './ingredients.scss'
 })

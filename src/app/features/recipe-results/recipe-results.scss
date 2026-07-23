@@ -2,17 +2,13 @@
   display: block;
   background: var(--color-green-dark);
   min-height: 100dvh;
+  --header-max-width: 75rem;
 }
 
 .results {
   max-width: 75rem;
   margin: 0 auto;
-  padding: clamp(1.5rem, 5vw, 3.5rem);
-}
-
-.results__logo {
-  width: clamp(6rem, 16vw, 8.5rem);
-  height: auto;
+  padding: 0 clamp(1.5rem, 5vw, 3.5rem) clamp(1.5rem, 5vw, 3.5rem);
 }
 
 .results__head {

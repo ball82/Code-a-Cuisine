@@ -1,39 +1,13 @@
 :host {
   display: block;
+  --header-max-width: 60rem;
 }
 
 .prefs {
   min-height: 100dvh;
-  padding: clamp(1.5rem, 5vw, 3.5rem);
+  padding: 0 clamp(1.5rem, 5vw, 3.5rem) clamp(1.5rem, 5vw, 3.5rem);
   max-width: 60rem;
   margin-inline: auto;
-}
-
-.prefs__logo-link {
-  display: inline-block;
-}
-
-.prefs__logo {
-  width: clamp(6rem, 16vw, 8.5rem);
-  height: auto;
-}
-
-.prefs__back {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  margin-top: 0.75rem;
-  color: var(--color-green-dark);
-  font-weight: 500;
-  text-decoration: none;
-}
-
-.prefs__back:hover {
-  text-decoration: underline;
-}
-
-.prefs__back-arrow {
-  font-size: 1.1rem;
 }
 
 .prefs__head {

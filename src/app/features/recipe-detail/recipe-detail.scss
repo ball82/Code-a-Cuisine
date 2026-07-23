@@ -2,38 +2,13 @@
   display: block;
   background: #fff;
   min-height: 100dvh;
+  --header-max-width: 60rem;
 }
 
 .detail {
   max-width: 60rem;
   margin: 0 auto;
-  padding: clamp(1.25rem, 4vw, 2.5rem);
-}
-
-.detail__topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: clamp(1rem, 3vw, 1.75rem);
-}
-
-.detail__logo {
-  width: clamp(5rem, 14vw, 7rem);
-  height: auto;
-}
-
-.detail__back {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  color: var(--color-green-accent);
-  font-weight: 600;
-  text-decoration: none;
-
-  &:hover {
-    text-decoration: underline;
-  }
+  padding: clamp(1rem, 3vw, 1.75rem) clamp(1.25rem, 4vw, 2.5rem) clamp(1.5rem, 5vw, 3rem);
 }
 
 .card {
