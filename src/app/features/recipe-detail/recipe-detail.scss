@@ -36,9 +36,6 @@
   }
 }
 
-/* ============================================================
-   Warme Creme-Karte
-   ============================================================ */
 .card {
   padding: clamp(1.5rem, 5vw, 3rem);
   border-radius: 1.25rem;
@@ -110,7 +107,6 @@
   color: var(--color-green-dark);
 }
 
-/* Das Likes-Pill ist zugleich der Like/Unlike-Button. */
 .pill--like {
   display: inline-flex;
   align-items: center;
@@ -144,9 +140,6 @@
   color: var(--color-cream);
 }
 
-/* ============================================================
-   Abschnitte
-   ============================================================ */
 .section-title {
   color: var(--color-green-dark);
   font-size: clamp(1.25rem, 3vw, 1.6rem);
@@ -238,7 +231,6 @@
   color: var(--color-text);
 }
 
-/* --- Makroverteilung (100%-Stapelbalken) --- */
 .macros {
   margin: 1.25rem 0 0;
 }
@@ -256,7 +248,6 @@
   height: 2rem;
   border-radius: 999px;
   overflow: hidden;
-  /* 2px Fugen in Flächenfarbe (Karte = Creme) trennen die Segmente. */
   gap: 2px;
   background: var(--color-cream);
 }
@@ -271,7 +262,6 @@
 }
 
 .macrobar__pct {
-  /* Label liegt in der Datenfarbe – Creme gewählt, deckt Blau/Grün/Magenta. */
   color: var(--color-cream);
   font-size: 0.9rem;
   font-weight: 700;
@@ -311,7 +301,6 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* --- Zutaten --- */
 .ingredients__cols {
   display: grid;
   grid-template-columns: 1fr;
@@ -341,7 +330,6 @@
   gap: 0.35rem;
 }
 
-/* --- Kochschritte --- */
 .steps {
   margin: 1rem 0 0;
   padding: 0;
@@ -401,7 +389,6 @@
   color: var(--color-text);
 }
 
-/* --- ToDo-Listen pro Koch (US9) --- */
 .crew {
   display: grid;
   grid-template-columns: 1fr;
@@ -433,7 +420,6 @@
   margin: 0;
 }
 
-/* --- Parallel-Markierung (US8) --- */
 .step__parallel {
   display: inline-flex;
   align-items: center;
@@ -446,12 +432,10 @@
   font-weight: 600;
 }
 
-/* Parallele Schritte optisch abheben (linke Kante). */
 .step--parallel .step__num {
   background: var(--color-green-accent);
 }
 
-/* --- CTA-Leiste --- */
 .detail__cta {
   display: flex;
   flex-wrap: wrap;

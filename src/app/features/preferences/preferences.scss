@@ -2,10 +2,6 @@
   display: block;
 }
 
-/* ============================================================
-   Preferences – Schritt 2 (heller Screen, wie der Generator).
-   Logo + Zurück-Link oben, zentrierter Titel, Stepper, Chip-Karte.
-   ============================================================ */
 .prefs {
   min-height: 100dvh;
   padding: clamp(1.5rem, 5vw, 3.5rem);
@@ -13,7 +9,6 @@
   margin-inline: auto;
 }
 
-/* Klickbar zurück zur Home-Seite; der Anker umschliesst nur das Logo. */
 .prefs__logo-link {
   display: inline-block;
 }
@@ -53,9 +48,6 @@
   line-height: 1.1;
 }
 
-/* ============================================================
-   Stepper (Portionen / Köche)
-   ============================================================ */
 .steppers {
   display: grid;
   grid-template-columns: 1fr;
@@ -118,9 +110,6 @@
   color: var(--color-text);
 }
 
-/* ============================================================
-   Chip-Karte
-   ============================================================ */
 .prefs__card {
   background: var(--color-sage);
   border-radius: 16px;
@@ -190,9 +179,6 @@
   opacity: 0.85;
 }
 
-/* ============================================================
-   Aktion
-   ============================================================ */
 .prefs__actions {
   display: flex;
   flex-direction: column;
@@ -224,7 +210,6 @@
   cursor: not-allowed;
 }
 
-/* Transparenz-Zeile zum Tageskontingent unter dem Generieren-Button. */
 .prefs__quota {
   margin: 0;
   font-size: 0.9rem;

@@ -10,9 +10,6 @@
   padding: clamp(1rem, 4vw, 2.5rem) clamp(1.5rem, 5vw, 3.5rem) clamp(2rem, 6vw, 4rem);
 }
 
-/* ============================================================
-   Intro-Karte (sage Hintergrund): Text links, Most-liked rechts
-   ============================================================ */
 .intro {
   display: grid;
   grid-template-columns: 1fr;
@@ -43,8 +40,6 @@
   font-size: clamp(0.95rem, 2vw, 1.05rem);
 }
 
-/* min-width: 0 erlaubt der Grid-Zelle zu schrumpfen, damit die
-   Karten-Leiste darunter intern scrollt statt die Seite zu verbreitern. */
 .intro__liked {
   min-width: 0;
 }
@@ -63,7 +58,6 @@
   font-size: 1.2em;
 }
 
-/* Horizontal scrollbare Mini-Karten-Leiste */
 .liked-list {
   display: flex;
   gap: 1rem;
@@ -148,9 +142,6 @@
   font-weight: 600;
 }
 
-/* ============================================================
-   Küchen-Raster
-   ============================================================ */
 .grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -200,9 +191,6 @@
   box-shadow: 0 8px 20px rgb(57 96 57 / 0.25);
 }
 
-/* ============================================================
-   "Generate new recipe"-Link unten rechts
-   ============================================================ */
 .cookbook__cta {
   display: flex;
   justify-content: flex-end;

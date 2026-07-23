@@ -2,10 +2,6 @@
   display: block;
 }
 
-/* ============================================================
-   Generator – heller Screen (Gegenstück zum grünen Hero).
-   Logo oben links, zentrierter Titel, zwei Karten nebeneinander.
-   ============================================================ */
 .generator {
   min-height: 100dvh;
   padding: clamp(1.5rem, 5vw, 3.5rem);
@@ -13,7 +9,6 @@
   margin-inline: auto;
 }
 
-/* Klickbar zurück zur Home-Seite; der Anker umschliesst nur das Logo. */
 .generator__logo-link {
   display: inline-block;
 }
@@ -42,7 +37,6 @@
   font-size: clamp(1rem, 2.5vw, 1.25rem);
 }
 
-/* --- Zwei-Spalten-Layout der Karten (stapelt auf Mobile) --- */
 .generator__grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -56,9 +50,6 @@
   }
 }
 
-/* ============================================================
-   Karten
-   ============================================================ */
 .card {
   background: var(--color-sage);
   border-radius: 16px;
@@ -76,7 +67,6 @@
   margin-bottom: 1rem;
 }
 
-/* --- Eingabe-Karte --- */
 .form__labels {
   display: flex;
   justify-content: space-between;
@@ -120,7 +110,6 @@
   padding-inline: 0.5rem;
 }
 
-/* --- Einheiten-Dropdown (eigenes, ersetzt das native <select>) --- */
 .unit-select {
   position: relative;
   flex: 0 0 auto;
@@ -175,7 +164,6 @@
   font-weight: 600;
 }
 
-/* --- "+"-Button --- */
 .add-btn {
   flex: 0 0 auto;
   width: 2.25rem;
@@ -201,7 +189,6 @@
   cursor: not-allowed;
 }
 
-/* --- Autocomplete-Vorschläge --- */
 .suggestions {
   position: absolute;
   top: calc(100% + 0.25rem);
@@ -231,7 +218,6 @@
   background: rgba(57, 96, 57, 0.12);
 }
 
-/* --- Zutatenliste --- */
 .ing-list {
   list-style: none;
   margin: 0;
@@ -243,8 +229,6 @@
 
 .ing-list__row {
   display: grid;
-  /* Bullet (::before) | Menge | Name | Edit | Delete – fünf Spalten,
-     denn das ::before zählt als eigenes Grid-Item. */
   grid-template-columns: auto 3.25rem 1fr auto auto;
   align-items: center;
   gap: 0.5rem;
@@ -264,7 +248,7 @@
 }
 
 .ing-list__name {
-  min-width: 0; /* darf schrumpfen → lange Namen sprengen die Zeile nicht */
+  min-width: 0;
   overflow-wrap: anywhere;
 }
 
@@ -294,9 +278,6 @@
   background: rgba(57, 96, 57, 0.12);
 }
 
-/* ============================================================
-   Aktionen
-   ============================================================ */
 .generator__actions {
   display: flex;
   justify-content: flex-end;

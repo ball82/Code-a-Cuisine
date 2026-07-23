@@ -16,7 +16,6 @@
   text-align: center;
 }
 
-/* Zentriertes Sage-Rechteck als Platzhalter/Bühne für das Bild. */
 .loader__stage {
   display: flex;
   align-items: center;
@@ -40,7 +39,6 @@
   font-weight: 500;
 }
 
-/* Die drei Punkte blinken einzeln nacheinander weg und wieder auf. */
 .loader__dots span {
   animation: loader-blink 1.4s infinite both;
 }
