@@ -5,10 +5,10 @@ import { provideHttpClient } from '@angular/common/http';
 import { routes } from './app.routes';
 
 /**
- * Anwendungsweite Angular-Provider.
+ * Application-wide Angular providers.
  *
- * `provideHttpClient()` stellt den `HttpClient` bereit – genutzt für die lokale
- * Autocomplete-Liste (`assets/data/ingredients.json`) und die n8n-Webhooks.
+ * `provideHttpClient()` makes the `HttpClient` available – used for the local
+ * autocomplete list (`assets/data/ingredients.json`) and the n8n webhooks.
  */
 export const appConfig: ApplicationConfig = {
   providers: [

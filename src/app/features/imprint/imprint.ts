@@ -4,8 +4,8 @@ import { Header } from '../../shared/header/header';
 import { Footer } from '../../shared/footer/footer';
 
 /**
- * Impressum / rechtliche Angaben. Statische Inhaltsseite, erreichbar über den
- * Footer-Link im Cookbook. Platzhaltertexte – vor Go-live mit echten Angaben füllen.
+ * Imprint / legal information. Static content page, reachable via the footer
+ * link in the cookbook. Placeholder text – fill in with real details before go-live.
  */
 @Component({
   selector: 'app-imprint',

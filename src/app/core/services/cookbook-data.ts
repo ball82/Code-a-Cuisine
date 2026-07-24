@@ -7,7 +7,7 @@ import { Recipe } from '../models/recipe';
 import { RecipeStore } from './recipe-store';
 import { SAMPLE_RECIPES } from './cookbook-sample';
 
-/** Ein typisierter Firestore-REST-Wert (nur die hier vorkommenden Typen). */
+/** A typed Firestore REST value (only the types that occur here). */
 interface FirestoreValue {
   stringValue?: string;
   integerValue?: string;
@@ -19,20 +19,20 @@ interface FirestoreValue {
   mapValue?: { fields?: Record<string, FirestoreValue> };
 }
 
-/** Ein Firestore-Dokument aus der REST-API: Pfadname plus typisierte Felder. */
+/** A Firestore document from the REST API: path name plus typed fields. */
 interface FirestoreDocument {
   name: string;
   fields?: Record<string, FirestoreValue>;
 }
 
-/** Antwort des Firestore-List-Endpunkts (eine Seite von Dokumenten). */
+/** Response of the Firestore list endpoint (one page of documents). */
 interface FirestoreListResponse {
   documents?: FirestoreDocument[];
-  /** Vorhanden, solange es weitere Seiten gibt. */
+  /** Present as long as more pages exist. */
   nextPageToken?: string;
 }
 
-/** Wandelt einen typisierten Firestore-Wert in den nativen JS-Wert zurück. */
+/** Converts a typed Firestore value back into the native JS value. */
 function decodeValue(value: FirestoreValue): unknown {
   if (value.stringValue !== undefined) return value.stringValue;
   if (value.integerValue !== undefined) return Number(value.integerValue);
@@ -45,9 +45,9 @@ function decodeValue(value: FirestoreValue): unknown {
 }
 
 /**
- * Dekodiert eine Firestore-Feldabbildung rekursiv in ein natives Objekt.
- * @param fields Feld-Map eines Dokuments oder verschachtelten `mapValue`.
- * @returns Objekt mit denselben Schlüsseln und nativen JS-Werten.
+ * Recursively decodes a Firestore field map into a native object.
+ * @param fields Field map of a document or nested `mapValue`.
+ * @returns Object with the same keys and native JS values.
  */
 function decodeFields(fields: Record<string, FirestoreValue>): Record<string, unknown> {
   const out: Record<string, unknown> = {};
@@ -56,13 +56,13 @@ function decodeFields(fields: Record<string, FirestoreValue>): Record<string, un
 }
 
 /**
- * Baut aus einem Firestore-Dokument ein {@link Recipe}; die ID stammt aus dem
- * Doc-Pfad. Das `cuisine`-Feld wird defensiv auf Kleinbuchstaben normalisiert:
- * der Vertrag schreibt technische Kleinwerte vor, ältere Daten enthalten aber
- * teils "Italian" – so fällt kein Rezept nur wegen Gross-/Kleinschreibung aus
- * seiner Kategorie.
- * @param doc Rohes Firestore-Dokument aus der REST-Antwort.
- * @returns Das dekodierte Rezept.
+ * Builds a {@link Recipe} from a Firestore document; the ID comes from the
+ * doc path. The `cuisine` field is defensively normalized to lowercase:
+ * the contract mandates technical lowercase values, but older data sometimes
+ * contains "Italian" – this way no recipe drops out of its category just
+ * because of casing.
+ * @param doc Raw Firestore document from the REST response.
+ * @returns The decoded recipe.
  */
 function decodeRecipe(doc: FirestoreDocument): Recipe {
   const data = decodeFields(doc.fields ?? {}) as Omit<Recipe, 'id'>;
@@ -72,36 +72,36 @@ function decodeRecipe(doc: FirestoreDocument): Recipe {
 }
 
 /**
- * Liest die öffentliche `recipes`-Collection fürs Cookbook. Die Security Rules
- * erlauben Client-Reads auf `recipes` (read: true) – wir lesen sie direkt über
- * die Firestore-REST-API mit dem öffentlichen Firebase-API-Key.
+ * Reads the public `recipes` collection for the cookbook. The security rules
+ * allow client reads on `recipes` (read: true) – we read them directly via
+ * the Firestore REST API using the public Firebase API key.
  *
- * Solange keine Firebase-Config hinterlegt ist (projectId leer), liefern wir
- * lokale Beispieldaten, damit das Layout ohne Backend funktioniert. Sobald die
- * Config in src/environments/ steht, kommen die echten Daten. (Kann später
- * 1:1 durch AngularFire ersetzt werden, wenn @angular/fire eingebunden wird.)
+ * As long as no Firebase config is set (projectId empty), we return local
+ * sample data so the layout works without a backend. Once the config is in
+ * src/environments/, the real data comes through. (Can later be replaced
+ * one-to-one by AngularFire if @angular/fire is added.)
  */
 @Injectable({ providedIn: 'root' })
 export class CookbookData {
   private readonly http = inject(HttpClient);
   private readonly store = inject(RecipeStore);
 
-  /** Live (bzw. Beispiel-)Rezepte aus Firestore – einmal geladen. */
+  /** Live (or sample) recipes from Firestore – loaded once. */
   private readonly loaded = signal<Recipe[]>([]);
 
-  /** Lokal ergänzte, frisch generierte Rezepte (sofort sichtbar, ohne Reload). */
+  /** Locally added, freshly generated recipes (visible immediately, no reload). */
   private readonly added = signal<Recipe[]>([]);
 
   /**
-   * true, sobald der erste Firestore-Load durch ist (auch bei Fehler → Beispieldaten).
-   * Die Detailseite wartet darauf, bevor sie einen unbekannten Deep-Link umleitet.
+   * true once the first Firestore load has completed (also on error → sample data).
+   * The detail page waits for this before redirecting an unknown deep link.
    */
   readonly ready = signal(false);
 
   /**
-   * Alle Cookbook-Rezepte: zuerst die frisch generierten (neueste zuerst),
-   * dann die geladenen. Zwei getrennte Quellen, damit ein spät eintreffender
-   * Firestore-Load die lokal ergänzten Rezepte nicht überschreibt.
+   * All cookbook recipes: first the freshly generated ones (newest first),
+   * then the loaded ones. Two separate sources so that a late-arriving
+   * Firestore load does not overwrite the locally added recipes.
    */
   readonly recipes = computed(() => {
     const added = this.added();
@@ -110,9 +110,9 @@ export class CookbookData {
   });
 
   /**
-   * Startet beim Erzeugen des Services den einmaligen Firestore-Load und legt die
-   * Rezepte zugleich in den {@link RecipeStore}, damit die Detailseite sie per ID
-   * findet. `ready` wird danach gesetzt (auch im Fehlerfall über die Beispieldaten).
+   * On service creation, starts the one-time Firestore load and also puts the
+   * recipes into the {@link RecipeStore} so the detail page finds them by ID.
+   * `ready` is set afterwards (even on error, via the sample data).
    */
   constructor() {
     this.load().subscribe((recipes) => {
@@ -123,9 +123,9 @@ export class CookbookData {
   }
 
   /**
-   * Ergänzt frisch generierte Rezepte sofort im Cookbook. n8n hat sie bereits
-   * in Firestore gespeichert – hier spiegeln wir sie nur lokal in die bereits
-   * geladene Liste, damit sie ohne Seiten-Reload erscheinen (nach ID dedupt).
+   * Adds freshly generated recipes to the cookbook immediately. n8n has already
+   * stored them in Firestore – here we only mirror them locally into the
+   * already-loaded list so they appear without a page reload (deduped by ID).
    */
   addGenerated(recipes: Recipe[]): void {
     if (!recipes.length) return;
@@ -137,9 +137,9 @@ export class CookbookData {
   }
 
   /**
-   * Übernimmt den neuen Like-Zählerstand (aus der Like-Antwort) in beide Quellen
-   * (geladen + lokal ergänzt), damit die Cookbook-Karten und die "Most liked"-
-   * Leiste den Wert sofort zeigen – ohne Firestore-Reload.
+   * Applies the new like counter (from the like response) to both sources
+   * (loaded + locally added) so the cookbook cards and the "Most liked"
+   * bar show the value immediately – without a Firestore reload.
    */
   updateLikeCount(id: string, likes: number): void {
     const patch = (list: Recipe[]) =>
@@ -149,13 +149,13 @@ export class CookbookData {
   }
 
   /**
-   * Liest alle Rezepte aus Firestore. Ohne hinterlegte Firebase-Config liefert
-   * die Methode lokale Beispieldaten. Andernfalls holt sie seitenweise ALLE
-   * Dokumente: Firestore gibt pro Antwort einen `nextPageToken`, solange weitere
-   * existieren; dem folgen wir via `expand` und sammeln die Seiten mit `reduce`
-   * zu einer Liste. Netzwerk-/Rechtefehler dürfen das Cookbook nicht leer lassen,
-   * daher fällt `catchError` ebenfalls auf die Beispieldaten zurück.
-   * @returns Observable, das genau einmal die vollständige Rezeptliste emittiert.
+   * Reads all recipes from Firestore. Without a configured Firebase config the
+   * method returns local sample data. Otherwise it fetches ALL documents page
+   * by page: Firestore returns a `nextPageToken` per response as long as more
+   * exist; we follow it via `expand` and collect the pages into one list with
+   * `reduce`. Network/permission errors must not leave the cookbook empty,
+   * so `catchError` also falls back to the sample data.
+   * @returns Observable that emits the complete recipe list exactly once.
    */
   private load(): Observable<Recipe[]> {
     const { projectId, apiKey } = environment.firebase;
@@ -167,9 +167,9 @@ export class CookbookData {
     const pageSize = 300;
 
     /**
-     * Holt eine einzelne Firestore-Seite.
-     * @param pageToken Token der Folgeseite; fehlt bei der ersten Seite.
-     * @returns Observable mit der Firestore-Listenantwort.
+     * Fetches a single Firestore page.
+     * @param pageToken Token of the next page; absent on the first page.
+     * @returns Observable with the Firestore list response.
      */
     const fetchPage = (pageToken?: string): Observable<FirestoreListResponse> => {
       let url = `${base}?pageSize=${pageSize}`;

@@ -3,22 +3,22 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, shareReplay } from 'rxjs';
 
 /**
- * Lädt die lokale Autocomplete-Liste der Zutaten (keine externe API).
- * Quelle: public/data/ingredients.json → ausgeliefert unter /data/ingredients.json
- * (in angular.json ist nur public/ als Assets-Ordner konfiguriert).
+ * Loads the local autocomplete list of ingredients (no external API).
+ * Source: public/data/ingredients.json → served at /data/ingredients.json
+ * (in angular.json only public/ is configured as the assets folder).
  */
 @Injectable({ providedIn: 'root' })
 export class IngredientData {
   private readonly http = inject(HttpClient);
 
-  /** Einmal geladene, geteilte Zutatenliste. */
+  /** Ingredient list loaded once and shared. */
   private readonly ingredients$ = this.http
     .get<string[]>('/data/ingredients.json')
     .pipe(shareReplay(1));
 
   /**
-   * Liefert die vollständige Autocomplete-Liste der Zutatennamen.
-   * @returns Observable mit allen Zutatennamen.
+   * Returns the complete autocomplete list of ingredient names.
+   * @returns Observable with all ingredient names.
    */
   getIngredients(): Observable<string[]> {
     return this.ingredients$;

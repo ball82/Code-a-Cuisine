@@ -1,52 +1,52 @@
 import { Injectable, signal } from '@angular/core';
 
-/** localStorage-Schlüssel für den zuletzt bestätigten Quota-Stand. */
+/** localStorage key for the last confirmed quota state. */
 const QUOTA_KEY = 'cac_quota_status';
 
-/** Tageslimit an Generierungen pro IP (Spiegel des Backend-Werts IP_LIMIT). */
+/** Daily generation limit per IP (mirror of the backend value IP_LIMIT). */
 const DAILY_LIMIT = 3;
 
-/** Persistierter Stand: Anzahl verbleibender Generierungen an einem bestimmten Tag. */
+/** Persisted state: number of remaining generations on a given day. */
 interface StoredQuota {
-  /** Tag im Format YYYY-MM-DD (UTC), an dem `remaining` galt. */
+  /** Day in format YYYY-MM-DD (UTC) on which `remaining` applied. */
   date: string;
   remaining: number;
 }
 
 /**
- * Macht das IP-Tageskontingent für den Nutzer sichtbar (US11-Transparenz).
+ * Makes the IP daily quota visible to the user (US11 transparency).
  *
- * Die maßgebliche Zählung liegt serverseitig (n8n zählt nach IP). Hier merken
- * wir uns nur den zuletzt vom Server bestätigten `remaining`-Wert – aus der
- * Generierungs-Antwort bzw. dem 429 – und zeigen ihn, solange er von heute ist.
- * Ohne bestätigten Wert (erste Generierung des Tages) fällt die Anzeige auf das
- * Tageslimit als neutralen Hinweis zurück. Das localStorage ist also nur ein
- * Anzeige-Cache, nie die Autorität – ein anderer Browser derselben IP kann davon
- * abweichen, der Server bleibt die Wahrheit und setzt das Limit durch.
+ * The authoritative count lives server-side (n8n counts by IP). Here we only
+ * remember the last `remaining` value confirmed by the server – from the
+ * generation response or the 429 – and show it as long as it is from today.
+ * Without a confirmed value (first generation of the day) the display falls
+ * back to the daily limit as a neutral hint. So localStorage is only a
+ * display cache, never the authority – another browser on the same IP may
+ * differ; the server stays the truth and enforces the limit.
  */
 @Injectable({ providedIn: 'root' })
 export class QuotaStatus {
   readonly dailyLimit = DAILY_LIMIT;
 
-  /** Verbleibende Generierungen laut Server-Bestätigung von heute, sonst null. */
+  /** Remaining generations per today's server confirmation, otherwise null. */
   readonly remaining = signal<number | null>(this.loadForToday());
 
-  /** Übernimmt einen vom Server bestätigten `remaining`-Wert und persistiert ihn. */
+  /** Accepts a server-confirmed `remaining` value and persists it. */
   record(remaining: number): void {
     const clamped = Math.max(0, Math.min(DAILY_LIMIT, Math.floor(remaining)));
     this.remaining.set(clamped);
     this.persist({ date: this.today(), remaining: clamped });
   }
 
-  /** Heutiges Datum (YYYY-MM-DD, UTC) – identisch zur Doc-ID-Logik im Backend. */
+  /** Today's date (YYYY-MM-DD, UTC) – identical to the doc-ID logic in the backend. */
   private today(): string {
     return new Date().toISOString().slice(0, 10);
   }
 
   /**
-   * Liest den persistierten Rest-Stand, aber nur wenn er von heute ist. Ein Stand
-   * von gestern gilt nicht mehr – der Zähler ist über Nacht zurückgesetzt.
-   * @returns Der heutige `remaining`-Wert oder `null`, wenn keiner vorliegt.
+   * Reads the persisted remaining state, but only if it is from today. A state
+   * from yesterday no longer applies – the counter is reset overnight.
+   * @returns Today's `remaining` value or `null` if none is present.
    */
   private loadForToday(): number | null {
     if (typeof localStorage === 'undefined') return null;
@@ -61,9 +61,10 @@ export class QuotaStatus {
   }
 
   /**
-   * Schreibt den Rest-Stand samt Datum ins localStorage. Ist das localStorage
-   * nicht verfügbar (privater Modus), gilt die Anzeige nur für die Sitzung.
-   * @param value Zu speichernder Stand (Datum + verbleibende Generierungen).
+   * Writes the remaining state along with the date into localStorage. If
+   * localStorage is unavailable (private mode), the display applies to the
+   * session only.
+   * @param value State to store (date + remaining generations).
    */
   private persist(value: StoredQuota): void {
     if (typeof localStorage === 'undefined') return;

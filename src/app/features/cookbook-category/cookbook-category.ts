@@ -7,7 +7,7 @@ import { Footer } from '../../shared/footer/footer';
 import { Cuisine } from '../../core/models/recipe-request';
 import { CookbookData } from '../../core/services/cookbook-data';
 
-/** Anzeige-Metadaten je Küche (Name, Emoji, Banner-Bild). */
+/** Display metadata per cuisine (name, emoji, banner image). */
 const CUISINE_META: Record<Cuisine, { label: string; emoji: string; image: string }> = {
   italian: { label: 'Italian cuisine', emoji: '🍝', image: 'img/italien_cuisine.svg' },
   german: { label: 'German cuisine', emoji: '🥨', image: 'img/german_cuisine.svg' },
@@ -17,12 +17,12 @@ const CUISINE_META: Record<Cuisine, { label: string; emoji: string; image: strin
   fusion: { label: 'Fusion cuisine', emoji: '🍱', image: 'img/fusion_cuisine.svg' }
 };
 
-/** Checkliste: 20 Rezepte pro Seite. */
+/** Checklist: 20 recipes per page. */
 const PAGE_SIZE = 20;
 
 /**
- * Kategorieseite einer Küche (z.B. "Italian cuisine"). Banner + nummerierte
- * Rezeptliste (gefiltert nach Küche, neueste zuerst) + Paginierung (20/Seite).
+ * Category page of a cuisine (e.g. "Italian cuisine"). Banner + numbered
+ * recipe list (filtered by cuisine, newest first) + pagination (20/page).
  */
 @Component({
   selector: 'app-cookbook-category',
@@ -34,37 +34,37 @@ export class CookbookCategory {
   private readonly route = inject(ActivatedRoute);
   private readonly cookbookData = inject(CookbookData);
 
-  /** Routen-Parameter als Signal (mit dem Snapshot als Startwert). */
+  /** Route params as a signal (with the snapshot as the initial value). */
   private readonly params = toSignal(this.route.paramMap, {
     initialValue: this.route.snapshot.paramMap
   });
 
-  /** Alle geladenen Cookbook-Rezepte (Quelle vor der Küchen-Filterung). */
+  /** All loaded cookbook recipes (source before the cuisine filtering). */
   private readonly allRecipes = this.cookbookData.recipes;
 
-  /** Aktuelle Küche aus dem Routen-Parameter. */
+  /** Current cuisine from the route param. */
   readonly cuisine = computed<Cuisine>(() => (this.params().get('cuisine') as Cuisine) ?? 'italian');
 
-  /** Banner-Metadaten (Label, Emoji, Bild) der aktuellen Küche. */
+  /** Banner metadata (label, emoji, image) of the current cuisine. */
   readonly meta = computed(() => CUISINE_META[this.cuisine()] ?? CUISINE_META['italian']);
 
-  /** Nach Küche gefiltert, neueste zuerst. */
+  /** Filtered by cuisine, newest first. */
   readonly recipes = computed(() =>
     this.allRecipes()
       .filter((r) => r.cuisine === this.cuisine())
       .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))
   );
 
-  /** 1-basierte aktuelle Seite. */
+  /** 1-based current page. */
   readonly page = signal(1);
 
-  /** Gesamtzahl der Seiten (mindestens 1, auch bei leerer Liste). */
+  /** Total number of pages (at least 1, even for an empty list). */
   readonly pageCount = computed(() => Math.max(1, Math.ceil(this.recipes().length / PAGE_SIZE)));
 
-  /** Seitenzahlen `[1..pageCount]` für die Paginierungs-Navigation. */
+  /** Page numbers `[1..pageCount]` for the pagination navigation. */
   readonly pages = computed(() => Array.from({ length: this.pageCount() }, (_, i) => i + 1));
 
-  /** Rezepte der aktuellen Seite (mit fortlaufender Nummer). */
+  /** Recipes of the current page (with running number). */
   readonly pageRecipes = computed(() => {
     const start = (this.page() - 1) * PAGE_SIZE;
     return this.recipes()
@@ -73,8 +73,8 @@ export class CookbookCategory {
   });
 
   /**
-   * Setzt die Paginierung bei jedem Kategoriewechsel zurück auf Seite 1, damit
-   * man nicht auf einer nicht mehr existierenden Seite der neuen Küche landet.
+   * Resets the pagination to page 1 on every category change so you don't
+   * land on a no-longer-existing page of the new cuisine.
    */
   constructor() {
     effect(() => {
@@ -84,9 +84,8 @@ export class CookbookCategory {
   }
 
   /**
-   * Wechselt zur angegebenen Seite, begrenzt auf den gültigen Bereich
-   * `[1, pageCount]`.
-   * @param page Gewünschte 1-basierte Seitenzahl.
+   * Switches to the given page, clamped to the valid range `[1, pageCount]`.
+   * @param page Desired 1-based page number.
    */
   goToPage(page: number): void {
     this.page.set(Math.min(this.pageCount(), Math.max(1, page)));

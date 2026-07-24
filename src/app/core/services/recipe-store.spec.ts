@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { RecipeStore } from './recipe-store';
 import { Recipe } from '../models/recipe';
 
-/** Minimales, gültiges Recipe für die Tests. */
+/** Minimal, valid Recipe for the tests. */
 function makeRecipe(id: string, likes = 0): Recipe {
   return {
     id,

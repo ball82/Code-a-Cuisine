@@ -3,7 +3,7 @@ import { RouterLink } from '@angular/router';
 
 type FooterTheme = 'light' | 'dark';
 
-/** Einheitlicher Seitenabschluss mit dem Link zum Impressum. */
+/** Uniform page footer with the link to the imprint. */
 @Component({
   selector: 'app-footer',
   imports: [RouterLink],
@@ -11,6 +11,6 @@ type FooterTheme = 'light' | 'dark';
   styleUrl: './footer.scss'
 })
 export class Footer {
-  /** Heller Footer auf weißen Seiten, dunkler Footer auf der Ergebnisseite. */
+  /** Light footer on white pages, dark footer on the results page. */
   @Input() theme: FooterTheme = 'light';
 }

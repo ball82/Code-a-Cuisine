@@ -9,18 +9,18 @@ import { CookbookCategory } from './features/cookbook-category/cookbook-category
 import { Imprint } from './features/imprint/imprint';
 
 /**
- * Routen-Tabelle der Anwendung.
+ * Application route table.
  *
- * - `''` – Landing (Hero).
- * - `ingredients` – Schritt 1 des Generators (Ziel des "Get started"-Buttons).
- * - `preferences` – Schritt 2 des Generators (Portionen, Köche, Präferenzen).
- * - `recipe-results` – die drei frisch generierten Rezepte.
- * - `recipe/:id` – Rezept-Detailseite; der Query-Param `?from=results|cookbook`
- *   steuert den Zurück-Weg.
- * - `cookbook` – öffentliche Rezept-Bibliothek (ohne Account erreichbar).
- * - `cookbook/:cuisine` – Kategorieseite einer Küche (z. B. `/cookbook/italian`).
- * - `imprint` – Impressum / rechtliche Angaben.
- * - `**` – leitet alles Unbekannte zurück zur Landing-Seite.
+ * - `''` – Landing (hero).
+ * - `ingredients` – step 1 of the generator (target of the "Get started" button).
+ * - `preferences` – step 2 of the generator (servings, cooks, preferences).
+ * - `recipe-results` – the three freshly generated recipes.
+ * - `recipe/:id` – recipe detail page; the query param `?from=results|cookbook`
+ *   controls the back path.
+ * - `cookbook` – public recipe library (accessible without an account).
+ * - `cookbook/:cuisine` – category page of a cuisine (e.g. `/cookbook/italian`).
+ * - `imprint` – imprint / legal information.
+ * - `**` – redirects anything unknown back to the landing page.
  */
 export const routes: Routes = [
   { path: '', component: Landing },

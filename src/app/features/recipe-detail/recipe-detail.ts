@@ -9,34 +9,34 @@ import { CookbookData } from '../../core/services/cookbook-data';
 import { Header } from '../../shared/header/header';
 import { Footer } from '../../shared/footer/footer';
 
-/** Kurzform der Einheit für die Zutatenzeile. */
+/** Short form of the unit for the ingredient line. */
 const UNIT_SHORT: Record<Unit, string> = { gram: 'g', ml: 'ml', liter: 'l', piece: '×' };
 
-/** Rundet eine skalierte Menge auf max. 1 Nachkommastelle (ganze Zahlen bleiben ganz). */
+/** Rounds a scaled amount to at most 1 decimal place (whole numbers stay whole). */
 function roundAmount(amount: number): number {
   return Math.round(amount * 10) / 10;
 }
 
-/** Energiegehalt pro Gramm Makronährstoff (kcal) – Basis der Prozent-Aufteilung. */
+/** Energy content per gram of macronutrient (kcal) – basis for the percentage split. */
 const KCAL_PER_GRAM = { protein: 4, fat: 9, carbs: 4 } as const;
 
-/** Ein Segment der Makroverteilung für Chart, Legende und Tabelle. */
+/** One segment of the macro distribution for chart, legend and table. */
 export interface MacroSlice {
-  /** Schlüssel = zugleich CSS-Klassenendung (protein/fat/carbs). */
+  /** Key = also the CSS class suffix (protein/fat/carbs). */
   key: 'protein' | 'fat' | 'carbs';
   label: string;
-  /** Auf die gewählte Portionszahl skalierte Menge in Gramm. */
+  /** Amount in grams scaled to the chosen portion count. */
   grams: number;
-  /** Ganzzahliger Anteil an der Nährenergie; die drei Werte ergeben zusammen 100. */
+  /** Integer share of the nutritional energy; the three values add up to 100. */
   percent: number;
-  /** Datenfarbe des Segments (CSS-Variable aus styles.scss). */
+  /** Data color of the segment (CSS variable from styles.scss). */
   color: string;
 }
 
 /**
- * Rundet Anteile so auf ganze Prozent, dass die Summe exakt 100 bleibt
- * (Largest-Remainder-Verfahren): erst abrunden, dann die verbleibenden Punkte
- * an die Werte mit dem grössten Nachkomma-Rest verteilen.
+ * Rounds shares to whole percentages such that the sum stays exactly 100
+ * (largest-remainder method): floor first, then distribute the remaining points
+ * to the values with the largest fractional remainder.
  */
 function roundPercentages(shares: number[]): number[] {
   const raw = shares.map((s) => s * 100);
@@ -53,12 +53,12 @@ function roundPercentages(shares: number[]): number[] {
 }
 
 /**
- * Rezept-Detailseite. Zeigt Nährwerte (skalierbar über einen Portions-Regler),
- * Zutaten (deine + Extra), die Kochschritte mit Chef-Badges und einen
- * Like-Button (Toggle, nach Klick kurz gesperrt gegen Doppelklicks).
+ * Recipe detail page. Shows nutrition values (scalable via a portions slider),
+ * ingredients (yours + extra), the cooking steps with chef badges and a
+ * like button (toggle, briefly locked after a click against double clicks).
  *
- * Zurück-Weg ist kontextabhängig (Query-Param `from`): vom Generator zurück zu
- * den Ergebnissen, vom Cookbook zurück ins Cookbook.
+ * The back path is context-dependent (query param `from`): from the generator
+ * back to the results, from the cookbook back to the cookbook.
  */
 @Component({
   selector: 'app-recipe-detail',
@@ -73,38 +73,38 @@ export class RecipeDetail {
   private readonly api = inject(RecipeApi);
   private readonly cookbook = inject(CookbookData);
 
-  /** Rezept-ID aus der Route. */
+  /** Recipe ID from the route. */
   private readonly id = this.route.snapshot.paramMap.get('id');
 
   /**
-   * Das anzuzeigende Rezept. Erst im Store suchen (frisch generiert), sonst im
-   * live geladenen Cookbook – Letzteres ist nötig, damit geteilte Deep-Links und
-   * ein Reload funktionieren (Store-Cache ist dann leer, das Cookbook lädt aber
-   * alle Rezepte direkt aus Firestore). Das reaktive `cookbook.recipes()` sorgt
-   * dafür, dass der Lookup erneut läuft, sobald die Daten eintreffen.
+   * The recipe to display. First look in the store (freshly generated), then in
+   * the live-loaded cookbook – the latter is needed so shared deep links and a
+   * reload work (the store cache is empty then, but the cookbook loads all
+   * recipes directly from Firestore). The reactive `cookbook.recipes()` ensures
+   * the lookup runs again as soon as the data arrives.
    */
   readonly recipe = computed<Recipe | undefined>(() => {
     if (!this.id) return undefined;
     return this.store.byId(this.id) ?? this.cookbook.recipes().find((r) => r.id === this.id);
   });
 
-  /** Merker, damit die Startwerte (Portionen/Likes) nur einmal gesetzt werden. */
+  /** Flag so the initial values (portions/likes) are set only once. */
   private seeded = false;
 
-  /** Herkunft → bestimmt den Zurück-Weg (Link + Beschriftung). */
+  /** Origin → determines the back path (link + label). */
   private readonly from = this.route.snapshot.queryParamMap.get('from');
   readonly backLink = this.from === 'cookbook' ? '/cookbook' : '/recipe-results';
   readonly backLabel = this.from === 'cookbook' ? 'Cookbook' : 'Recipes';
 
-  /** Portionen für die Nährwert-Skalierung (Werte im Vertrag sind pro Portion). */
+  /** Portions for the nutrition scaling (values in the contract are per portion). */
   readonly portions = signal(1);
 
-  /** Like-Zustand (lokal gemerkt) + aktueller Zähler + Klicksperre. */
+  /** Like state (remembered locally) + current counter + click lock. */
   readonly liked = signal(false);
   readonly likeCount = signal(0);
   readonly likeBusy = signal(false);
 
-  /** Gesamt-Nährwerte = Wert pro Portion × gewählte Portionszahl. */
+  /** Total nutrition = value per portion × chosen portion count. */
   readonly nutrition = computed(() => {
     const r = this.recipe();
     if (!r) return null;
@@ -119,12 +119,13 @@ export class RecipeDetail {
   });
 
   /**
-   * Makroverteilung (US10): Anteil der drei Makronährstoffe an der Nährenergie.
-   * Die Prozente kommen aus dem Energiegehalt (Fett 9 kcal/g, Protein/Carbs je
-   * 4 kcal/g), nicht aus der Masse – so entspricht die Aufteilung dem, was der
-   * kcal-Wert oben ausmacht. Die Prozente sind portionsunabhängig (ein
-   * Verhältnis); die Gramm-Angaben skalieren mit dem Portionsregler. Ohne
-   * Nährenergie (alle Makros 0) bleibt die Aufteilung bei 0 % statt 0/0.
+   * Macro distribution (US10): share of the three macronutrients in the
+   * nutritional energy. The percentages come from the energy content (fat 9
+   * kcal/g, protein/carbs 4 kcal/g each), not from the mass – so the split
+   * matches what the kcal value above accounts for. The percentages are
+   * portion-independent (a ratio); the gram figures scale with the portions
+   * slider. Without nutritional energy (all macros 0) the split stays at 0 %
+   * instead of 0/0.
    */
   readonly macros = computed<MacroSlice[]>(() => {
     const n = this.nutrition();
@@ -152,7 +153,7 @@ export class RecipeDetail {
     }));
   });
 
-  /** Barrierefreie Textfassung der Makroverteilung (für den Screenreader). */
+  /** Accessible text version of the macro distribution (for the screen reader). */
   readonly macroSummary = computed(() =>
     this.macros()
       .map((m) => `${m.label} ${m.percent}%`)
@@ -160,48 +161,49 @@ export class RecipeDetail {
   );
 
   /**
-   * Skalierungsfaktor für die Zutatenmengen: gewählte Portionen ÷ Portionen,
-   * für die das Rezept ursprünglich generiert wurde. Bei gleicher Portionszahl
-   * bleibt er 1 (Originalmengen).
+   * Scaling factor for the ingredient amounts: chosen portions ÷ portions for
+   * which the recipe was originally generated. At the same portion count it
+   * stays 1 (original amounts).
    */
   readonly scale = computed(() => {
     const base = this.recipe()?.portions ?? 0;
     return base > 0 ? this.portions() / base : 1;
   });
 
-  /** Zutaten des Nutzers, auf die gewählte Portionszahl hochgerechnet. */
+  /** The user's ingredients, scaled up to the chosen portion count. */
   readonly yourIngredients = computed(() => this.scaleList(this.recipe()?.yourIngredients));
 
-  /** Zusätzlich benötigte Zutaten, ebenfalls auf die Portionszahl skaliert. */
+  /** Additionally required ingredients, likewise scaled to the portion count. */
   readonly extraIngredients = computed(() => this.scaleList(this.recipe()?.extraIngredients));
 
-  /** Chef-Nummern von 1..cooks (für die "Cooking person"-Pillen und die ToDo-Spalten). */
+  /** Chef numbers from 1..cooks (for the "Cooking person" pills and the to-do columns). */
   readonly chefs = computed(() => {
     const r = this.recipe();
     return r ? Array.from({ length: r.cooks }, (_, i) => i + 1) : [];
   });
 
-  /** Rechnet eine Zutatenliste mit dem aktuellen Skalierungsfaktor hoch (Menge × Faktor). */
+  /** Scales an ingredient list by the current scaling factor (amount × factor). */
   private scaleList(list: Ingredient[] | undefined): Ingredient[] {
     const factor = this.scale();
     return (list ?? []).map((ing) => ({ ...ing, amount: roundAmount(ing.amount * factor) }));
   }
 
   /**
-   * Schritte eines bestimmten Kochs, in chronologischer Reihenfolge (US9:
-   * eigene ToDo-Liste pro Person). Die globale Schrittnummer bleibt erhalten,
-   * damit die zeitliche Abfolge über die Spalten hinweg erkennbar ist.
+   * Steps of a specific cook, in chronological order (US9: an individual to-do
+   * list per person). The global step number is preserved so the temporal
+   * sequence remains recognizable across the columns.
    */
   stepsForChef(chef: number): Direction[] {
     return this.recipe()?.directions.filter((d) => d.chef === chef) ?? [];
   }
 
   /**
-   * Richtet einen Effekt ein, der reaktiv auf das Rezept reagiert: Sobald es
-   * vorliegt (aus dem Store sofort, aus dem Cookbook nach dem Laden), werden die
-   * Startwerte (Portionen, Likes, Like-Status) einmalig gesetzt. Erst wenn das
-   * Cookbook fertig geladen ist UND das Rezept dann immer noch fehlt, leitet er
-   * zurück ins Cookbook – so überlebt ein Deep-Link/Reload die kurze Ladephase.
+   * Sets up an effect that reacts reactively to the recipe: as soon as it is
+   * available (immediately from the store, after loading from the cookbook), the
+   * initial values (portions, likes, like status) are set once. Only when the
+   * cookbook has finished loading AND the recipe is still missing does it
+   * redirect back to the cookbook – so a deep link/reload survives the short
+   * loading phase.
    */
   constructor() {
     effect(() => {
@@ -222,15 +224,15 @@ export class RecipeDetail {
   }
 
   /**
-   * Ändert die angezeigte Portionszahl und hält sie im Bereich 1–12. Nährwerte
-   * und Zutatenmengen skalieren reaktiv mit.
-   * @param delta Schrittweite, üblicherweise +1 oder −1.
+   * Changes the displayed portion count and keeps it in the range 1–12. Nutrition
+   * values and ingredient amounts scale reactively along with it.
+   * @param delta Step size, usually +1 or −1.
    */
   stepPortions(delta: number): void {
     this.portions.update((p) => Math.min(12, Math.max(1, p + delta)));
   }
 
-  /** "80 g Pasta" bzw. "2× Egg" für Stück-Zutaten. */
+  /** "80 g Pasta" or "2× Egg" for piece-based ingredients. */
   formatIngredient(ing: Ingredient): string {
     return ing.unit === 'piece'
       ? `${ing.amount}× ${ing.name}`
@@ -238,9 +240,9 @@ export class RecipeDetail {
   }
 
   /**
-   * Toggelt den Like optimistisch, ruft den n8n-Webhook und gleicht mit der
-   * Server-Antwort ab (Vertrag 3). Bei Fehler wird zurückgerollt. Der Button
-   * bleibt während des Requests und danach ~500 ms gesperrt (Race-Condition).
+   * Toggles the like optimistically, calls the n8n webhook and reconciles with
+   * the server response (Contract 3). On error it rolls back. The button stays
+   * locked during the request and for ~500 ms afterwards (race condition).
    */
   toggleLike(): void {
     const r = this.recipe();
@@ -272,8 +274,8 @@ export class RecipeDetail {
   }
 
   /**
-   * Gibt den Like-Button nach einer kurzen Abklingzeit (~500 ms) wieder frei –
-   * schützt gegen versehentliche Doppelklicks direkt nach einem Toggle.
+   * Releases the like button again after a short cooldown (~500 ms) –
+   * protects against accidental double clicks right after a toggle.
    */
   private releaseAfterCooldown(): void {
     setTimeout(() => this.likeBusy.set(false), 500);

@@ -10,9 +10,9 @@ import { Header } from '../../shared/header/header';
 import { Footer } from '../../shared/footer/footer';
 
 /**
- * Schritt 1 des Generators ("Generate recipe").
- * Links: Eingabe-Karte (Zutat + Menge + Einheit, mit lokaler Autocomplete).
- * Rechts: die gesammelte Zutatenliste (bearbeiten / löschen).
+ * Step 1 of the generator ("Generate recipe").
+ * Left: input card (ingredient + amount + unit, with local autocomplete).
+ * Right: the collected ingredient list (edit / delete).
  */
 @Component({
   selector: 'app-ingredients',
@@ -25,37 +25,37 @@ export class Ingredients {
   private readonly draft = inject(RecipeDraft);
   private readonly router = inject(Router);
 
-  /** Erlaubte Einheiten (Vertrag 1 — technische Kleinbuchstaben). */
+  /** Allowed units (Contract 1 — technical lowercase values). */
   readonly units: Unit[] = ['gram', 'ml', 'liter', 'piece'];
 
-  /** Aktuelle Formular-Eingabe (das obere Feld). */
+  /** Current form input (the top field). */
   readonly name = signal('');
   readonly amount = signal(100);
   readonly unit = signal<Unit>('gram');
 
-  /** Index der Zeile, die gerade bearbeitet wird – sonst null (= Neueintrag). */
+  /** Index of the row currently being edited – otherwise null (= new entry). */
   readonly editIndex = signal<number | null>(null);
 
   /**
-   * Auf/Zu-Zustand des eigenen Einheiten-Dropdowns. Ersetzt das native
-   * <select>, dessen OS-Popup sich nicht positionieren/stylen ließ.
+   * Open/closed state of the custom unit dropdown. Replaces the native
+   * <select>, whose OS popup could not be positioned/styled.
    */
   readonly unitOpen = signal(false);
 
   /**
-   * Die fertige Liste liegt im RecipeDraft-Service (geteilter Zustand), damit
-   * sie beim Vor-/Zurücknavigieren erhalten bleibt.
+   * The finished list lives in the RecipeDraft service (shared state) so it is
+   * preserved when navigating back and forth.
    */
   readonly items = this.draft.ingredients;
 
-  /** Lokale Autocomplete-Quelle, einmal geladen (keine externe API). */
+  /** Local autocomplete source, loaded once (no external API). */
   private readonly allNames = toSignal(this.ingredientData.getIngredients(), {
     initialValue: [] as string[]
   });
 
   /**
-   * Vorschläge: Teilwort-Treffer (nicht nur Wortanfang), ohne exakten Treffer,
-   * max. 8. Wortanfang-Treffer werden vorgereiht, der Rest alphabetisch.
+   * Suggestions: substring matches (not just prefix), excluding an exact match,
+   * max. 8. Prefix matches are moved to the front, the rest alphabetical.
    */
   readonly suggestions = computed(() => {
     const q = this.name().trim().toLowerCase();
@@ -72,34 +72,34 @@ export class Ingredients {
       .slice(0, 8);
   });
 
-  /** "+"/"Speichern" nur aktiv bei Name + Menge > 0 (Validierung Vertrag 1). */
+  /** "+"/"Save" only active with name + amount > 0 (Contract 1 validation). */
   readonly canAdd = computed(() => this.name().trim().length > 0 && this.amount() > 0);
 
-  /** "Next step" nur aktiv, wenn mindestens eine Zutat vorhanden ist. */
+  /** "Next step" only active when at least one ingredient is present. */
   readonly canContinue = computed(() => this.items().length > 0);
 
-  /** Kurzform der Einheit für die Listenanzeige ("100g", "1" bei Stück). */
+  /** Short form of the unit for the list display ("100g", "1" for pieces). */
   short(unit: Unit): string {
     return { gram: 'g', ml: 'ml', liter: 'l', piece: '' }[unit];
   }
 
-  /** Übernimmt einen Autocomplete-Vorschlag ins Namensfeld. */
+  /** Adopts an autocomplete suggestion into the name field. */
   pick(name: string): void {
     this.name.set(name);
   }
 
-  /** Öffnet/schließt das Einheiten-Dropdown. */
+  /** Opens/closes the unit dropdown. */
   toggleUnit(): void {
     this.unitOpen.update((open) => !open);
   }
 
-  /** Wählt eine Einheit und schließt das Dropdown. */
+  /** Selects a unit and closes the dropdown. */
   pickUnit(u: Unit): void {
     this.unit.set(u);
     this.unitOpen.set(false);
   }
 
-  /** Klick außerhalb schließt das Einheiten-Dropdown. */
+  /** A click outside closes the unit dropdown. */
   @HostListener('document:click', ['$event'])
   onDocumentClick(e: MouseEvent): void {
     if (this.unitOpen() && !(e.target as HTMLElement).closest('.unit-select')) {
@@ -107,13 +107,13 @@ export class Ingredients {
     }
   }
 
-  /** Escape schließt das Einheiten-Dropdown. */
+  /** Escape closes the unit dropdown. */
   @HostListener('document:keydown.escape')
   onEscape(): void {
     this.unitOpen.set(false);
   }
 
-  /** Fügt die aktuelle Eingabe hinzu – oder überschreibt die bearbeitete Zeile. */
+  /** Adds the current input – or overwrites the edited row. */
   addOrUpdate(): void {
     if (!this.canAdd()) return;
     const entry: Ingredient = {
@@ -131,7 +131,7 @@ export class Ingredients {
     this.reset();
   }
 
-  /** Lädt eine Zeile zurück ins Formular zum Bearbeiten. */
+  /** Loads a row back into the form for editing. */
   edit(i: number): void {
     const it = this.items()[i];
     this.name.set(it.name);
@@ -140,21 +140,21 @@ export class Ingredients {
     this.editIndex.set(i);
   }
 
-  /** Entfernt eine Zeile (und verlässt ggf. den Bearbeiten-Modus). */
+  /** Removes a row (and leaves edit mode if applicable). */
   remove(i: number): void {
     this.draft.ingredients.update((list) => list.filter((_, idx) => idx !== i));
     if (this.editIndex() === i) this.reset();
   }
 
-  /** Weiter zu Schritt 2 (Präferenzen). Die Zutaten liegen bereits im Draft. */
+  /** Continue to step 2 (preferences). The ingredients are already in the draft. */
   next(): void {
     if (!this.canContinue()) return;
     this.router.navigate(['/preferences']);
   }
 
   /**
-   * Setzt das Eingabeformular auf die Ausgangswerte zurück (leerer Name, 100 g)
-   * und verlässt einen etwaigen Bearbeitungsmodus.
+   * Resets the input form to its initial values (empty name, 100 g) and leaves
+   * any edit mode.
    */
   private reset(): void {
     this.name.set('');

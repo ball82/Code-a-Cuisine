@@ -7,7 +7,7 @@ import { Footer } from '../../shared/footer/footer';
 import { Cuisine, CUISINE_LABELS } from '../../core/models/recipe-request';
 import { CookbookData } from '../../core/services/cookbook-data';
 
-/** Eine Küchen-Kachel im Cookbook-Raster (festes Kategorie-Bild aus public/img). */
+/** A cuisine tile in the cookbook grid (fixed category image from public/img). */
 interface CuisineTile {
   key: Cuisine;
   label: string;
@@ -16,10 +16,10 @@ interface CuisineTile {
 }
 
 /**
- * Cookbook-Übersicht: "Most liked"-Leiste oben (live aus Firestore/Beispieldaten,
- * nach `likes` sortiert), darunter das Raster der sechs Küchen-Kategorien.
- * Die Kategorien sind fest verdrahtet (feste Bilder), die Rezeptdaten kommen
- * über CookbookData (direkter Read der recipes-Collection).
+ * Cookbook overview: "Most liked" bar at the top (live from Firestore/sample
+ * data, sorted by `likes`), below it the grid of the six cuisine categories.
+ * The categories are hard-wired (fixed images), the recipe data comes via
+ * CookbookData (direct read of the recipes collection).
  */
 @Component({
   selector: 'app-cookbook',
@@ -30,10 +30,10 @@ interface CuisineTile {
 export class Cookbook {
   private readonly cookbookData = inject(CookbookData);
 
-  /** Anzeigetexte für den Kochstil (US12: Kochstil in der "Most liked"-Leiste). */
+  /** Display labels for the cooking style (US12: cooking style in the "Most liked" bar). */
   readonly cuisineLabels = CUISINE_LABELS;
 
-  /** Sechs feste Kategorien mit Bildern aus public/img (Dateinamen wie geliefert). */
+  /** Six fixed categories with images from public/img (filenames as delivered). */
   readonly cuisines: CuisineTile[] = [
     { key: 'italian', label: 'Italian cuisine', emoji: '🍝', image: 'img/italien_cuisine.svg' },
     { key: 'german', label: 'German cuisine', emoji: '🥨', image: 'img/german_cuisine.svg' },
@@ -43,10 +43,10 @@ export class Cookbook {
     { key: 'fusion', label: 'Fusion cuisine', emoji: '🍱', image: 'img/fusion_cuisine.svg' }
   ];
 
-  /** Alle Rezepte (live oder Beispieldaten). */
+  /** All recipes (live or sample data). */
   private readonly recipes = this.cookbookData.recipes;
 
-  /** Die drei meistgelikten Rezepte für die obere Leiste. */
+  /** The three most-liked recipes for the top bar. */
   readonly mostLiked = computed(() =>
     [...this.recipes()].sort((a, b) => b.likes - a.likes).slice(0, 3)
   );

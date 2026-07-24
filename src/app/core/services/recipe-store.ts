@@ -2,51 +2,51 @@ import { Injectable, signal } from '@angular/core';
 
 import { Recipe } from '../models/recipe';
 
-/** localStorage-Schlüssel für die vom Browser gelikten Rezept-IDs. */
+/** localStorage key for the recipe IDs liked by this browser. */
 const LIKED_KEY = 'cac_liked_recipes';
 
 /**
- * Hält die zuletzt generierten Rezepte für die Ergebnis- und Detailseite und
- * merkt sich, welche Rezepte dieser Browser geliked hat.
+ * Holds the most recently generated recipes for the results and detail pages
+ * and remembers which recipes this browser has liked.
  *
- * Warum der Like-Zustand hier (und im localStorage) liegt: Der Like-Marker
- * steht serverseitig in der gesperrten `recipeLikes`-Collection und ist nach
- * Server-IP geschlüsselt – das Frontend kann ihn NICHT aus Firestore lesen
- * (siehe PROJEKT-KONTEXT.md §6). Wir merken uns den Zustand daher lokal, sobald
- * der Nutzer klickt oder ihn aus der Like-Antwort erfährt.
+ * Why the like state lives here (and in localStorage): the like marker is
+ * stored server-side in the locked `recipeLikes` collection and is keyed by
+ * server IP – the frontend can NOT read it from Firestore (see
+ * PROJEKT-KONTEXT.md §6). We therefore remember the state locally as soon as
+ * the user clicks or learns it from the like response.
  */
 @Injectable({ providedIn: 'root' })
 export class RecipeStore {
-  /** Die zuletzt generierten Rezepte (Reihenfolge = Anzeige auf der Ergebnisseite). */
+  /** The most recently generated recipes (order = display on the results page). */
   readonly generated = signal<Recipe[]>([]);
 
-  /** Alle je gesehenen Rezepte (generiert ODER aus dem Cookbook) für die Detail-Suche. */
+  /** All recipes ever seen (generated OR from the cookbook) for the detail lookup. */
   private readonly cache = new Map<string, Recipe>();
 
-  /** IDs, die dieser Browser geliked hat. */
+  /** IDs that this browser has liked. */
   readonly liked = signal<Set<string>>(this.loadLiked());
 
-  /** Übernimmt frisch generierte Rezepte als aktuelle Ergebnisliste. */
+  /** Adopts freshly generated recipes as the current results list. */
   setGenerated(recipes: Recipe[]): void {
     this.remember(recipes);
     this.generated.set(recipes);
   }
 
-  /** Legt Rezepte in den Lookup-Cache (z.B. beim Laden des Cookbooks). */
+  /** Puts recipes into the lookup cache (e.g. when loading the cookbook). */
   remember(recipes: Recipe[]): void {
     for (const recipe of recipes) this.cache.set(recipe.id, recipe);
   }
 
-  /** Findet ein Rezept nach ID (aus generierten oder gecachten Cookbook-Daten). */
+  /** Finds a recipe by ID (from generated or cached cookbook data). */
   byId(id: string): Recipe | undefined {
     return this.cache.get(id);
   }
 
   /**
-   * Übernimmt den neuen Like-Zählerstand (aus der Like-Antwort) in den
-   * Lookup-Cache und die Ergebnisliste, damit Detail- und Ergebniskarten den
-   * Wert ohne Reload zeigen. Die betroffenen Rezepte werden durch neue Objekte
-   * ersetzt, damit die Signale reaktiv nachziehen.
+   * Applies the new like counter (from the like response) to the lookup cache
+   * and the results list so detail and results cards show the value without a
+   * reload. The affected recipes are replaced by new objects so the signals
+   * update reactively.
    */
   updateLikeCount(id: string, likes: number): void {
     const cached = this.cache.get(id);
@@ -56,12 +56,12 @@ export class RecipeStore {
     );
   }
 
-  /** Hat dieser Browser das Rezept geliked? */
+  /** Has this browser liked the recipe? */
   isLiked(id: string): boolean {
     return this.liked().has(id);
   }
 
-  /** Setzt den lokalen Like-Zustand und spiegelt ihn ins localStorage. */
+  /** Sets the local like state and mirrors it into localStorage. */
   setLiked(id: string, liked: boolean): void {
     this.liked.update((current) => {
       const next = new Set(current);
@@ -73,8 +73,8 @@ export class RecipeStore {
   }
 
   /**
-   * Lädt die gelikten Rezept-IDs aus dem localStorage.
-   * @returns Set der IDs; leer, wenn nichts gespeichert oder nicht lesbar ist.
+   * Loads the liked recipe IDs from localStorage.
+   * @returns Set of IDs; empty if nothing is stored or it is not readable.
    */
   private loadLiked(): Set<string> {
     if (typeof localStorage === 'undefined') return new Set();
@@ -87,9 +87,9 @@ export class RecipeStore {
   }
 
   /**
-   * Schreibt die gelikten Rezept-IDs ins localStorage. Ist es nicht verfügbar
-   * (privater Modus), bleibt der Like nur für die Sitzung erhalten.
-   * @param ids Aktueller Satz gelikter Rezept-IDs.
+   * Writes the liked recipe IDs into localStorage. If it is unavailable
+   * (private mode), the like is kept for the session only.
+   * @param ids Current set of liked recipe IDs.
    */
   private persist(ids: Set<string>): void {
     if (typeof localStorage === 'undefined') return;

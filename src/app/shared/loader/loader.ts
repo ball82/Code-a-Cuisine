@@ -1,9 +1,9 @@
 import { Component, input } from '@angular/core';
 
 /**
- * Vollbild-Ladeanzeige während der 10–20 s dauernden Gemini-Generierung.
- * Grüner Hintergrund, zentriertes Sage-Rechteck mit Bild, Text + animierte Punkte
- * (die Punkte verschwinden einzeln und erscheinen wieder – vgl. DESIGN.md).
+ * Full-screen loading indicator during the 10–20 s Gemini generation.
+ * Green background, centered sage rectangle with image, text + animated dots
+ * (the dots disappear one by one and reappear).
  */
 @Component({
   selector: 'app-loader',
@@ -11,6 +11,6 @@ import { Component, input } from '@angular/core';
   styleUrl: './loader.scss'
 })
 export class Loader {
-  /** Text, der vor den animierten Punkten steht. */
+  /** Text shown before the animated dots. */
   readonly message = input('Generating your recipes');
 }

@@ -1,10 +1,10 @@
 import { Recipe } from '../models/recipe';
 
 /**
- * Lokale Beispiel-Rezepte für das Cookbook-Layout, solange keine Firebase-Config
- * hinterlegt ist (environment.firebase.projectId leer). Sobald die Config steht,
- * liest CookbookData stattdessen live aus Firestore. Vollständige Rezepte, damit
- * auch die Detailseite ohne Backend funktioniert.
+ * Local sample recipes for the cookbook layout, as long as no Firebase config
+ * is set (environment.firebase.projectId empty). Once the config is in place,
+ * CookbookData reads live from Firestore instead. Complete recipes so that
+ * the detail page also works without a backend.
  */
 export const SAMPLE_RECIPES: Recipe[] = [
   {

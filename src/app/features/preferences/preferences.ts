@@ -12,7 +12,7 @@ import { ErrorDialog } from '../../shared/error-dialog/error-dialog';
 import { Header } from '../../shared/header/header';
 import { Footer } from '../../shared/footer/footer';
 
-/** Eine Chip-Option: technischer Wert + Anzeigetext (+ optionaler Hinweis). */
+/** A chip option: technical value + display label (+ optional hint). */
 interface ChipOption<T> {
   value: T;
   label: string;
@@ -20,9 +20,9 @@ interface ChipOption<T> {
 }
 
 /**
- * Schritt 2 des Generators ("Choose your preferences").
- * Portionen/Köche als Stepper, Kochzeit/Küche/Diät als Single-Select-Chips.
- * Der Zustand liegt im RecipeDraft-Service, bleibt also beim Zurück erhalten.
+ * Step 2 of the generator ("Choose your preferences").
+ * Portions/cooks as steppers, cooking time/cuisine/diet as single-select chips.
+ * The state lives in the RecipeDraft service, so it is preserved on back.
  */
 @Component({
   selector: 'app-preferences',
@@ -36,17 +36,17 @@ export class Preferences {
   private readonly store = inject(RecipeStore);
   private readonly cookbook = inject(CookbookData);
   private readonly router = inject(Router);
-  /** Verbleibende Tages-Generierungen – für die Transparenz-Zeile am Button. */
+  /** Remaining daily generations – for the transparency line on the button. */
   readonly quota = inject(QuotaStatus);
 
-  /** Geteilter Zustand aus dem Draft (Signals). */
+  /** Shared state from the draft (signals). */
   readonly portions = this.draft.portions;
   readonly cooks = this.draft.cooks;
   readonly cookingTime = this.draft.cookingTime;
   readonly cuisine = this.draft.cuisine;
   readonly diet = this.draft.diet;
 
-  /** Zeitkategorien laut Checkliste (quick ≤20 / medium 20–45 / complex 45+). */
+  /** Time categories per the checklist (quick ≤20 / medium 20–45 / complex 45+). */
   readonly cookingTimes: ChipOption<CookingTime>[] = [
     { value: 'quick', label: 'Quick', hint: 'Up to 20 min' },
     { value: 'medium', label: 'Medium', hint: '20–45 min' },
@@ -69,55 +69,55 @@ export class Preferences {
     { value: 'none', label: 'No preferences' }
   ];
 
-  /** Ob die Portionszahl noch erhöht werden darf (Obergrenze 12, Vertrag 1). */
+  /** Whether the portion count may still be increased (upper limit 12, Contract 1). */
   readonly canMorePortions = computed(() => this.portions() < 12);
 
-  /** Ob die Portionszahl noch verringert werden darf (Untergrenze 1). */
+  /** Whether the portion count may still be decreased (lower limit 1). */
   readonly canFewerPortions = computed(() => this.portions() > 1);
 
-  /** Ob die Anzahl kochender Personen noch erhöht werden darf (Obergrenze 3). */
+  /** Whether the number of cooks may still be increased (upper limit 3). */
   readonly canMoreCooks = computed(() => this.cooks() < 3);
 
-  /** Ob die Anzahl kochender Personen noch verringert werden darf (Untergrenze 1). */
+  /** Whether the number of cooks may still be decreased (lower limit 1). */
   readonly canFewerCooks = computed(() => this.cooks() > 1);
 
   /**
-   * Ändert die Portionszahl und hält sie im gültigen Bereich 1–12 (Vertrag 1).
-   * @param delta Schrittweite, üblicherweise +1 oder −1.
+   * Changes the portion count and keeps it within the valid range 1–12 (Contract 1).
+   * @param delta Step size, usually +1 or −1.
    */
   stepPortions(delta: number): void {
     this.portions.update((p) => Math.min(12, Math.max(1, p + delta)));
   }
 
   /**
-   * Ändert die Anzahl kochender Personen und hält sie im gültigen Bereich 1–3
-   * (Vertrag 1).
-   * @param delta Schrittweite, üblicherweise +1 oder −1.
+   * Changes the number of cooks and keeps it within the valid range 1–3
+   * (Contract 1).
+   * @param delta Step size, usually +1 or −1.
    */
   stepCooks(delta: number): void {
     this.cooks.update((c) => Math.min(3, Math.max(1, c + delta)));
   }
 
-  /** Läuft gerade ein Generierungs-Request? Sperrt den Button gegen Doppelklicks. */
+  /** Is a generation request currently running? Locks the button against double clicks. */
   readonly loading = signal(false);
 
-  /** Freundliche Fehlermeldung (Validierung 400 / Quota 429 / Netzwerk) – sonst null. */
+  /** Friendly error message (validation 400 / quota 429 / network) – otherwise null. */
   readonly error = signal<string | null>(null);
 
-  /** "Ups!"-Dialog: Gemini/n8n meldet, dass Zutaten/Mengen nicht reichen. */
+  /** "Oops!" dialog: Gemini/n8n reports that the ingredients/amounts are insufficient. */
   readonly showInsufficient = signal(false);
 
   /**
-   * Schickt den Request (Vertrag 1) an den n8n-Webhook und bekommt 3 fertige,
-   * bereits in Firestore gespeicherte Rezepte zurück (Vertrag 2). Firebase ist
-   * hier NICHT beteiligt – n8n schreibt selbst und antwortet mit den IDs.
+   * Sends the request (Contract 1) to the n8n webhook and gets back 3 finished
+   * recipes already stored in Firestore (Contract 2). Firebase is NOT involved
+   * here – n8n writes them itself and responds with the IDs.
    *
-   * Bei Erfolg landen die Rezepte im RecipeStore, werden zur sofortigen Anzeige
-   * ins Cookbook gespiegelt (ohne Seiten-Reload) und wir wechseln zur
-   * Ergebnisseite; einen vom Server bestätigten `remaining`-Stand übernimmt der
-   * {@link QuotaStatus}. Meldet das Backend „zu wenig Zutaten", erscheint der
-   * freundliche „Ups!"-Dialog statt einer Fehlermeldung. Bei ausgeschöpfter
-   * Quota (429) wird der Rest-Stand auf 0 gesetzt.
+   * On success the recipes land in the RecipeStore, are mirrored into the
+   * cookbook for immediate display (without a page reload) and we switch to the
+   * results page; a server-confirmed `remaining` value is taken over by the
+   * {@link QuotaStatus}. If the backend reports "not enough ingredients", the
+   * friendly "Oops!" dialog appears instead of an error message. When the quota
+   * is exhausted (429) the remaining value is set to 0.
    */
   generate(): void {
     if (this.loading()) return;
@@ -144,13 +144,13 @@ export class Preferences {
     });
   }
 
-  /** Schliesst den „Ups!"-Dialog und führt zurück zu den Zutaten. */
+  /** Closes the "Oops!" dialog and leads back to the ingredients. */
   dismissInsufficient(): void {
     this.showInsufficient.set(false);
     this.router.navigate(['/ingredients']);
   }
 
-  /** Übersetzt die n8n-Statuscodes (siehe CLAUDE.md) in eine freundliche Meldung. */
+  /** Translates the n8n status codes into a friendly message. */
   private messageFor(err: unknown): string {
     const status = (err as { status?: number }).status;
     if (status === 400) return 'Please check your ingredients and preferences and try again.';

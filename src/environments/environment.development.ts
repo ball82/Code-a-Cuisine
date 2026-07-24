@@ -1,14 +1,14 @@
 /**
- * Entwicklungs-Konfiguration. Enthält NUR öffentliche Werte und wird committed.
- * Geheimnisse (z.B. Gemini-API-Key) liegen ausschliesslich in n8n.
+ * Development configuration. Contains ONLY public values and is committed.
+ * Secrets (e.g. the Gemini API key) live exclusively in n8n.
  */
 export const environment = {
   production: false,
-  /** n8n-Webhook für die Rezeptgenerierung. */
+  /** n8n webhook for recipe generation. */
   recipeWebhookUrl: 'https://n8n.bajo-n8n.uk/webhook/generate-recipe',
-  /** n8n-Webhook fürs Liken eines Rezepts. */
+  /** n8n webhook for liking a recipe. */
   likeWebhookUrl: 'https://n8n.bajo-n8n.uk/webhook/like-recipe',
-  /** Öffentliche Firebase-Config (zum direkten Lesen der recipes-Collection). */
+  /** Public Firebase config (for directly reading the recipes collection). */
   firebase: {
     apiKey: 'AIzaSyDI_cPDUutbzh81qukv4HtlLOcKIuXOeyc',
     authDomain: 'code-a-cuisine-9c87f.firebaseapp.com',

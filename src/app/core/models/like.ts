@@ -1,7 +1,7 @@
 /**
- * Vertrag 3 — Anfrage an den n8n-Webhook `like-recipe`.
- * Der Workflow identifiziert den Nutzer über eine clientseitige `userId`
- * (stabile anonyme ID aus dem localStorage).
+ * Contract 3 — request to the n8n webhook `like-recipe`.
+ * The workflow identifies the user via a client-side `userId`
+ * (stable anonymous ID from localStorage).
  */
 export interface LikeRequest {
   recipeId: string;
@@ -9,8 +9,8 @@ export interface LikeRequest {
 }
 
 /**
- * Vertrag 3 — Antwort von `like-recipe` (Toggle wie Instagram-Herz).
- * `liked`: Zustand NACH dem Toggle. `likes`: aktueller Zählerstand.
+ * Contract 3 — response from `like-recipe` (toggle like an Instagram heart).
+ * `liked`: state AFTER the toggle. `likes`: current counter value.
  */
 export interface LikeResponse {
   recipeId?: string;

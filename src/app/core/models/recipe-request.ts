@@ -1,9 +1,9 @@
 import { Ingredient } from './ingredient';
 
-/** Erlaubte Zeitkategorien (quick ≤20 / medium 20–45 / complex 45+ Minuten). */
+/** Allowed time categories (quick ≤20 / medium 20–45 / complex 45+ minutes). */
 export type CookingTime = 'quick' | 'medium' | 'complex';
 
-/** Erlaubte Küchenstile. */
+/** Allowed cuisine styles. */
 export type Cuisine =
   | 'german'
   | 'italian'
@@ -12,7 +12,7 @@ export type Cuisine =
   | 'gourmet'
   | 'fusion';
 
-/** Anzeigetexte für die Küchenstile (technischer Wert → Label fürs UI). */
+/** Display labels for the cuisine styles (technical value → UI label). */
 export const CUISINE_LABELS: Record<Cuisine, string> = {
   german: 'German',
   italian: 'Italian',
@@ -22,15 +22,15 @@ export const CUISINE_LABELS: Record<Cuisine, string> = {
   fusion: 'Fusion'
 };
 
-/** Erlaubte Ernährungsformen. */
+/** Allowed diets. */
 export type Diet = 'vegetarian' | 'vegan' | 'keto' | 'none';
 
-/** Vertrag 1 — Anfrage von Angular an den n8n-Webhook. */
+/** Contract 1 — request from Angular to the n8n webhook. */
 export interface RecipeRequest {
   ingredients: Ingredient[];
-  /** Ganze Zahl 1–12 (Default 2). */
+  /** Integer 1–12 (default 2). */
   portions: number;
-  /** Ganze Zahl 1–3. */
+  /** Integer 1–3. */
   cooks: number;
   cookingTime: CookingTime;
   cuisine: Cuisine;

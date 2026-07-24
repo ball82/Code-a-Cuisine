@@ -16,7 +16,7 @@ describe('Ingredients', () => {
     httpMock = TestBed.inject(HttpTestingController);
   });
 
-  /** Beantwortet den Autocomplete-Request der Komponente mit zwei Testzutaten. */
+  /** Answers the component's autocomplete request with two test ingredients. */
   function flushIngredients(): void {
     httpMock.expectOne('/data/ingredients.json').flush(['Pasta', 'Pastrami']);
   }

@@ -2,8 +2,8 @@ import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
 /**
- * Wurzel-Komponente der Anwendung. Enthält ausschliesslich den `RouterOutlet`;
- * die eigentlichen Seiten werden über die {@link routes} eingehängt.
+ * Root component of the application. Contains only the `RouterOutlet`;
+ * the actual pages are mounted via the {@link routes}.
  */
 @Component({
   selector: 'app-root',

@@ -1,9 +1,9 @@
 import { Component, input, output } from '@angular/core';
 
 /**
- * Modaler "Ups!"-Dialog. Erscheint, wenn Gemini/n8n signalisiert, dass die
- * Zutaten (oder deren Mengen) nicht für die gewünschten Portionen reichen –
- * kein technischer Fehler, sondern eine freundliche Rückmeldung (vgl. DESIGN.md).
+ * Modal "Oops!" dialog. Appears when Gemini/n8n signals that the ingredients
+ * (or their amounts) are not enough for the requested portions – not a
+ * technical error, but a friendly response.
  */
 @Component({
   selector: 'app-error-dialog',
@@ -11,15 +11,15 @@ import { Component, input, output } from '@angular/core';
   styleUrl: './error-dialog.scss'
 })
 export class ErrorDialog {
-  /** Überschrift des Dialogs. */
+  /** Heading of the dialog. */
   readonly heading = input('Ups! Not quite enough…');
-  /** Erklärender Fließtext. */
+  /** Explanatory body text. */
   readonly message = input(
     'Your ingredients (or the amounts) are not enough for the recipes you asked for. Add a bit more and try again.'
   );
-  /** Beschriftung des Bestätigungs-Buttons. */
+  /** Label of the confirmation button. */
   readonly actionLabel = input('Go back to ingredients');
 
-  /** Feuert, wenn der Nutzer den Dialog schliesst (Button oder Backdrop). */
+  /** Fires when the user closes the dialog (button or backdrop). */
   readonly dismiss = output<void>();
 }

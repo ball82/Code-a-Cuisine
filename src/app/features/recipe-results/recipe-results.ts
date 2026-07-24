@@ -8,7 +8,7 @@ import { RecipeCard } from '../../shared/recipe-card/recipe-card';
 import { Header } from '../../shared/header/header';
 import { Footer } from '../../shared/footer/footer';
 
-/** Anzeige-Labels für die Präferenz-Tags (technischer Wert → Text). */
+/** Display labels for the preference tags (technical value → text). */
 const CUISINE_LABEL: Record<Cuisine, string> = {
   german: 'German',
   italian: 'Italian',
@@ -30,9 +30,9 @@ const DIET_LABEL: Record<Diet, string> = {
 };
 
 /**
- * Ergebnis-Seite ("Generated recipes"): grüner Hintergrund, aktive
- * Präferenz-Tags und die drei generierten Rezepte als Karten.
- * Die Rezepte kommen aus dem RecipeStore (dort von Preferences abgelegt).
+ * Results page ("Generated recipes"): green background, active preference tags
+ * and the three generated recipes as cards.
+ * The recipes come from the RecipeStore (placed there by Preferences).
  */
 @Component({
   selector: 'app-recipe-results',
@@ -45,10 +45,10 @@ export class RecipeResults {
   private readonly draft = inject(RecipeDraft);
   private readonly router = inject(Router);
 
-  /** Die drei generierten Rezepte. */
+  /** The three generated recipes. */
   readonly recipes = this.store.generated;
 
-  /** Aktive Präferenzen als Anzeige-Tags (z.B. Italian, Quick, Vegetarian). */
+  /** Active preferences as display tags (e.g. Italian, Quick, Vegetarian). */
   readonly activeTags = computed(() => {
     const tags = [CUISINE_LABEL[this.draft.cuisine()], TIME_LABEL[this.draft.cookingTime()]];
     if (this.draft.diet() !== 'none') tags.push(DIET_LABEL[this.draft.diet()]);
@@ -56,9 +56,9 @@ export class RecipeResults {
   });
 
   /**
-   * Leitet bei Direktaufruf oder Reload ohne vorhandene Ergebnisse zurück zum
-   * Generator-Start (`/ingredients`) – ohne generierte Rezepte gäbe es nichts
-   * anzuzeigen.
+   * On direct access or reload without existing results, redirects back to the
+   * generator start (`/ingredients`) – without generated recipes there would be
+   * nothing to display.
    */
   constructor() {
     if (this.recipes().length === 0) {
