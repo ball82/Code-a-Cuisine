@@ -60,9 +60,8 @@ body {
 
 app-root {
   display: block;
-  width: min(100%, var(--page-max-width));
+  width: 100%;
   min-height: 100dvh;
-  margin-inline: auto;
 }
 
 body {

@@ -14,15 +14,9 @@
 }
 
 .hero__inner {
-  max-width: 1400px;
+  max-width: var(--page-max-width);
+  margin-inline: auto;
   padding: var(--hero-pad);
-}
-
-@media (min-width: 1200px) {
-  .hero__inner {
-
-    margin-inline-end: auto;
-  }
 }
 
 .hero__content {
@@ -131,7 +125,7 @@
 
 @media (min-width: 1400px) {
   .hero__plates {
-    right: 2rem;
+    right: max(2rem, calc((100vw - var(--page-max-width)) / 2 + 2rem));
   }
 }
 

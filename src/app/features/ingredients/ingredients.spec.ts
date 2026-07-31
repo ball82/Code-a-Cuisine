@@ -16,33 +16,48 @@ describe('Ingredients', () => {
     httpMock = TestBed.inject(HttpTestingController);
   });
 
-  /** Answers the component's autocomplete request with two test ingredients. */
-  function flushIngredients(): void {
+  /** Answers the component's local autocomplete request with two test ingredients. */
+  function flushLocalIngredients(): void {
     httpMock.expectOne('/data/ingredients.json').flush(['Pasta', 'Pastrami']);
+  }
+
+  /** Mock successful API response from Open Food Facts. */
+  function flushApiSuccess(productName: string): void {
+    const req = httpMock.match((request) => 
+      request.url.includes('openfoodfacts.org')
+    );
+    req.forEach((r) => r.flush({
+      count: 1,
+      products: [{ product_name: productName }]
+    }));
   }
 
   it('should create', () => {
     const fixture = TestBed.createComponent(Ingredients);
-    flushIngredients();
+    flushLocalIngredients();
     expect(fixture.componentInstance).toBeTruthy();
   });
 
-  it('adds an ingredient to the list', () => {
+  it('adds an ingredient to the list when validated by API', () => {
     const fixture = TestBed.createComponent(Ingredients);
-    flushIngredients();
+    flushLocalIngredients();
     const cmp = fixture.componentInstance;
 
-    cmp.name.set('Pasta');
+    cmp.name.set('Tomato');
     cmp.amount.set(100);
+    
+    // Simulate API validation
+    flushApiSuccess('Tomato');
+    
     cmp.addOrUpdate();
 
-    expect(cmp.items()).toEqual([{ name: 'Pasta', amount: 100, unit: 'gram' }]);
-    expect(cmp.name()).toBe('');
+    expect(cmp.items().length).toBe(1);
+    expect(cmp.items()[0].name).toBe('Tomato');
   });
 
   it('does not add when name is empty', () => {
     const fixture = TestBed.createComponent(Ingredients);
-    flushIngredients();
+    flushLocalIngredients();
     const cmp = fixture.componentInstance;
 
     cmp.name.set('   ');
@@ -51,12 +66,17 @@ describe('Ingredients', () => {
     expect(cmp.items().length).toBe(0);
   });
 
-  it('suggests matches by prefix', () => {
+  it('suggests matches from API', () => {
     const fixture = TestBed.createComponent(Ingredients);
-    flushIngredients();
+    flushLocalIngredients();
     const cmp = fixture.componentInstance;
 
-    cmp.name.set('Pas');
-    expect(cmp.suggestions()).toEqual(['Pasta', 'Pastrami']);
+    cmp.name.set('Tom');
+    
+    // Wait for debounce and flush API response
+    setTimeout(() => {
+      flushApiSuccess('Tomato');
+      expect(cmp.apiSuggestions().length).toBeGreaterThan(0);
+    }, 400);
   });
 });

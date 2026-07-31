@@ -64,3 +64,26 @@
 .header__back-arrow {
   font-size: 1.1em;
 }
+
+@media (max-width: 59.375rem) {
+  .header {
+    padding-top: clamp(1rem, 2.3vw, 1.5rem);
+  }
+
+  .header__logo img {
+    width: min(150px, 36vw);
+  }
+
+  .header__back {
+    font-size: 0;
+  }
+
+  .header__back--below {
+    margin-top: 1rem;
+  }
+
+  .header__back-arrow {
+    font-size: 2rem;
+    line-height: 0.8;
+  }
+}

@@ -1,6 +1,10 @@
 <app-header [backLabel]="'Cookbook'" [backLink]="'/cookbook'" [backPosition]="'below'" />
 
 <main class="category">
+  <div class="category__topbar">
+    <a class="category__generate" routerLink="/ingredients">Generate a recipe</a>
+  </div>
+
   <!-- Gemeinsamer Banner; nur der Küchenname kommt dynamisch aus der Route. -->
   <header class="banner" aria-labelledby="category-title">
     <img class="banner__image" [src]="bannerImage" alt="" />
