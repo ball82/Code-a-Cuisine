@@ -1,14 +1,10 @@
-<app-header back-label="Back" back-link="/cookbook" />
+<app-header [backLabel]="'Cookbook'" [backLink]="'/cookbook'" [backPosition]="'below'" />
 
 <main class="category">
-  <!-- Banner mit Küchen-Namen -->
-  <header class="banner" [style.background-image]="'url(' + meta().image + ')'">
-    <div class="banner__overlay">
-      <h1 class="banner__title">
-        {{ meta().label }}
-        <span class="banner__emoji" aria-hidden="true">{{ meta().emoji }}</span>
-      </h1>
-    </div>
+  <!-- Gemeinsamer Banner; nur der Küchenname kommt dynamisch aus der Route. -->
+  <header class="banner" aria-labelledby="category-title">
+    <img class="banner__image" [src]="bannerImage" alt="" />
+    <h1 class="banner__title" id="category-title">{{ meta().label }}</h1>
   </header>
 
   <!-- Nummerierte Rezeptliste -->
@@ -20,20 +16,20 @@
             class="row__link"
             [routerLink]="['/recipe', entry.recipe.id]"
             [queryParams]="{ from: 'cookbook' }">
-            <span class="row__num" aria-hidden="true">{{ entry.number }}</span>
+            <span class="row__num" aria-hidden="true">{{ entry.number }}.</span>
             <span class="row__body">
               <span class="row__time">
-                <span aria-hidden="true">🕒</span>
-                Cooking time: {{ entry.recipe.cookingTimeMinutes }} min
+                <span class="clock-icon" aria-hidden="true"></span>
+                Cooking time: {{ entry.recipe.cookingTimeMinutes }}min
               </span>
               <span class="row__title">{{ entry.recipe.title }}</span>
-              <span class="row__tags">
-                @for (tag of entry.recipe.tags; track tag) {
-                  <span class="pill">{{ tag }}</span>
-                }
-              </span>
             </span>
-            <span class="row__likes"><span aria-hidden="true">♡</span> {{ entry.recipe.likes }}</span>
+            <span class="row__tags">
+              @for (tag of entry.recipe.tags; track tag) {
+                <span class="pill">{{ tag }}</span>
+              }
+              <span class="pill pill--like"><span aria-hidden="true">♡</span>{{ entry.recipe.likes }}</span>
+            </span>
           </a>
         </li>
       }
@@ -50,15 +46,19 @@
           (click)="goToPage(page() - 1)">
           &lsaquo;
         </button>
-        @for (p of pages(); track p) {
-          <button
-            type="button"
-            class="pager__page"
-            [class.is-active]="p === page()"
-            [attr.aria-current]="p === page() ? 'page' : null"
-            (click)="goToPage(p)">
-            {{ p }}
-          </button>
+        @for (item of paginationItems(); track $index) {
+          @if (item === 'ellipsis') {
+            <span class="pager__ellipsis" aria-hidden="true">...</span>
+          } @else {
+            <button
+              type="button"
+              class="pager__page"
+              [class.is-active]="item === page()"
+              [attr.aria-current]="item === page() ? 'page' : null"
+              (click)="goToPage(item)">
+              {{ item }}
+            </button>
+          }
         }
         <button
           type="button"
@@ -73,12 +73,6 @@
   } @else {
     <p class="category__empty">No recipes in this category yet. Generate one to get started!</p>
   }
-
-  <div class="category__cta">
-    <a class="category__cta-link" routerLink="/ingredients">
-      Generate a recipe <span aria-hidden="true">&rarr;</span>
-    </a>
-  </div>
 
 </main>
 

@@ -7,14 +7,14 @@ import { Footer } from '../../shared/footer/footer';
 import { Cuisine } from '../../core/models/recipe-request';
 import { CookbookData } from '../../core/services/cookbook-data';
 
-/** Display metadata per cuisine (name, emoji, banner image). */
-const CUISINE_META: Record<Cuisine, { label: string; emoji: string; image: string }> = {
-  italian: { label: 'Italian cuisine', emoji: '🍝', image: 'img/italien_cuisine.svg' },
-  german: { label: 'German cuisine', emoji: '🥨', image: 'img/german_cuisine.svg' },
-  japanese: { label: 'Japanese cuisine', emoji: '🥢', image: 'img/japanese_cuisine.svg' },
-  indian: { label: 'Indian cuisine', emoji: '🍛', image: 'img/indian_cuisine.svg' },
-  gourmet: { label: 'Gourmet cuisine', emoji: '✨', image: 'img/gourmet_cusine.svg' },
-  fusion: { label: 'Fusion cuisine', emoji: '🍱', image: 'img/fusion_cuisine.svg' }
+/** Display metadata per cuisine. The decorative banner is shared by all categories. */
+const CUISINE_META: Record<Cuisine, { label: string }> = {
+  italian: { label: 'Italian cuisine' },
+  german: { label: 'German cuisine' },
+  japanese: { label: 'Japanese cuisine' },
+  indian: { label: 'Indian cuisine' },
+  gourmet: { label: 'Gourmet cuisine' },
+  fusion: { label: 'Fusion cuisine' }
 };
 
 /** Checklist: 20 recipes per page. */
@@ -45,8 +45,11 @@ export class CookbookCategory {
   /** Current cuisine from the route param. */
   readonly cuisine = computed<Cuisine>(() => (this.params().get('cuisine') as Cuisine) ?? 'italian');
 
-  /** Banner metadata (label, emoji, image) of the current cuisine. */
+  /** Banner metadata (label) of the current cuisine. */
   readonly meta = computed(() => CUISINE_META[this.cuisine()] ?? CUISINE_META['italian']);
+
+  /** Shared banner artwork; the title above it changes with the cuisine route. */
+  readonly bannerImage = 'img/banner_cookbook_cuisine.svg';
 
   /** Filtered by cuisine, newest first. */
   readonly recipes = computed(() =>
@@ -63,6 +66,13 @@ export class CookbookCategory {
 
   /** Page numbers `[1..pageCount]` for the pagination navigation. */
   readonly pages = computed(() => Array.from({ length: this.pageCount() }, (_, i) => i + 1));
+
+  /** Compact page navigation matching the cookbook visual design. */
+  readonly paginationItems = computed<Array<number | 'ellipsis'>>(() => {
+    const count = this.pageCount();
+    if (count <= 7) return this.pages();
+    return [1, 2, 3, 'ellipsis', count];
+  });
 
   /** Recipes of the current page (with running number). */
   readonly pageRecipes = computed(() => {

@@ -29,6 +29,7 @@
 }
 
 :root {
+  --page-max-width: 90rem;
   --color-green-dark: #396039;
   --color-green-accent: #008000;
   --color-cream: #faf0e6;
@@ -55,6 +56,13 @@ body {
   margin: 0;
   padding: 0;
   min-height: 100%;
+}
+
+app-root {
+  display: block;
+  width: min(100%, var(--page-max-width));
+  min-height: 100dvh;
+  margin-inline: auto;
 }
 
 body {

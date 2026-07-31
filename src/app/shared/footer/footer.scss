@@ -1,6 +1,6 @@
 :host {
   display: block;
-  width: min(100%, var(--header-max-width, 75rem));
+  width: min(100%, var(--header-max-width, var(--page-max-width)));
   margin-inline: auto;
   padding-inline: clamp(1.5rem, 5vw, 3.5rem);
 }

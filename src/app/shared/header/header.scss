@@ -3,11 +3,11 @@
 }
 
 .header {
-  width: min(100%, var(--header-max-width, 75rem));
+  width: min(100%, var(--header-max-width, var(--page-max-width)));
   margin-inline: auto;
   display: flex;
   flex-direction: column;
-  padding: clamp(1.5rem, 4vw, 2.5rem) clamp(1.5rem, 5vw, 3.5rem) 0;
+  padding: clamp(1.5rem, 2.8vw, 2.5rem) clamp(1.5rem, 4.6vw, 4.2rem) 0;
 }
 
 .header__top {
@@ -22,7 +22,7 @@
   display: inline-flex;
 
   img {
-    width: clamp(6rem, 16vw, 8.5rem);
+    width: min(142px, 36vw);
     height: auto;
   }
 }
@@ -48,7 +48,7 @@
 }
 
 .header__back--below {
-  margin-top: 0.75rem;
+  margin-top: 1.25rem;
 }
 
 .header__back--top {
