@@ -115,16 +115,22 @@ export class Ingredients {
     const trimmed = this.name().trim();
     if (trimmed.length < 2 || this.amount() <= 0) return false;
 
+    const normalized = this.normalizeName(trimmed);
+    
     // Already validated or in suggestions
-    if (this.validatedIngredients.has(this.normalizeName(trimmed))) return true;
+    if (this.validatedIngredients.has(normalized)) return true;
     
     const api = this.apiSuggestions();
     const local = this.localNames();
     
-    // Check if it matches API suggestions
-    if (api.some((n) => this.normalizeName(n) === this.normalizeName(trimmed))) return true;
+    // If API has returned suggestions for this query, the ingredient is valid
+    // (e.g., typing "Watermelon" and getting suggestions means it exists)
+    if (api.length > 0) return true;
     
-    // Fallback to local validation
+    // Check if it matches local list exactly
+    if (local.some((n) => this.normalizeName(n) === normalized)) return true;
+    
+    // Fallback to fuzzy local validation
     return this.isAcceptedIngredientName(trimmed, local);
   });
 

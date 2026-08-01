@@ -14,7 +14,7 @@ export class OpenFoodFactsApi {
 
   /**
    * Search for ingredients by name in the Open Food Facts database.
-   * Returns an array of matching ingredient names.
+   * Returns an array of matching ingredient names (English only).
    */
   searchIngredients(query: string): Observable<string[]> {
     if (!query || query.trim().length < 2) {
@@ -27,7 +27,8 @@ export class OpenFoodFactsApi {
       action: 'process',
       json: '1',
       page_size: '20',
-      fields: 'product_name,ingredients_text'
+      fields: 'product_name,ingredients_text',
+      lc: 'en' // Language code: English only
     };
 
     return this.http.get<OpenFoodFactsResponse>(this.apiUrl, { params }).pipe(
@@ -54,6 +55,7 @@ export class OpenFoodFactsApi {
 
   /**
    * Extract unique ingredient names from the API response.
+   * Filters out non-Latin/English text and extracts base ingredient names.
    */
   private extractIngredientNames(response: OpenFoodFactsResponse, query: string): string[] {
     if (!response.products || response.products.length === 0) {
@@ -66,9 +68,20 @@ export class OpenFoodFactsApi {
     // Add product names that match the query
     response.products.forEach((product) => {
       if (product.product_name) {
-        const normalized = this.normalize(product.product_name);
-        if (normalized.includes(normalizedQuery) || normalizedQuery.includes(normalized)) {
-          ingredients.add(this.capitalize(product.product_name.trim()));
+        const name = product.product_name.trim();
+        const normalized = this.normalize(name);
+        
+        if (this.isLatinText(name) && (normalized.includes(normalizedQuery) || normalizedQuery.includes(normalized))) {
+          // Try to extract the base ingredient name if the product name is complex
+          const baseIngredient = this.extractBaseIngredient(name, normalizedQuery);
+          if (baseIngredient) {
+            ingredients.add(this.capitalize(baseIngredient));
+          }
+          
+          // Also add the full product name as an option
+          if (ingredients.size < 6) {
+            ingredients.add(this.capitalize(name));
+          }
         }
       }
 
@@ -84,14 +97,58 @@ export class OpenFoodFactsApi {
           const cleaned = part.replace(/\d+%?/g, '').replace(/[()]/g, '').trim();
           const normalized = this.normalize(cleaned);
           
-          if (cleaned.length >= 2 && (normalized.includes(normalizedQuery) || normalizedQuery.includes(normalized))) {
-            ingredients.add(this.capitalize(cleaned));
+          if (cleaned.length >= 2 && this.isLatinText(cleaned) && (normalized.includes(normalizedQuery) || normalizedQuery.includes(normalized))) {
+            const baseIngredient = this.extractBaseIngredient(cleaned, normalizedQuery);
+            if (baseIngredient) {
+              ingredients.add(this.capitalize(baseIngredient));
+            }
           }
         });
       }
     });
 
     return Array.from(ingredients).slice(0, 8);
+  }
+
+  /**
+   * Extract the base ingredient from a complex product name.
+   * E.g., "Trident Watermelon Flavour" -> "Watermelon"
+   */
+  private extractBaseIngredient(productName: string, query: string): string | null {
+    const words = productName.split(/\s+/);
+    
+    // Find the word that best matches the query
+    for (const word of words) {
+      const normalizedWord = this.normalize(word);
+      const normalizedQuery = query.toLowerCase();
+      
+      // Direct match or query is contained in word
+      if (normalizedWord === normalizedQuery || normalizedWord.includes(normalizedQuery)) {
+        return word;
+      }
+    }
+    
+    // If no single word matches perfectly, find words that partially overlap
+    for (const word of words) {
+      if (word.length >= 3 && this.normalize(word).length >= 3) {
+        const normalizedWord = this.normalize(word);
+        // Check if there's substantial overlap
+        if (query.includes(normalizedWord) || normalizedWord.includes(query.substring(0, Math.min(query.length, 5)))) {
+          return word;
+        }
+      }
+    }
+    
+    return null;
+  }
+
+  /**
+   * Check if text contains only Latin/English characters (A-Z, a-z, spaces, hyphens).
+   * Filters out Chinese, Japanese, Cyrillic, Arabic, etc.
+   */
+  private isLatinText(text: string): boolean {
+    // Allow Latin letters, numbers, spaces, hyphens, apostrophes, and basic punctuation
+    return /^[A-Za-z0-9\s\-'\.]+$/.test(text);
   }
 
   private normalize(value: string): string {

@@ -12,11 +12,6 @@ import { Footer } from '../../shared/footer/footer';
 /** Short form of the unit for the ingredient line. */
 const UNIT_SHORT: Record<Unit, string> = { gram: 'g', ml: 'ml', liter: 'l', piece: '×' };
 
-/** Rounds a scaled amount to at most 1 decimal place (whole numbers stay whole). */
-function roundAmount(amount: number): number {
-  return Math.round(amount * 10) / 10;
-}
-
 /** Energy content per gram of macronutrient (kcal) – basis for the percentage split. */
 const KCAL_PER_GRAM = { protein: 4, fat: 9, carbs: 4 } as const;
 
@@ -88,33 +83,31 @@ export class RecipeDetail {
     return this.store.byId(this.id) ?? this.cookbook.recipes().find((r) => r.id === this.id);
   });
 
-  /** Flag so the initial values (portions/likes) are set only once. */
+  /** Flag so the initial like values are set only once. */
   private seeded = false;
 
-  /** Origin → determines the back path (link + label). */
-  private readonly from = this.route.snapshot.queryParamMap.get('from');
-  readonly backLink = this.from === 'cookbook' ? '/cookbook' : '/recipe-results';
-  readonly backLabel = this.from === 'cookbook' ? 'Cookbook' : 'Recipes';
-
-  /** Portions for the nutrition scaling (values in the contract are per portion). */
-  readonly portions = signal(1);
+  /** Links back to the overview of recipes in the current recipe's cuisine. */
+  readonly backLink = computed(() => {
+    const cuisine = this.recipe()?.cuisine;
+    return cuisine ? `/cookbook/${cuisine}` : '/cookbook';
+  });
+  readonly backLabel = 'Recipe results';
 
   /** Like state (remembered locally) + current counter + click lock. */
   readonly liked = signal(false);
   readonly likeCount = signal(0);
   readonly likeBusy = signal(false);
 
-  /** Total nutrition = value per portion × chosen portion count. */
+  /** Total nutrition for the recipe's predefined number of portions. */
   readonly nutrition = computed(() => {
     const r = this.recipe();
     if (!r) return null;
-    const f = this.portions();
     const n = r.nutritionPerPortion;
     return {
-      calories: Math.round(n.calories * f),
-      protein: Math.round(n.protein * f),
-      fat: Math.round(n.fat * f),
-      carbs: Math.round(n.carbs * f)
+      calories: Math.round(n.calories * r.portions),
+      protein: Math.round(n.protein * r.portions),
+      fat: Math.round(n.fat * r.portions),
+      carbs: Math.round(n.carbs * r.portions)
     };
   });
 
@@ -123,8 +116,7 @@ export class RecipeDetail {
    * nutritional energy. The percentages come from the energy content (fat 9
    * kcal/g, protein/carbs 4 kcal/g each), not from the mass – so the split
    * matches what the kcal value above accounts for. The percentages are
-   * portion-independent (a ratio); the gram figures scale with the portions
-   * slider. Without nutritional energy (all macros 0) the split stays at 0 %
+   * portion-independent (a ratio). Without nutritional energy (all macros 0) the split stays at 0 %
    * instead of 0/0.
    */
   readonly macros = computed<MacroSlice[]>(() => {
@@ -160,33 +152,17 @@ export class RecipeDetail {
       .join(', ')
   );
 
-  /**
-   * Scaling factor for the ingredient amounts: chosen portions ÷ portions for
-   * which the recipe was originally generated. At the same portion count it
-   * stays 1 (original amounts).
-   */
-  readonly scale = computed(() => {
-    const base = this.recipe()?.portions ?? 0;
-    return base > 0 ? this.portions() / base : 1;
-  });
+  /** Ingredients in their original recipe amounts. */
+  readonly yourIngredients = computed(() => this.recipe()?.yourIngredients ?? []);
 
-  /** The user's ingredients, scaled up to the chosen portion count. */
-  readonly yourIngredients = computed(() => this.scaleList(this.recipe()?.yourIngredients));
-
-  /** Additionally required ingredients, likewise scaled to the portion count. */
-  readonly extraIngredients = computed(() => this.scaleList(this.recipe()?.extraIngredients));
+  /** Additional ingredients in their original recipe amounts. */
+  readonly extraIngredients = computed(() => this.recipe()?.extraIngredients ?? []);
 
   /** Chef numbers from 1..cooks (for the "Cooking person" pills and the to-do columns). */
   readonly chefs = computed(() => {
     const r = this.recipe();
     return r ? Array.from({ length: r.cooks }, (_, i) => i + 1) : [];
   });
-
-  /** Scales an ingredient list by the current scaling factor (amount × factor). */
-  private scaleList(list: Ingredient[] | undefined): Ingredient[] {
-    const factor = this.scale();
-    return (list ?? []).map((ing) => ({ ...ing, amount: roundAmount(ing.amount * factor) }));
-  }
 
   /**
    * Steps of a specific cook, in chronological order (US9: an individual to-do
@@ -211,7 +187,6 @@ export class RecipeDetail {
       if (recipe) {
         if (!this.seeded) {
           this.seeded = true;
-          this.portions.set(recipe.portions);
           this.likeCount.set(recipe.likes);
           this.liked.set(this.store.isLiked(recipe.id));
         }
@@ -223,20 +198,11 @@ export class RecipeDetail {
     });
   }
 
-  /**
-   * Changes the displayed portion count and keeps it in the range 1–12. Nutrition
-   * values and ingredient amounts scale reactively along with it.
-   * @param delta Step size, usually +1 or −1.
-   */
-  stepPortions(delta: number): void {
-    this.portions.update((p) => Math.min(12, Math.max(1, p + delta)));
-  }
-
-  /** "80 g Pasta" or "2× Egg" for piece-based ingredients. */
-  formatIngredient(ing: Ingredient): string {
+  /** Display amount for the dedicated amount column in the ingredients list. */
+  ingredientAmount(ing: Ingredient): string {
     return ing.unit === 'piece'
-      ? `${ing.amount}× ${ing.name}`
-      : `${ing.amount} ${UNIT_SHORT[ing.unit]} ${ing.name}`;
+      ? `${ing.amount} piece${ing.amount === 1 ? '' : 's'}`
+      : `${ing.amount}${UNIT_SHORT[ing.unit]}`;
   }
 
   /**
