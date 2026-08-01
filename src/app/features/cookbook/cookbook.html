@@ -1,7 +1,6 @@
 <app-header [backLabel]="'Back'" [backPosition]="'below'" />
 
 <main class="cookbook">
-  <!-- Intro-Karte: links Titel + Beschreibung, rechts die "Most liked"-Leiste -->
   <section class="intro">
     <div class="intro__text">
       <h1 class="intro__title">Cookbook</h1>
@@ -41,7 +40,6 @@
     </div>
   </section>
 
-  <!-- Raster der sechs Küchen-Kategorien -->
   <section class="grid" aria-label="Cuisine categories">
     @for (cuisine of cuisines; track cuisine.key) {
       <a class="tile" [routerLink]="['/cookbook', cuisine.key]">

@@ -7,7 +7,6 @@
   </header>
 
   <div class="generator__grid">
-    <!-- ===== Eingabe-Karte ===== -->
     <section class="card card--form" aria-label="Add an ingredient">
       <div class="form__labels">
         <span class="form__label">Ingredient</span>
@@ -15,7 +14,6 @@
       </div>
 
       <div class="form__row">
-        <!-- Name + Autocomplete -->
         <div class="form__name">
           <input
             class="input input--text"
@@ -35,7 +33,6 @@
           }
         </div>
 
-        <!-- Menge -->
         <input
           class="input input--amount"
           type="number"
@@ -45,8 +42,6 @@
           [ngModel]="amount()"
           (ngModelChange)="amount.set($event)" />
 
-        <!-- Einheit (eigenes Dropdown statt native <select>, damit sich das
-             Menü sauber unter dem Feld positionieren und stylen lässt) -->
         <div class="unit-select" [class.is-open]="unitOpen()">
           <button
             class="input input--unit"
@@ -83,7 +78,6 @@
           }
         </div>
 
-        <!-- Hinzufügen / Speichern -->
         <button
           class="add-btn"
           type="button"
@@ -95,7 +89,6 @@
       </div>
     </section>
 
-    <!-- ===== Listen-Karte ===== -->
     <section class="card card--list" aria-label="Your ingredients">
       <h2 class="card__title">List of your Ingredients</h2>
 

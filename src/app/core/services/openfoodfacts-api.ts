@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { map, catchError, debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { map, catchError } from 'rxjs/operators';
 
 /**
  * Open Food Facts API integration for ingredient validation.
