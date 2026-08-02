@@ -1,4 +1,5 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { CookingTime, Cuisine, Diet } from '../../core/models/recipe-request';
@@ -31,6 +32,7 @@ interface ChipOption<T> {
   styleUrl: './preferences.scss'
 })
 export class Preferences {
+  private readonly document = inject(DOCUMENT);
   private readonly draft = inject(RecipeDraft);
   private readonly api = inject(RecipeApi);
   private readonly store = inject(RecipeStore);
@@ -106,6 +108,13 @@ export class Preferences {
 
   /** "Oops!" dialog: Gemini/n8n reports that the ingredients/amounts are insufficient. */
   readonly showInsufficient = signal(false);
+
+  constructor() {
+    effect((onCleanup) => {
+      this.document.body.classList.toggle('is-loading', this.loading());
+      onCleanup(() => this.document.body.classList.remove('is-loading'));
+    });
+  }
 
   /**
    * Sends the request (Contract 1) to the n8n webhook and gets back 3 finished
