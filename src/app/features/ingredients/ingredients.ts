@@ -1,13 +1,10 @@
-import { Component, computed, effect, HostListener, inject, signal } from '@angular/core';
+import { Component, computed, HostListener, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 
 import { Ingredient, Unit } from '../../core/models/ingredient';
 import { IngredientData } from '../../core/services/ingredient-data';
-import { OpenFoodFactsApi } from '../../core/services/openfoodfacts-api';
 import { RecipeDraft } from '../../core/services/recipe-draft';
 import { Header } from '../../shared/header/header';
 import { Footer } from '../../shared/footer/footer';
@@ -25,15 +22,8 @@ import { Footer } from '../../shared/footer/footer';
 })
 export class Ingredients {
   private readonly ingredientData = inject(IngredientData);
-  private readonly foodApi = inject(OpenFoodFactsApi);
   private readonly draft = inject(RecipeDraft);
   private readonly router = inject(Router);
-
-  /** Subject for debounced API searches. */
-  private readonly searchQuery$ = new Subject<string>();
-
-  /** Validated ingredients from the API (cached). */
-  private readonly validatedIngredients = new Set<string>();
 
   /** Allowed units (Contract 1 — technical lowercase values). */
   readonly units: Unit[] = ['gram', 'ml', 'liter', 'piece'];
@@ -58,81 +48,53 @@ export class Ingredients {
    */
   readonly items = this.draft.ingredients;
 
-  /** Local autocomplete source as fallback. */
-  private readonly localNames = toSignal(this.ingredientData.getIngredients(), {
+  /** Local autocomplete source, loaded once (no external API). */
+  private readonly allNames = toSignal(this.ingredientData.getIngredients(), {
     initialValue: [] as string[]
   });
 
-  /** Live API suggestions from Open Food Facts. */
-  readonly apiSuggestions = toSignal(
-    this.searchQuery$.pipe(
-      debounceTime(300),
-      distinctUntilChanged(),
-      switchMap((query) => this.foodApi.searchIngredients(query))
-    ),
-    { initialValue: [] as string[] }
+  /** Each name paired with its normalized form, so typing does not re-normalize the list. */
+  private readonly nameEntries = computed(() =>
+    this.allNames().map((name) => ({ name, key: this.normalize(name) }))
   );
 
-  constructor() {
-    // Trigger API search when user types
-    effect(() => {
-      const query = this.name();
-      if (query.trim().length >= 2) {
-        this.searchQuery$.next(query);
-      }
-    });
-  }
+  /** Normalized name → canonical spelling, so lookups ignore case and spacing. */
+  private readonly nameIndex = computed(
+    () => new Map(this.nameEntries().map(({ name, key }) => [key, name]))
+  );
 
-  /** Combined suggestions from API and local fallback. */
+  /**
+   * Suggestions: substring matches (not just prefix), excluding an exact match,
+   * max. 8. Prefix matches are moved to the front, the rest alphabetical.
+   */
   readonly suggestions = computed(() => {
-    const q = this.name().trim();
-    if (!q || q.length < 2) return [];
-
-    const api = this.apiSuggestions();
-    const local = this.localNames();
-    const normalizedInput = this.normalizeName(q);
-
-    // Prefer API suggestions
-    if (api.length > 0) {
-      return api.filter((n) => this.normalizeName(n) !== normalizedInput).slice(0, 8);
-    }
-
-    // Fallback to local list
-    if (local.some((n) => this.normalizeName(n) === normalizedInput)) return [];
-
-    return local
-      .filter((n) => this.isSuggestionMatch(q, n))
+    const q = this.normalize(this.name());
+    if (!q) return [];
+    if (this.nameIndex().has(q)) return [];
+    return this.nameEntries()
+      .filter(({ key }) => key.includes(q))
       .sort((a, b) => {
-        const aStarts = this.normalizeName(a).startsWith(normalizedInput) ? 0 : 1;
-        const bStarts = this.normalizeName(b).startsWith(normalizedInput) ? 0 : 1;
-        return aStarts - bStarts || a.localeCompare(b);
+        const aStarts = a.key.startsWith(q) ? 0 : 1;
+        const bStarts = b.key.startsWith(q) ? 0 : 1;
+        return aStarts - bStarts || a.name.localeCompare(b.name);
       })
-      .slice(0, 8);
+      .slice(0, 8)
+      .map(({ name }) => name);
   });
 
-  /** "+"/"Save" only active with a valid ingredient name + amount > 0. */
-  readonly canAdd = computed(() => {
-    const trimmed = this.name().trim();
-    if (trimmed.length < 2 || this.amount() <= 0) return false;
+  /**
+   * The list entry the input resolves to – null if it is not a known
+   * ingredient. Only these names may end up in the draft.
+   */
+  readonly matchedName = computed(() => this.nameIndex().get(this.normalize(this.name())) ?? null);
 
-    const normalized = this.normalizeName(trimmed);
-    
-    // Already validated or in suggestions
-    if (this.validatedIngredients.has(normalized)) return true;
-    
-    const api = this.apiSuggestions();
-    const local = this.localNames();
-    
-    // If API has returned suggestions for this query, the ingredient is valid
-    // (e.g., typing "Watermelon" and getting suggestions means it exists)
-    if (api.length > 0) return true;
-    
-    // Check if it matches local list exactly
-    if (local.some((n) => this.normalizeName(n) === normalized)) return true;
-    
-    // Fallback to fuzzy local validation
-    return this.isAcceptedIngredientName(trimmed, local);
-  });
+  /** Shown once the typed text can no longer become a known ingredient. */
+  readonly showUnknownHint = computed(
+    () => this.name().trim().length > 0 && !this.matchedName() && this.suggestions().length === 0
+  );
+
+  /** "+"/"Save" only active for a known ingredient with amount > 0. */
+  readonly canAdd = computed(() => this.matchedName() !== null && this.amount() > 0);
 
   /** "Next step" only active when at least one ingredient is present. */
   readonly canContinue = computed(() => this.items().length > 0);
@@ -145,8 +107,21 @@ export class Ingredients {
   /** Adopts an autocomplete suggestion into the name field. */
   pick(name: string): void {
     this.name.set(name);
-    // Mark as validated
-    this.validatedIngredients.add(this.normalizeName(name));
+  }
+
+  /** Enter adds a valid ingredient, otherwise it adopts the first suggestion. */
+  onEnter(): void {
+    if (this.canAdd()) {
+      this.addOrUpdate();
+      return;
+    }
+    const first = this.suggestions()[0];
+    if (first) this.pick(first);
+  }
+
+  /** Ignores case, spacing and punctuation ("olive-oil" → "oliveoil"). */
+  private normalize(value: string): string {
+    return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '');
   }
 
   /** Opens/closes the unit dropdown. */
@@ -176,14 +151,10 @@ export class Ingredients {
 
   /** Adds the current input – or overwrites the edited row. */
   addOrUpdate(): void {
-    const trimmed = this.name().trim();
-    if (!this.canAdd()) return;
-
-    // Mark as validated for future use
-    this.validatedIngredients.add(this.normalizeName(trimmed));
-
+    const matched = this.matchedName();
+    if (!matched || !this.canAdd()) return;
     const entry: Ingredient = {
-      name: trimmed,
+      name: matched,
       amount: this.amount(),
       unit: this.unit()
     };
@@ -195,57 +166,6 @@ export class Ingredients {
       return copy;
     });
     this.reset();
-  }
-
-  private normalizeName(value: string): string {
-    return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '');
-  }
-
-  private isAcceptedIngredientName(value: string, localList: string[]): boolean {
-    const normalizedInput = this.normalizeName(value);
-    if (!normalizedInput || normalizedInput.length < 2) return false;
-
-    const normalizedNames = localList.map((name) => this.normalizeName(name));
-    if (normalizedNames.includes(normalizedInput)) return true;
-
-    return normalizedNames.some((name) => this.isCloseMatch(normalizedInput, name));
-  }
-
-  private isSuggestionMatch(input: string, candidate: string): boolean {
-    const normalizedInput = this.normalizeName(input);
-    const normalizedCandidate = this.normalizeName(candidate);
-    if (!normalizedInput || !normalizedCandidate) return false;
-    if (normalizedCandidate.includes(normalizedInput)) return true;
-    if (normalizedInput.includes(normalizedCandidate)) return true;
-    return this.isCloseMatch(normalizedInput, normalizedCandidate);
-  }
-
-  private isCloseMatch(input: string, candidate: string): boolean {
-    if (input === candidate) return true;
-    if (input.length <= 2 || candidate.length <= 2) return false;
-    if (input.startsWith(candidate) || candidate.startsWith(input)) return true;
-    if (candidate.includes(input) || input.includes(candidate)) return true;
-    return this.levenshteinDistance(input, candidate) <= 3;
-  }
-
-  private levenshteinDistance(a: string, b: string): number {
-    const matrix = Array.from({ length: a.length + 1 }, () => Array(b.length + 1).fill(0));
-
-    for (let i = 0; i <= a.length; i++) matrix[i][0] = i;
-    for (let j = 0; j <= b.length; j++) matrix[0][j] = j;
-
-    for (let i = 1; i <= a.length; i++) {
-      for (let j = 1; j <= b.length; j++) {
-        const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-        matrix[i][j] = Math.min(
-          matrix[i - 1][j] + 1,
-          matrix[i][j - 1] + 1,
-          matrix[i - 1][j - 1] + cost
-        );
-      }
-    }
-
-    return matrix[a.length][b.length];
   }
 
   /** Loads a row back into the form for editing. */

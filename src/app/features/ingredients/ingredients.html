@@ -10,7 +10,7 @@
     <section class="card card--form" aria-label="Add an ingredient">
       <div class="form__labels">
         <span class="form__label">Ingredient</span>
-        <span class="form__label">Serving size</span>
+        <span class="form__label form__label--serving-desktop">Serving size</span>
       </div>
 
       <div class="form__row">
@@ -20,18 +20,23 @@
             type="text"
             placeholder="e.g. Pasta"
             autocomplete="off"
+            [class.is-invalid]="showUnknownHint()"
+            [attr.aria-invalid]="showUnknownHint()"
+            [attr.aria-describedby]="showUnknownHint() ? 'ingredient-hint' : null"
             [ngModel]="name()"
             (ngModelChange)="name.set($event)"
-            (keyup.enter)="addOrUpdate()" />
+            (keyup.enter)="onEnter()" />
 
           @if (suggestions().length) {
             <ul class="suggestions" role="listbox">
-              @for (s of suggestions(); track s) {
+              @for (s of suggestions(); track $index) {
                 <li class="suggestions__item" role="option" (click)="pick(s)">{{ s }}</li>
               }
             </ul>
           }
         </div>
+
+        <span class="form__label form__label--serving-mobile">Serving size</span>
 
         <input
           class="input input--amount"
@@ -87,6 +92,12 @@
           {{ editIndex() === null ? '+' : '✓' }}
         </button>
       </div>
+
+      @if (showUnknownHint()) {
+        <p class="form__hint" id="ingredient-hint" role="alert">
+          We don’t know “{{ name().trim() }}” — please pick an ingredient from the list.
+        </p>
+      }
     </section>
 
     <section class="card card--list" aria-label="Your ingredients">
