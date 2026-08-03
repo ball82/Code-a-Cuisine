@@ -2,7 +2,7 @@ import { Component, computed, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { Ingredient, Unit } from '../../core/models/ingredient';
-import { Direction, Recipe } from '../../core/models/recipe';
+import { Recipe } from '../../core/models/recipe';
 import { RecipeApi } from '../../core/services/recipe-api';
 import { RecipeStore } from '../../core/services/recipe-store';
 import { CookbookData } from '../../core/services/cookbook-data';
@@ -158,20 +158,11 @@ export class RecipeDetail {
   /** Additional ingredients in their original recipe amounts. */
   readonly extraIngredients = computed(() => this.recipe()?.extraIngredients ?? []);
 
-  /** Chef numbers from 1..cooks (for the "Cooking person" pills and the to-do columns). */
+  /** Chef numbers from 1..cooks (for the "Cooking person" pills). */
   readonly chefs = computed(() => {
     const r = this.recipe();
     return r ? Array.from({ length: r.cooks }, (_, i) => i + 1) : [];
   });
-
-  /**
-   * Steps of a specific cook, in chronological order (US9: an individual to-do
-   * list per person). The global step number is preserved so the temporal
-   * sequence remains recognizable across the columns.
-   */
-  stepsForChef(chef: number): Direction[] {
-    return this.recipe()?.directions.filter((d) => d.chef === chef) ?? [];
-  }
 
   /**
    * Sets up an effect that reacts reactively to the recipe: as soon as it is

@@ -389,31 +389,6 @@
   padding: 2rem clamp(1.5rem, 4vw, 3rem) 1.25rem;
 }
 
-.crew-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 3.5rem;
-  max-width: 45rem;
-  margin: 0 auto;
-  
-  @media (min-width: 40rem) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-.crew-column {
-  min-width: 0;
-}
-
-.step-list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 2.8rem;
-}
-
 .step-item {
   min-width: 0;
 }
@@ -463,6 +438,8 @@
   width: 100%;
   max-width: 62rem;
   margin: 0 auto;
+  padding: 0;
+  list-style: none;
   display: grid;
   grid-template-columns: 1fr;
   row-gap: 2.55rem;
@@ -496,14 +473,6 @@
 }
 
 @media (max-width: 39.99rem) {
-  .crew-grid {
-    gap: 2.5rem;
-  }
-
-  .step-list {
-    gap: 2rem;
-  }
-
   .step-item__text {
     margin-top: 1rem;
   }
