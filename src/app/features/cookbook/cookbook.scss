@@ -65,11 +65,16 @@
   display: flex;
   gap: 1rem;
   margin: 0;
-  padding: 0 0 0.5rem;
+  padding: 0;
   list-style: none;
   min-width: 0;
   overflow-x: auto;
-  scrollbar-width: thin;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .liked-list > li {
