@@ -3,11 +3,12 @@
 }
 
 .header {
-  width: min(100%, var(--header-max-width, var(--page-max-width)));
+  // Keep the logo aligned with the landing page hero.
+  width: min(100%, var(--page-max-width));
   margin-inline: auto;
   display: flex;
   flex-direction: column;
-  padding: clamp(1.5rem, 2.8vw, 2.5rem) clamp(1.5rem, 4.6vw, 4.2rem) 0;
+  padding: clamp(1.5rem, 6vw, 4rem) clamp(1.5rem, 6vw, 4rem) 0;
 }
 
 .header__top {
@@ -22,7 +23,7 @@
   display: inline-flex;
 
   img {
-    width: min(142px, 36vw);
+    width: clamp(7rem, 30vw, 9.5rem);
     height: auto;
   }
 }
@@ -66,14 +67,6 @@
 }
 
 @media (max-width: 59.375rem) {
-  .header {
-    padding-top: clamp(1rem, 2.3vw, 1.5rem);
-  }
-
-  .header__logo img {
-    width: min(150px, 36vw);
-  }
-
   .header__back {
     font-size: 0;
   }

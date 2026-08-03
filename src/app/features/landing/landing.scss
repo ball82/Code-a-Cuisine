@@ -60,16 +60,20 @@
 }
 
 .hero__cta {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   margin-top: 0.5rem;
-  padding: 0.75rem 1.75rem;
+  width: 183px;
+  min-height: 60px;
+  padding-inline: 1.5rem;
   background: var(--color-cream);
   color: var(--color-green-accent);
   font-family: var(--font-heading);
   font-weight: 500;
-  font-size: clamp(1rem, 3vw, 1.15rem);
+  font-size: 1.15rem;
   text-decoration: none;
-  border-radius: 6px;
+  border-radius: 0;
   transition: filter 0.2s ease, transform 0.2s ease;
 }
 
@@ -82,6 +86,15 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+}
+
+@media (min-width: 48rem) {
+  .hero__inspiration {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 2.5rem;
+  }
 }
 
 .hero__inspiration-question {
@@ -124,6 +137,15 @@
 }
 
 @media (min-width: 1400px) {
+  /*
+   * At 50% browser zoom the CSS viewport can become wider than the
+   * centered content area. Keep enough room for the plate cascade so it
+   * cannot cover the text in that case.
+   */
+  .hero__content {
+    max-width: min(57%, 34rem, calc(100% - var(--plate-size)));
+  }
+
   .hero__plates {
     right: max(2rem, calc((100vw - var(--page-max-width)) / 2 + 2rem));
   }
