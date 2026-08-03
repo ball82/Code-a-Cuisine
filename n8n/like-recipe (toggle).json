@@ -20,6 +20,31 @@
     },
     {
       "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ errors: $json.errors }) }}",
+        "options": {
+          "responseCode": 400,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -624,
+        320
+      ],
+      "id": "56d9feb2-5140-49a4-922b-c19eba5f63d2",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
         "jsCode": "// Body aus dem Webhook holen\nconst body = $json.body ?? {};\nconst errors = [];\n\nconst recipeId = body.recipeId;\nconst userId = body.userId;\n\n// Firestore-Auto-IDs = 20 Zeichen alphanumerisch.\n// Die Regex schliesst \"/\" und \"..\" aus -> keine Path-Injection moeglich.\nif (typeof recipeId !== 'string' || !/^[A-Za-z0-9]{20}$/.test(recipeId)) {\n  errors.push('recipeId fehlt oder hat ungueltiges Format');\n}\n\n// userId kommt vom Client (z.B. crypto.randomUUID() im localStorage).\n// Gleiche Absicherung: nur unbedenkliche Zeichen erlauben.\nif (typeof userId !== 'string' || !/^[A-Za-z0-9_-]{8,64}$/.test(userId)) {\n  errors.push('userId fehlt oder hat ungueltiges Format');\n}\n\nif (errors.length) {\n  return [{ json: { valid: false, errors } }];\n}\nreturn [{ json: { valid: true, recipeId, userId } }];"
       },
       "type": "n8n-nodes-base.code",
@@ -29,7 +54,7 @@
         192
       ],
       "id": "496ec4bf-cce5-4802-96cb-9d47f2e5a526",
-      "name": "Like validieren"
+      "name": "Validate Like"
     },
     {
       "parameters": {
@@ -63,32 +88,7 @@
         192
       ],
       "id": "8c01870d-4839-4068-900e-7a10771de197",
-      "name": "If"
-    },
-    {
-      "parameters": {
-        "respondWith": "json",
-        "responseBody": "={{ JSON.stringify({ errors: $json.errors }) }}",
-        "options": {
-          "responseCode": 400,
-          "responseHeaders": {
-            "entries": [
-              {
-                "name": "Content-Type",
-                "value": "application/json"
-              }
-            ]
-          }
-        }
-      },
-      "type": "n8n-nodes-base.respondToWebhook",
-      "typeVersion": 1.5,
-      "position": [
-        -624,
-        320
-      ],
-      "id": "56d9feb2-5140-49a4-922b-c19eba5f63d2",
-      "name": "Respond to Webhook"
+      "name": "Is Valid?"
     },
     {
       "parameters": {
@@ -111,7 +111,7 @@
         96
       ],
       "id": "bb5380c3-ae9c-45a8-bb44-e93c2da01a77",
-      "name": "Like-Status lesen",
+      "name": "Read Like Status",
       "credentials": {
         "googleApi": {
           "id": "cdvoQV6M9dZLN3MF",
@@ -121,7 +121,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const { recipeId, userId } = $('Like validieren').first().json;\n\nconst base = 'projects/code-a-cuisine-9c87f/databases/(default)/documents';\nconst likeDoc = `${base}/recipes/${recipeId}/likes/${userId}`;\nconst recipeDoc = `${base}/recipes/${recipeId}`;\n\n// 200 = Like-Dokument existiert bereits -> Unlike\n// 404 = noch kein Like -> Like setzen\nconst alreadyLiked = $json.statusCode === 200;\nconst delta = alreadyLiked ? '-1' : '1';\n\n// Zaehler auf dem Rezept atomar aendern\nconst counterWrite = {\n  update: { name: recipeDoc, fields: {} },\n  updateMask: { fieldPaths: [] },            // leere Maske = kein Feld ueberschreiben\n  updateTransforms: [{\n    fieldPath: 'likes',\n    increment: { integerValue: delta }\n  }],\n  currentDocument: { exists: true }          // nur wenn das Rezept existiert\n};\n\n// Like-Dokument anlegen bzw. loeschen.\n// Die Preconditions verhindern doppeltes Zaehlen bei Doppelklick/Race.\nconst likeWrite = alreadyLiked\n  ? {\n      delete: likeDoc,\n      currentDocument: { exists: true }\n    }\n  : {\n      update: {\n        name: likeDoc,\n        fields: { createdAt: { timestampValue: new Date().toISOString() } }\n      },\n      currentDocument: { exists: false }\n    };\n\n// Beide Writes in EINEM Commit = atomar (beides oder nichts)\nreturn [{\n  json: {\n    recipeId,\n    userId,\n    liked: !alreadyLiked,\n    writes: [likeWrite, counterWrite]\n  }\n}];"
+        "jsCode": "const { recipeId, userId } = $('Validate Like').first().json;\n\nconst base = 'projects/code-a-cuisine-9c87f/databases/(default)/documents';\nconst likeDoc = `${base}/recipes/${recipeId}/likes/${userId}`;\nconst recipeDoc = `${base}/recipes/${recipeId}`;\n\n// 200 = Like-Dokument existiert bereits -> Unlike\n// 404 = noch kein Like -> Like setzen\nconst alreadyLiked = $json.statusCode === 200;\nconst delta = alreadyLiked ? '-1' : '1';\n\n// Zaehler auf dem Rezept atomar aendern\nconst counterWrite = {\n  update: { name: recipeDoc, fields: {} },\n  updateMask: { fieldPaths: [] },            // leere Maske = kein Feld ueberschreiben\n  updateTransforms: [{\n    fieldPath: 'likes',\n    increment: { integerValue: delta }\n  }],\n  currentDocument: { exists: true }          // nur wenn das Rezept existiert\n};\n\n// Like-Dokument anlegen bzw. loeschen.\n// Die Preconditions verhindern doppeltes Zaehlen bei Doppelklick/Race.\nconst likeWrite = alreadyLiked\n  ? {\n      delete: likeDoc,\n      currentDocument: { exists: true }\n    }\n  : {\n      update: {\n        name: likeDoc,\n        fields: { createdAt: { timestampValue: new Date().toISOString() } }\n      },\n      currentDocument: { exists: false }\n    };\n\n// Beide Writes in EINEM Commit = atomar (beides oder nichts)\nreturn [{\n  json: {\n    recipeId,\n    userId,\n    liked: !alreadyLiked,\n    writes: [likeWrite, counterWrite]\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -130,7 +130,7 @@
         96
       ],
       "id": "0b18df32-8671-46eb-9dae-deb5765b8ca1",
-      "name": "Toggle-Commit bauen"
+      "name": "Build Toggle Commit"
     },
     {
       "parameters": {
@@ -150,7 +150,7 @@
         96
       ],
       "id": "e72e515c-b9e9-4ea6-959b-f453f8c54b87",
-      "name": "Like toggeln (Firestore Commit)",
+      "name": "Toggle Like (Firestore Commit)",
       "credentials": {
         "googleApi": {
           "id": "cdvoQV6M9dZLN3MF",
@@ -162,7 +162,7 @@
     {
       "parameters": {
         "respondWith": "json",
-        "responseBody": "={{ JSON.stringify({\n  recipeId: $('Toggle-Commit bauen').first().json.recipeId,\n  liked: $('Toggle-Commit bauen').first().json.liked,\n  likes: Number($json.writeResults[1].transformResults[0].integerValue)\n}) }}",
+        "responseBody": "={{ JSON.stringify({\n  recipeId: $('Build Toggle Commit').first().json.recipeId,\n  liked: $('Build Toggle Commit').first().json.liked,\n  likes: Number($json.writeResults[1].transformResults[0].integerValue)\n}) }}",
         "options": {
           "responseCode": 200,
           "responseHeaders": {
@@ -182,7 +182,7 @@
         0
       ],
       "id": "3ac88290-6d6d-4e87-8f90-ed43cbaed895",
-      "name": "Erfolgs-Ausgang"
+      "name": "Success Output"
     },
     {
       "parameters": {
@@ -207,7 +207,7 @@
         192
       ],
       "id": "5107fb52-7f02-40ee-b34b-041a0d3a7121",
-      "name": "Error-Ausgang"
+      "name": "Error Output"
     }
   ],
   "pinData": {},
@@ -216,29 +216,29 @@
       "main": [
         [
           {
-            "node": "Like validieren",
+            "node": "Validate Like",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Like validieren": {
+    "Validate Like": {
       "main": [
         [
           {
-            "node": "If",
+            "node": "Is Valid?",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "If": {
+    "Is Valid?": {
       "main": [
         [
           {
-            "node": "Like-Status lesen",
+            "node": "Read Like Status",
             "type": "main",
             "index": 0
           }
@@ -252,40 +252,40 @@
         ]
       ]
     },
-    "Like-Status lesen": {
+    "Read Like Status": {
       "main": [
         [
           {
-            "node": "Toggle-Commit bauen",
+            "node": "Build Toggle Commit",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Toggle-Commit bauen": {
+    "Build Toggle Commit": {
       "main": [
         [
           {
-            "node": "Like toggeln (Firestore Commit)",
+            "node": "Toggle Like (Firestore Commit)",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Like toggeln (Firestore Commit)": {
+    "Toggle Like (Firestore Commit)": {
       "main": [
         [
           {
-            "node": "Erfolgs-Ausgang",
+            "node": "Success Output",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "Error-Ausgang",
+            "node": "Error Output",
             "type": "main",
             "index": 0
           }
@@ -297,10 +297,9 @@
   "settings": {
     "executionOrder": "v1",
     "binaryMode": "separate",
-    "availableInMCP": false,
-    "errorWorkflow": "6lRfmxI5r30AU9ly"
+    "availableInMCP": false
   },
-  "versionId": "e074681c-97b4-4de0-a886-ebd45924c874",
+  "versionId": "f5e34a7b-628c-46b5-b568-d162b093a921",
   "meta": {
     "instanceId": "3e40def7fc85a5d9511cb2d48d14f2abc51334becff0ff239b4f61dca479cf16"
   },
