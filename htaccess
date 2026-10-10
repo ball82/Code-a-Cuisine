@@ -1,0 +1,110 @@
+# ============================================================
+#  Code à Cuisine — Apache-Konfiguration
+#  Diese Datei NACH dem Upload in ".htaccess" umbenennen!
+#  Ablegen im Ordner, in dem auch die index.html liegt
+#  (passend zu <base href="/sub/code-a-cuisine/">).
+# ============================================================
+
+# ------------------------------------------------------------
+# 1) SPA-Routing: Angular übernimmt alle Routen
+# ------------------------------------------------------------
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Muss zum <base href> der index.html passen:
+  RewriteBase /sub/code-a-cuisine/
+
+  # Existierende Dateien/Ordner (JS, CSS, Bilder, JSON) direkt ausliefern
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # Alles andere (/cookbook, /recipe/abc123, /imprint ...) an die index.html
+  RewriteRule ^ index.html [L]
+</IfModule>
+
+# ------------------------------------------------------------
+# 2) MIME-Typen (manche Shared-Hoster kennen diese nicht)
+# ------------------------------------------------------------
+<IfModule mod_mime.c>
+  AddType application/javascript        js mjs
+  AddType application/json              json
+  AddType image/svg+xml                 svg svgz
+  AddType application/manifest+json     webmanifest
+  AddType font/woff2                    woff2
+  AddType font/woff                     woff
+  AddType image/webp                    webp
+  AddType image/avif                    avif
+
+  AddCharset UTF-8 .html .css .js .json .svg
+</IfModule>
+
+# ------------------------------------------------------------
+# 3) Komprimierung
+# ------------------------------------------------------------
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/css text/xml
+  AddOutputFilterByType DEFLATE application/javascript application/json
+  AddOutputFilterByType DEFLATE image/svg+xml application/manifest+json
+  AddOutputFilterByType DEFLATE font/woff2 font/woff
+</IfModule>
+
+# ------------------------------------------------------------
+# 4) Caching
+#    Angular-Builds haben Hashes im Dateinamen (main-ABC123.js)
+#    → lange cachen. index.html NIE cachen, sonst sehen Nutzer
+#    nach einem Deploy weiterhin die alte Version.
+# ------------------------------------------------------------
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresDefault                          "access plus 1 month"
+  ExpiresByType text/css                  "access plus 1 year"
+  ExpiresByType application/javascript     "access plus 1 year"
+  ExpiresByType image/svg+xml             "access plus 1 month"
+  ExpiresByType image/png                 "access plus 1 month"
+  ExpiresByType image/jpeg                "access plus 1 month"
+  ExpiresByType image/webp                "access plus 1 month"
+  ExpiresByType font/woff2                "access plus 1 year"
+  ExpiresByType application/json          "access plus 1 day"
+  ExpiresByType text/html                 "access plus 0 seconds"
+</IfModule>
+
+<IfModule mod_headers.c>
+  # index.html immer frisch holen
+  <FilesMatch "\.(html)$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires "0"
+  </FilesMatch>
+
+  # gehashte Assets dürfen unbegrenzt im Browser-Cache bleiben
+  <FilesMatch "\.(js|mjs|css|woff2?|svg|png|jpe?g|webp|avif)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+
+  # ----------------------------------------------------------
+  # 5) Security-Header
+  # ----------------------------------------------------------
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+
+  # Server-Infos entfernen
+  Header unset X-Powered-By
+  Header always unset X-Powered-By
+</IfModule>
+
+# ------------------------------------------------------------
+# 6) Verzeichnis-Listing aus, Fehlerseite = SPA
+# ------------------------------------------------------------
+Options -Indexes
+DirectoryIndex index.html
+ErrorDocument 404 /sub/code-a-cuisine/index.html
+
+# Diese Datei selbst nicht ausliefern
+<IfModule mod_authz_core.c>
+  <FilesMatch "^\.?htaccess$">
+    Require all denied
+  </FilesMatch>
+</IfModule>
